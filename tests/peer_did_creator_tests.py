@@ -1,16 +1,10 @@
-import unittest
+import pytest
 
 
-class TestPeerDIDCreator(unittest.TestCase):
+class TestPeerDIDCreator:
 
     def test_create_numalgo_0(self):
         pass
 
-    def test_create_numalgo_1(self):
-        pass
-
     def test_create_numalgo_2(self):
         pass
-
-    if __name__ == '__main__':
-        unittest.main()

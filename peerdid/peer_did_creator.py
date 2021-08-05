@@ -1,17 +1,17 @@
 import re
+from typing import List
+from .types import PEER_DID, PublicKey
 
 
-class PeerDIDCreator:
-    PEER_DID_PATTERN = re.compile(r'^did:peer:[01](z)([1-9a-km-zA-HJ-NP-Z]{46,47})$')
+def is_peer_did(peer_did: PEER_DID) -> bool:
+    peer_did_pattern = re.compile(r'^did:peer:[01](z)([1-9a-km-zA-HJ-NP-Z]{46,47})$')
+    return bool(re.match(peer_did_pattern, peer_did))
 
-    @staticmethod
-    def create_numalgo_0(inception_key) -> str:
-        pass
 
-    @staticmethod
-    def create_numalgo_1(inception_key, genesis_doc) -> str:
-        pass
+def create_peer_did_numalgo_0(inception_key: PublicKey) -> PEER_DID:
+    pass
 
-    @staticmethod
-    def create_numalgo_2(inception_key, encryption_keys: list, signing_keys: list, endpoint) -> str:
-        pass
+
+def create_peer_did_numalgo_2(encryption_keys: List[PublicKey], signing_keys: List[PublicKey],
+                              service_endpoint: str) -> PEER_DID:
+    pass

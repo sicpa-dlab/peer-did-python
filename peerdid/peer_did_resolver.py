@@ -1,11 +1,5 @@
-from peerdid.types import JSON
+from peerdid.types import JSON, PEER_DID
 
 
-class PeerDIDResolver:
-    @staticmethod
-    def resolve(self, peer_did: str, version_id=None) -> JSON:
-        pass
-
-    @staticmethod
-    def save(self, peer_did: str, did_doc: JSON, version_id):
-        pass
+def resolve_peer_did(peer_did: PEER_DID, version_id=None) -> JSON:
+    pass

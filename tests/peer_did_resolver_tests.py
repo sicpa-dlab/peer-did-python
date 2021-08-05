@@ -1,13 +1,7 @@
-import unittest
+import pytest
 
 
-class TestPeerDIDResolver(unittest.TestCase):
-
-    def test_save(self):
-        pass
+class TestPeerDIDResolver:
 
     def test_resolve(self):
         pass
-
-    if __name__ == '__main__':
-        unittest.main()
