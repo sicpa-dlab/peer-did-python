@@ -1,10 +1,11 @@
+import pytest
 from peerdid.peer_did_creator import create_peer_did_numalgo_0, create_peer_did_numalgo_2
 from peerdid.peer_did_resolver import resolve_peer_did
 from peerdid.storage import FileStorage
 from peerdid.types import PublicKey, KeyType
 
 
-def demo_create_save_resolve_peer_did():
+def test_create_save_resolve_peer_did():
     encryption_keys = [PublicKey(encoded_value="Ez6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH",
                                  type=KeyType.X25519)]
     signing_keys = [PublicKey(
