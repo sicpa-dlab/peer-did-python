@@ -18,7 +18,7 @@ def is_peer_did(peer_did: PEER_DID) -> bool:
     return bool(re.match(peer_did_pattern, peer_did))
 
 
-def create_peer_did_numalgo_0(inception_key: PublicKeyAgreement) -> PEER_DID:
+def create_peer_did_numalgo_0(inception_key: PublicKeyAuthentication) -> PEER_DID:
     """
     Generates peer_did according to the zero algorithm
     (https://identity.foundation/peer-did-method-spec/index.html#generation-method)

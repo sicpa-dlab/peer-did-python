@@ -11,7 +11,7 @@ def test_create_save_resolve_peer_did():
         encoded_value="zXwpBnMdCm1cLmKuzgESn29nqnonp1ioqrQMRHNsmjMyppzx8xB2pv7cw8q1PdDacSrdWE3dtB9f7Nxk886mdzNFoPtY",
         type=KeyTypeAuthentication.ED25519)]
 
-    peer_did_algo_0 = create_peer_did_numalgo_0(inception_key=encryption_keys[0])
+    peer_did_algo_0 = create_peer_did_numalgo_0(inception_key=signing_keys[0])
     peer_did_algo_2 = create_peer_did_numalgo_2(encryption_keys=encryption_keys,
                                                 signing_keys=signing_keys,
                                                 service_endpoint="https://example.com/endpoint")
