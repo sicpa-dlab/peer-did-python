@@ -37,17 +37,19 @@ def create_peer_did_numalgo_2(encryption_keys: List[PublicKeyAgreement], signing
     For this type of algorithm did_doc can be obtained from peer_did
     :param encryption_keys: list of encryption keys
     :param signing_keys: list of signing keys
-    :param service_endpoint: string conforming to the DID specification (https://www.w3.org/TR/did-core/#services)
+    :param service_endpoint: JSON string conforming to the DID specification (https://www.w3.org/TR/did-core/#services)
     :return: generated peer_did
     """
     pass
 
 
-def resolve_peer_did(peer_did: PEER_DID) -> JSON:
+def resolve_peer_did(peer_did: PEER_DID, version_id=None) -> JSON:
     """
     Resolves did_doc from peer_did
     :param peer_did: peer_did to resolve
-    :return: resolved did_doc
+    :param version_id: a specific version of a DID doc. If value is default, version of DID doc will be latest.
+    version_id is not used for now, as we support only static layer where did doc never changes
+    :return: resolved did_doc as a JSON string
     """
     pass
 
