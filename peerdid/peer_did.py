@@ -62,6 +62,13 @@ def create_peer_did_numalgo_2(encryption_keys: List[PublicKeyAgreement], signing
 
 
 def encode_service(service: JSON) -> str:
+    """
+        Generates encoded service according to the second algorithm
+        (https://identity.foundation/peer-did-method-spec/index.html#generation-method)
+        For this type of algorithm did_doc can be obtained from peer_did
+        :param service: JSON string conforming to the DID specification (https://www.w3.org/TR/did-core/#services)
+        :return: encoded service
+        """
     service_to_encode = re.sub(r"[\n\t\s]*", "", service) \
         .replace("type", "t") \
         .replace("serviceEndpoint", "s") \
