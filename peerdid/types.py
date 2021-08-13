@@ -2,26 +2,25 @@ from dataclasses import dataclass
 from enum import Enum
 
 
-class KeyTypeAgreement(Enum):
-    X25519 = 1
-    SECP256K1 = 2
+class PublicKeyTypeAgreement(Enum):
+    X25519 = 0xec
 
 
-class KeyTypeAuthentication(Enum):
-    ED25519 = 1
-    SECP256K1 = 2
+class PublicKeyTypeAuthentication(Enum):
+    ED25519 = 0xed
+    SECP256K1 = 0xe7
 
 
 @dataclass
 class PublicKeyAgreement:
     encoded_value: str
-    type: KeyTypeAgreement
+    type: PublicKeyTypeAgreement
 
 
 @dataclass
 class PublicKeyAuthentication:
     encoded_value: str
-    type: KeyTypeAuthentication
+    type: PublicKeyTypeAuthentication
 
 
 JSON = str

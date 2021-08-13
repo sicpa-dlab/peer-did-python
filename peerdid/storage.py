@@ -34,16 +34,14 @@ class FileStorage(Storage):
         Saves data to a storage
         """
         file_path = os.path.join(self.peer_did_storage_folder, self.peer_did_filename + self.did_doc_file_extension)
-        f = open(file_path, "bw+")
-        f.write(data)
-        f.close()
+        with open(file_path, "bw+") as f:
+            f.write(data)
 
     def load(self) -> bytes:
         """
         Loads data from a storage
         """
         file_path = os.path.join(self.peer_did_storage_folder, self.peer_did_filename + self.did_doc_file_extension)
-        f = open(file_path, "rb")
-        data = f.read()
-        f.close()
-        return data
+        with open(file_path, "rb") as f:
+            data = f.read()
+            return data
