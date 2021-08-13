@@ -29,6 +29,13 @@ def encode_service(service: JSON) -> str:
 
 
 def decode_service(service: str, peer_did: PEER_DID) -> dict:
+    """
+    Decodes service according to Peer DID spec
+    (https://identity.foundation/peer-did-method-spec/index.html#example-2-abnf-for-peer-dids)
+    :param service: service to decode
+    :param peer_did: peer_did which will be used as an ID
+    :return: decoded service
+    """
     decoded_service = base64.b64decode(service)
     service_dict = json.loads(decoded_service)
     service_dict.pop('t')
@@ -53,20 +60,36 @@ def create_encnumbasis(key: Union[PublicKeyAgreement, PublicKeyAuthentication]) 
 
 
 def decode_encnumbasis(encnumbasis: str, peer_did: PEER_DID) -> dict:
+    """
+    Decodes encnumbasis
+    :param encnumbasis: encnumbasis to decode
+    :param peer_did: peer_did which will be used as an ID
+    :return: decoded encnumbasis
+    """
     decoded_encnumbasis = base58.b58decode(encnumbasis)
     codec = _get_codec(data=bytes(decoded_encnumbasis))
     decoded_encnumbasis_without_prefix = _remove_prefix(decoded_encnumbasis)
     public_key = base58.b58encode(decoded_encnumbasis_without_prefix).decode('utf-8')
-    return {'id': peer_did, 'type': codec, 'controller': peer_did, 'publicKeyBase58': public_key}
+    return {'id': peer_did + '#' + encnumbasis, 'type': codec, 'controller': peer_did, 'publicKeyBase58': public_key}
 
 
 def _remove_prefix(data: bytes) -> bytes:
+    """
+    Removes prefix from data
+    :param data: prefixed data
+    :return: data without prefix
+    """
     prefix_int = _extract_prefix(data)
     prefix = varint.encode(prefix_int)
     return data[len(prefix):]
 
 
 def _get_codec(data: bytes) -> str:
+    """
+    Gets codec from data
+    :param data: prefixed data
+    :return: codec name
+    """
     prefix = _extract_prefix(data)
     try:
         if prefix in set(item.value for item in PublicKeyTypeAuthentication):
@@ -78,6 +101,11 @@ def _get_codec(data: bytes) -> str:
 
 
 def _extract_prefix(data: bytes) -> int:
+    """
+    Extracts prefix from data
+    :param data: prefixed data
+    :return: prefix
+    """
     try:
         return varint.decode_bytes(data)
     except TypeError:
@@ -96,4 +124,9 @@ def _add_prefix(key_type: Union[PublicKeyTypeAgreement, PublicKeyTypeAuthenticat
 
 
 def encode_filename(filename: str) -> str:
+    """
+    Encodes filename to SHA-1 string
+    :param filename: name of file
+    :return: encoded filename as SHA-1 string
+    """
     return hashlib.sha1(filename.encode()).hexdigest()

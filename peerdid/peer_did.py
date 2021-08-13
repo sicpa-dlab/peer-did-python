@@ -75,7 +75,7 @@ def resolve_peer_did(peer_did: PEER_DID, version_id=None) -> JSON:
     if not is_peer_did(peer_did):
         raise ValueError('Wrong Peer DID')
     if peer_did[9] == '0':
-        inception_key = peer_did[12:]
+        inception_key = peer_did[11:]
         decoded_encnumbasis = decode_encnumbasis(inception_key, peer_did)
         did_doc = {
             'id': peer_did,

@@ -23,6 +23,11 @@ def test_create_save_resolve_peer_did():
                 }
                     ''')
 
+    print('peer_did_algo_0:' + peer_did_algo_0)
+    print('==================================')
+    print('peer_did_algo_2:' + peer_did_algo_2)
+    print('==================================')
+
     file_storage = FileStorage(peer_did_filename=encode_filename(peer_did_algo_2))
     save_peer_did(
         peer_did=peer_did_algo_2,
@@ -30,3 +35,6 @@ def test_create_save_resolve_peer_did():
 
     did_doc_algo_0 = resolve_peer_did(peer_did=peer_did_algo_0)
     did_doc_algo_2 = resolve_peer_did(peer_did=peer_did_algo_2)
+    print('did_doc_algo_0:' + did_doc_algo_0)
+    print('==================================')
+    print('did_doc_algo_2:' + did_doc_algo_2)

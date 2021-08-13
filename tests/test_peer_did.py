@@ -43,6 +43,10 @@ def test_create_numalgo_2_positive():
 
     peer_did_algo_2 = create_peer_did_numalgo_2(encryption_keys=encryption_keys, signing_keys=signing_keys,
                                                 service=service)
+    assert peer_did_algo_2 == 'did:peer:2.Ez6LSbysY2xFMRpGMhb7tFTLMpeuPRaqaWM1yECx2AtzE3KCc' \
+                              '.Vz6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V' \
+                              '.Vz6MkgoLTnTypo3tDRwCkZXSccTPHRLhF4ZnjhueYAFpEX6vg' \
+                              '.SeyJ0IjoiZG0iLCJzIjoiaHR0cHM6Ly9leGFtcGxlLmNvbS9lbmRwb2ludCIsInIiOlsiZGlkOmV4YW1wbGU6c29tZW1lZGlhdG9yI3NvbWVrZXkiXX0='
 
 
 def test_create_numalgo_2_wrong_encryption_key():
