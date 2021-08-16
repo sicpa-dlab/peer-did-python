@@ -1,9 +1,11 @@
 import json
 
+import pytest
+
 from peerdid.peer_did import resolve_peer_did
 
 
-def test_resolve_numalgo_2():
+def test_resolve_numalgo_2_positive():
     assert json.loads(resolve_peer_did(
         'did:peer:2'
         '.Ez6LSbysY2xFMRpGMhb7tFTLMpeuPRaqaWM1yECx2AtzE3KCc'
@@ -48,7 +50,7 @@ def test_resolve_numalgo_2():
        }''')
 
 
-def test_resolve_numalgo_0():
+def test_resolve_numalgo_0_positive():
     assert json.loads(resolve_peer_did('did:peer:0z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V')) \
            == \
            json.loads('''{
@@ -60,3 +62,8 @@ def test_resolve_numalgo_0():
         "publicKeyBase58": "ByHnpUCFb1vAfh9CFZ8ZkmUZguURW8nSw889hy6rD8L7"
     }
 }''')
+
+
+def test_resolve_wrong_peer_did():
+    with pytest.raises(ValueError):
+        resolve_peer_did('000000')

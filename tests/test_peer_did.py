@@ -1,6 +1,6 @@
 import pytest
 
-from peerdid.peer_did import create_peer_did_numalgo_0, create_peer_did_numalgo_2
+from peerdid.peer_did import create_peer_did_numalgo_0, create_peer_did_numalgo_2, is_peer_did
 from peerdid.peer_did_utils import encode_service
 from peerdid.types import PublicKeyAgreement, PublicKeyAuthentication, PublicKeyTypeAgreement, \
     PublicKeyTypeAuthentication
@@ -13,6 +13,7 @@ def test_create_numalgo_0_positive():
 
     peer_did_algo_0 = create_peer_did_numalgo_0(inception_key=signing_keys[0])
     assert peer_did_algo_0 == "did:peer:0z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V"
+    assert is_peer_did(peer_did_algo_0)
 
 
 def test_create_numalgo_0_wrong_inception_key():
@@ -20,8 +21,8 @@ def test_create_numalgo_0_wrong_inception_key():
         encoded_value="zx8xB2pv7cw8q1PdDacS",
         type=PublicKeyTypeAuthentication.ED25519)
 
-    with pytest.raises(ValueError):
-        peer_did_algo_0 = create_peer_did_numalgo_0(inception_key=inception_key)
+    peer_did = create_peer_did_numalgo_0(inception_key=inception_key)
+    assert not is_peer_did(peer_did)
 
 
 def test_create_numalgo_2_positive():
@@ -47,6 +48,7 @@ def test_create_numalgo_2_positive():
                               '.Vz6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V' \
                               '.Vz6MkgoLTnTypo3tDRwCkZXSccTPHRLhF4ZnjhueYAFpEX6vg' \
                               '.SeyJ0IjoiZG0iLCJzIjoiaHR0cHM6Ly9leGFtcGxlLmNvbS9lbmRwb2ludCIsInIiOlsiZGlkOmV4YW1wbGU6c29tZW1lZGlhdG9yI3NvbWVrZXkiXX0='
+    assert is_peer_did(peer_did_algo_2)
 
 
 def test_create_numalgo_2_wrong_encryption_key():

@@ -7,7 +7,7 @@ from peerdid.types import PublicKeyAuthentication, PublicKeyAgreement, PublicKey
 
 
 def test_create_save_resolve_peer_did():
-    encryption_keys = [PublicKeyAgreement(encoded_value="JhNWeSVLMYccCk7iopQW4guaSJTojqpMEELgSLhKwRr",
+    encryption_keys = [PublicKeyAgreement(encoded_value="DmgBSHMqaZiYqwNMEJJuxWzsGGC8jUYADrfSdBrC6L8s",
                                           type=PublicKeyTypeAgreement.X25519)]
     signing_keys = [PublicKeyAuthentication(
         encoded_value="ByHnpUCFb1vAfh9CFZ8ZkmUZguURW8nSw889hy6rD8L7",

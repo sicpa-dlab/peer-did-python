@@ -13,12 +13,12 @@ from peerdid.types import JSON, PublicKeyAgreement, PublicKeyAuthentication, Pub
 
 def encode_service(service: JSON) -> str:
     """
-        Generates encoded service according to the second algorithm
-        (https://identity.foundation/peer-did-method-spec/index.html#generation-method)
-        For this type of algorithm did_doc can be obtained from peer_did
-        :param service: JSON string conforming to the DID specification (https://www.w3.org/TR/did-core/#services)
-        :return: encoded service
-        """
+    Generates encoded service according to the second algorithm
+    (https://identity.foundation/peer-did-method-spec/index.html#generation-method)
+    For this type of algorithm did_doc can be obtained from peer_did
+    :param service: JSON string conforming to the DID specification (https://www.w3.org/TR/did-core/#services)
+    :return: encoded service
+    """
     service_to_encode = re.sub(r"[\n\t\s]*", "", service) \
         .replace("type", "t") \
         .replace("serviceEndpoint", "s") \
@@ -88,6 +88,7 @@ def _get_codec(data: bytes) -> str:
     """
     Gets codec from data
     :param data: prefixed data
+    :raises ValueError: if prefix is not supported
     :return: codec name
     """
     prefix = _extract_prefix(data)
@@ -104,6 +105,7 @@ def _extract_prefix(data: bytes) -> int:
     """
     Extracts prefix from data
     :param data: prefixed data
+    :raises ValueError: if invalid varint provided
     :return: prefix
     """
     try:
