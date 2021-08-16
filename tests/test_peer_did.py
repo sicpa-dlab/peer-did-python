@@ -51,6 +51,48 @@ def test_create_numalgo_2_positive():
     assert is_peer_did(peer_did_algo_2)
 
 
+def test_create_numalgo_2_without_encryption_keys():
+    encryption_keys = []
+    signing_keys = [
+        PublicKeyAuthentication(
+            encoded_value="ByHnpUCFb1vAfh9CFZ8ZkmUZguURW8nSw889hy6rD8L7",
+            type=PublicKeyTypeAuthentication.ED25519),
+        PublicKeyAuthentication(
+            encoded_value="3M5RCDjPTWPkKSN3sxUmmMqHbmRPegYP1tjcKyrDbt9J",
+            type=PublicKeyTypeAuthentication.ED25519)]
+    service = '''{
+        "type": "didcommmessaging",
+        "serviceEndpoint": "https://example.com/endpoint",
+        "routingKeys": ["did:example:somemediator#somekey"]
+        }
+        '''
+
+    peer_did_algo_2 = create_peer_did_numalgo_2(encryption_keys=encryption_keys, signing_keys=signing_keys,
+                                                service=service)
+    assert peer_did_algo_2 == 'did:peer:2.Vz6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V' \
+                              '.Vz6MkgoLTnTypo3tDRwCkZXSccTPHRLhF4ZnjhueYAFpEX6vg' \
+                              '.SeyJ0IjoiZG0iLCJzIjoiaHR0cHM6Ly9leGFtcGxlLmNvbS9lbmRwb2ludCIsInIiOlsiZGlkOmV4YW1wbGU6c29tZW1lZGlhdG9yI3NvbWVrZXkiXX0='
+    assert is_peer_did(peer_did_algo_2)
+
+
+def test_create_numalgo_2_without_signing_keys():
+    encryption_keys = [PublicKeyAgreement(encoded_value="JhNWeSVLMYccCk7iopQW4guaSJTojqpMEELgSLhKwRr",
+                                          type=PublicKeyTypeAgreement.X25519)]
+    signing_keys = []
+    service = '''{
+        "type": "didcommmessaging",
+        "serviceEndpoint": "https://example.com/endpoint",
+        "routingKeys": ["did:example:somemediator#somekey"]
+        }
+        '''
+
+    peer_did_algo_2 = create_peer_did_numalgo_2(encryption_keys=encryption_keys, signing_keys=signing_keys,
+                                                service=service)
+    assert peer_did_algo_2 == 'did:peer:2.Ez6LSbysY2xFMRpGMhb7tFTLMpeuPRaqaWM1yECx2AtzE3KCc' \
+                              '.SeyJ0IjoiZG0iLCJzIjoiaHR0cHM6Ly9leGFtcGxlLmNvbS9lbmRwb2ludCIsInIiOlsiZGlkOmV4YW1wbGU6c29tZW1lZGlhdG9yI3NvbWVrZXkiXX0='
+    assert is_peer_did(peer_did_algo_2)
+
+
 def test_create_numalgo_2_wrong_encryption_key():
     encryption_keys = [PublicKeyAgreement(encoded_value="....",
                                           type=PublicKeyTypeAgreement.X25519)]

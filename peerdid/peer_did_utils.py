@@ -132,3 +132,36 @@ def encode_filename(filename: str) -> str:
     :return: encoded filename as SHA-1 string
     """
     return hashlib.sha1(filename.encode()).hexdigest()
+
+
+def __build_did_doc_numalgo_0(peer_did: PEER_DID) -> dict:
+    inception_key = peer_did[11:]
+    decoded_encnumbasis = decode_encnumbasis(inception_key, peer_did)
+    did_doc = {
+        'id': peer_did,
+        'authentication': decoded_encnumbasis
+    }
+    return did_doc
+
+
+def __build_did_doc_numalgo_2(peer_did: PEER_DID) -> dict:
+    keys = peer_did[11:]
+    keys = keys.split('.')
+    services = []
+    keys_without_purpose_code = []
+    for key in keys:
+        if key[0] != 'S':
+            keys_without_purpose_code.append(key[2:])
+        else:
+            services.append(key[1:])
+    decoded_encnumbasises = [decode_encnumbasis(key, peer_did) for key in keys_without_purpose_code]
+    decoded_service = [decode_service(service, peer_did) for service in services]
+    did_doc = {
+        'id': peer_did,
+        'authentication': [encnumbasis for encnumbasis in decoded_encnumbasises if
+                           encnumbasis['type'] in PublicKeyTypeAuthentication.__members__],
+        'keyAgreement': [encnumbasis for encnumbasis in decoded_encnumbasises if
+                         encnumbasis['type'] in PublicKeyTypeAgreement.__members__],
+        'service': decoded_service
+    }
+    return did_doc

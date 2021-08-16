@@ -2,11 +2,10 @@ import json
 import re
 from typing import List, Optional
 
-from peerdid.peer_did_utils import encode_service, create_encnumbasis, encode_filename, decode_encnumbasis, \
-    decode_service
+from peerdid.peer_did_utils import encode_service, create_encnumbasis, encode_filename, \
+    __build_did_doc_numalgo_0, __build_did_doc_numalgo_2
 from peerdid.storage import Storage, FileStorage
-from peerdid.types import PEER_DID, PublicKeyAgreement, PublicKeyAuthentication, JSON, PublicKeyTypeAgreement, \
-    PublicKeyTypeAuthentication
+from peerdid.types import PEER_DID, PublicKeyAgreement, PublicKeyAuthentication, JSON
 
 
 def is_peer_did(peer_did: PEER_DID) -> bool:
@@ -58,9 +57,12 @@ def create_peer_did_numalgo_2(encryption_keys: List[PublicKeyAgreement], signing
     for key in signing_keys:
         if not isinstance(key, PublicKeyAuthentication):
             raise TypeError(f'Wrong type of signing_key {key}: {str(type(key))}')
-
-    encryption_keys_str = '.Ez' + '.Ez'.join(create_encnumbasis(key) for key in encryption_keys)
-    signing_keys_str = '.Vz' + '.Vz'.join(create_encnumbasis(key) for key in signing_keys)
+    encryption_keys_str = ''
+    if encryption_keys:
+        encryption_keys_str = '.Ez' + '.Ez'.join(create_encnumbasis(key) for key in encryption_keys)
+    signing_keys_str = ''
+    if signing_keys:
+        signing_keys_str = '.Vz' + '.Vz'.join(create_encnumbasis(key) for key in signing_keys)
     service = encode_service(service)
 
     peer_did = 'did:peer:2' + encryption_keys_str + signing_keys_str + service
@@ -79,34 +81,9 @@ def resolve_peer_did(peer_did: PEER_DID, version_id=None) -> JSON:
     if not is_peer_did(peer_did):
         raise ValueError('Wrong Peer DID')
     if peer_did[9] == '0':
-        inception_key = peer_did[11:]
-        decoded_encnumbasis = decode_encnumbasis(inception_key, peer_did)
-        did_doc = {
-            'id': peer_did,
-            'authentication': decoded_encnumbasis
-        }
-        return json.dumps(did_doc, indent=4)
+        return json.dumps(__build_did_doc_numalgo_0(peer_did=peer_did), indent=4)
     if peer_did[9] == '2':
-        keys = peer_did[11:]
-        keys = keys.split('.')
-        services = []
-        keys_without_purpose_code = []
-        for key in keys:
-            if key[0] != 'S':
-                keys_without_purpose_code.append(key[2:])
-            else:
-                services.append(key[1:])
-        decoded_encnumbasises = [decode_encnumbasis(key, peer_did) for key in keys_without_purpose_code]
-        decoded_service = [decode_service(service, peer_did) for service in services]
-        did_doc = {
-            'id': peer_did,
-            'authentication': [encnumbasis for encnumbasis in decoded_encnumbasises if
-                               encnumbasis['type'] in PublicKeyTypeAuthentication.__members__],
-            'keyAgreement': [encnumbasis for encnumbasis in decoded_encnumbasises if
-                             encnumbasis['type'] in PublicKeyTypeAgreement.__members__],
-            'service': decoded_service
-        }
-        return json.dumps(did_doc, indent=4)
+        return json.dumps(__build_did_doc_numalgo_2(peer_did=peer_did), indent=4)
 
 
 def save_peer_did(peer_did: PEER_DID, storage: Optional[Storage] = None):
