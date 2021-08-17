@@ -50,7 +50,7 @@ def _decode_service(service: str, peer_did: PEER_DID) -> dict:
     return service_dict
 
 
-def create_encnumbasis(key: Union[PublicKeyAgreement, PublicKeyAuthentication]) -> str:
+def _create_encnumbasis(key: Union[PublicKeyAgreement, PublicKeyAuthentication]) -> str:
     """
     Creates encnumbasis according to Peer DID spec
     (https://identity.foundation/peer-did-method-spec/index.html#method-specific-identifier)
@@ -63,7 +63,7 @@ def create_encnumbasis(key: Union[PublicKeyAgreement, PublicKeyAuthentication]) 
     return encnumbasis.decode('utf-8')
 
 
-def decode_encnumbasis(encnumbasis: str, peer_did: PEER_DID) -> dict:
+def _decode_encnumbasis(encnumbasis: str, peer_did: PEER_DID) -> dict:
     """
     Decodes encnumbasis
     :param encnumbasis: encnumbasis to decode
@@ -145,7 +145,7 @@ def _build_did_doc_numalgo_0(peer_did: PEER_DID) -> dict:
     :return: did_doc
     """
     inception_key = peer_did[11:]
-    decoded_encnumbasis = decode_encnumbasis(inception_key, peer_did)
+    decoded_encnumbasis = _decode_encnumbasis(inception_key, peer_did)
     if not decoded_encnumbasis['type'] in PublicKeyTypeAuthentication.__members__:
         raise ValueError('Invalid key type (encryption instead of signing)')
     did_doc = {
@@ -170,7 +170,7 @@ def _build_did_doc_numalgo_2(peer_did: PEER_DID) -> dict:
             keys_without_purpose_code.append(key[2:])
         else:
             services.append(key[1:])
-    decoded_encnumbasises = [decode_encnumbasis(key, peer_did) for key in keys_without_purpose_code]
+    decoded_encnumbasises = [_decode_encnumbasis(key, peer_did) for key in keys_without_purpose_code]
     decoded_services = [_decode_service(service, peer_did) for service in services]
 
     authentication = []

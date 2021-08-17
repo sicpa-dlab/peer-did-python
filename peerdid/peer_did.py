@@ -2,7 +2,7 @@ import json
 import re
 from typing import List, Union
 
-from peerdid.peer_did_utils import _encode_service, create_encnumbasis, \
+from peerdid.peer_did_utils import _encode_service, _create_encnumbasis, \
     _build_did_doc_numalgo_0, _build_did_doc_numalgo_2, _check_if_base58_encoded
 from peerdid.types import PEER_DID, PublicKeyAgreement, PublicKeyAuthentication, JSON
 
@@ -36,7 +36,7 @@ def create_peer_did_numalgo_0(inception_key: PublicKeyAuthentication) -> PEER_DI
         raise TypeError(f"Wrong type of inception_key: {str(type(inception_key))}. Expected: PublicKeyAuthentication")
     if not _check_if_base58_encoded(inception_key.encoded_value):
         raise ValueError(f"Inception key is not base58 encoded")
-    peer_did = 'did:peer:0z' + create_encnumbasis(inception_key)
+    peer_did = 'did:peer:0z' + _create_encnumbasis(inception_key)
     return peer_did
 
 
@@ -72,10 +72,10 @@ def create_peer_did_numalgo_2(encryption_keys: List[PublicKeyAgreement], signing
             services = [services]
     encryption_keys_str = ''
     if encryption_keys:
-        encryption_keys_str = '.Ez' + '.Ez'.join(create_encnumbasis(key) for key in encryption_keys)
+        encryption_keys_str = '.Ez' + '.Ez'.join(_create_encnumbasis(key) for key in encryption_keys)
     signing_keys_str = ''
     if signing_keys:
-        signing_keys_str = '.Vz' + '.Vz'.join(create_encnumbasis(key) for key in signing_keys)
+        signing_keys_str = '.Vz' + '.Vz'.join(_create_encnumbasis(key) for key in signing_keys)
     services_str = ''
     if services:
         services_str = ''.join([_encode_service(service) for service in services])
