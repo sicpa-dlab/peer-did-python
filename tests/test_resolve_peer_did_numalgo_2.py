@@ -5,6 +5,62 @@ import pytest
 from peerdid.peer_did import resolve_peer_did
 
 
+def test_resolve_numalgo_2_unsupported_transform_code():
+    with pytest.raises(ValueError):
+        resolve_peer_did('did:peer:2.Ea6LSbysY2xFMRpGMhb7tFTLMpeuPRaqaWM1yECx2AtzE3KCc'
+                         '.Va6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V'
+                         '.SeyJ0IjoiZG0iLCJzIjoiaHR0cHM6Ly9leGFtcGxlLmNvbS9lbmRwb2ludCIsInIiOlsiZGlkOmV4YW1wbGU6c29tZW1lZGlhdG9yI3NvbWVrZXkiXX0=')
+
+
+def test_resolve_numalgo_2_signing_malformed_base58_encoding():
+    with pytest.raises(ValueError):
+        resolve_peer_did('did:peer:2.Ez6LSbysY2xFMRpGMhb7tFTLMpeuPRaqaWM1yECx2AtzE3KCc'
+                         '.Vz6MkqRYqQiSgvZQdnBytw86Qbs0ZWUkGv22od935YF4s8M7V'
+                         '.SeyJ0IjoiZG0iLCJzIjoiaHR0cHM6Ly9leGFtcGxlLmNvbS9lbmRwb2ludCIsInIiOlsiZGlkOmV4YW1wbGU6c29tZW1lZGlhdG9yI3NvbWVrZXkiXX0=')
+
+
+def test_resolve_numalgo_2_encryption_malformed_base58_encoding():
+    with pytest.raises(ValueError):
+        resolve_peer_did('did:peer:2.Ez6LSbysY2xFMRpG0hb7tFTLMpeuPRaqaWM1yECx2AtzE3KCc'
+                         '.Vz6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V'
+                         '.SeyJ0IjoiZG0iLCJzIjoiaHR0cHM6Ly9leGFtcGxlLmNvbS9lbmRwb2ludCIsInIiOlsiZGlkOmV4YW1wbGU6c29tZW1lZGlhdG9yI3NvbWVrZXkiXX0=')
+
+
+def test_resolve_numalgo_2_signing_malformed_multicodec_encoding():
+    with pytest.raises(ValueError):
+        resolve_peer_did('did:peer:2.Ez6LSbysY2xFMRpGMhb7tFTLMpeuPRaqaWM1yECx2AtzE3KCc'
+                         '.Vz6666YqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V'
+                         '.SeyJ0IjoiZG0iLCJzIjoiaHR0cHM6Ly9leGFtcGxlLmNvbS9lbmRwb2ludCIsInIiOlsiZGlkOmV4YW1wbGU6c29tZW1lZGlhdG9yI3NvbWVrZXkiXX0=')
+
+
+def test_resolve_numalgo_2_encryption_malformed_multicodec_encoding():
+    with pytest.raises(ValueError):
+        resolve_peer_did('did:peer:2.Ez7777sY2xFMRpGMhb7tFTLMpeuPRaqaWM1yECx2AtzE3KCc'
+                         '.Vz6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V'
+                         '.SeyJ0IjoiZG0iLCJzIjoiaHR0cHM6Ly9leGFtcGxlLmNvbS9lbmRwb2ludCIsInIiOlsiZGlkOmV4YW1wbGU6c29tZW1lZGlhdG9yI3NvbWVrZXkiXX0=')
+
+
+def test_resolve_numalgo_2_signing_invalid_key_type():
+    with pytest.raises(ValueError):
+        print(resolve_peer_did('did:peer:2.Vz6LSbysY2xFMRpGMhb7tFTLMpeuPRaqaWM1yECx2AtzE3KCc'
+                               '.Vz6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V'
+                               '.SeyJ0IjoiZG0iLCJzIjoiaHR0cHM6Ly9leGFtcGxlLmNvbS9lbmRwb2ludCIsInIiOlsiZGlkOmV4YW1wbGU6c29tZW1lZGlhdG9yI3NvbWVrZXkiXX0='))
+
+
+def test_resolve_numalgo_2_encryption_invalid_key_type():
+    with pytest.raises(ValueError):
+        resolve_peer_did('did:peer:2.Ez6LSbysY2xFMRpGMhb7tFTLMpeuPRaqaWM1yECx2AtzE3KCc'
+                         '.Ez6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V'
+                         '.SeyJ0IjoiZG0iLCJzIjoiaHR0cHM6Ly9leGFtcGxlLmNvbS9lbmRwb2ludCIsInIiOlsiZGlkOmV4YW1wbGU6c29tZW1lZGlhdG9yI3NvbWVrZXkiXX0=')
+
+
+def test_resolve_numalgo_2_malformed_service_encoding():
+    with pytest.raises(ValueError):
+        resolve_peer_did('did:peer:2.Ea6LSbysY2xFMRpGMhb7tFTLMpeuPRaqaWM1yECx2AtzE3KCc'
+                         '.Va6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V'
+                         '.SeyJ0IjoiZG0iLCJzIjoiaHR0cHM6Ly9\\GxlLmNvbS9lbmRwb2ludCIsInIiOlsiZGlkOmV4YW1wbGU6c29tZW1lZGlhdG9yI3NvbWVrZXkiXX0=')
+
+
 def test_resolve_numalgo_2_positive():
     assert json.loads(resolve_peer_did(
         'did:peer:2'
@@ -48,22 +104,3 @@ def test_resolve_numalgo_2_positive():
                }
            ]
        }''')
-
-
-def test_resolve_numalgo_0_positive():
-    assert json.loads(resolve_peer_did('did:peer:0z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V')) \
-           == \
-           json.loads('''{
-    "id": "did:peer:0z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
-    "authentication": {
-        "id": "did:peer:0z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V#6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
-        "type": "ED25519",
-        "controller": "did:peer:0z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
-        "publicKeyBase58": "ByHnpUCFb1vAfh9CFZ8ZkmUZguURW8nSw889hy6rD8L7"
-    }
-}''')
-
-
-def test_resolve_wrong_peer_did():
-    with pytest.raises(ValueError):
-        resolve_peer_did('000000')
