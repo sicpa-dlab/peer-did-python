@@ -42,13 +42,16 @@ def _decode_service(service: str, peer_did: PEER_DID) -> dict:
     if not is_peer_did(peer_did):
         raise ValueError('Invalid peer_did')
     decoded_service = base64.b64decode(service)
-    service_dict = json.loads(decoded_service)
-    type = service_dict.pop('t').replace("dm", 'didcommmessaging')
-    service_dict['id'] = peer_did + f'#{type}'
-    service_dict['type'] = type
-    service_dict['serviceEndpoint'] = service_dict.pop('s')
-    service_dict['routingKeys'] = service_dict.pop('r')
-    return service_dict
+    list_of_service_dict = json.loads(decoded_service)
+    if not isinstance(list_of_service_dict, list):
+        list_of_service_dict = [list_of_service_dict]
+    for service in list_of_service_dict:
+        type = service.pop('t').replace("dm", 'didcommmessaging')
+        service['id'] = peer_did + f'#{type}'
+        service['type'] = type
+        service['serviceEndpoint'] = service.pop('s')
+        service['routingKeys'] = service.pop('r')
+    return list_of_service_dict
 
 
 def _create_encnumbasis(key: Union[PublicKeyAgreement, PublicKeyAuthentication]) -> str:
@@ -129,7 +132,7 @@ def _add_prefix(key_type: Union[PublicKeyTypeAgreement, PublicKeyTypeAuthenticat
     return b''.join([prefix, data])
 
 
-def encode_filename(filename: str) -> str:
+def _encode_filename(filename: str) -> str:
     """
     Encodes filename to SHA256 string
     :param filename: name of file
@@ -169,15 +172,15 @@ def _build_did_doc_numalgo_2(peer_did: PEER_DID) -> dict:
     """
     keys = peer_did[11:]
     keys = keys.split('.')
-    services = []
+    services = ''
     keys_without_purpose_code = []
     for key in keys:
         if key[0] != 'S':
             keys_without_purpose_code.append(key[2:])
         else:
-            services.append(key[1:])
+            services = key[1:]
     decoded_encnumbasises = [_decode_encnumbasis(key, peer_did) for key in keys_without_purpose_code]
-    decoded_services = [_decode_service(service, peer_did) for service in services]
+    decoded_services = _decode_service(services, peer_did)
 
     authentication = []
     key_agreement = []

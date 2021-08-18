@@ -1,9 +1,9 @@
 import json
 import re
-from typing import List, Union
+from typing import List
 
 from peerdid.peer_did_utils import _encode_service, _create_encnumbasis, \
-    _build_did_doc_numalgo_0, _build_did_doc_numalgo_2, _check_key_encoding
+    _build_did_doc_numalgo_0, _build_did_doc_numalgo_2, _check_key_encoding, _decode_service
 from peerdid.types import PEER_DID, PublicKeyAgreement, PublicKeyAuthentication, JSON
 
 
@@ -41,14 +41,14 @@ def create_peer_did_numalgo_0(inception_key: PublicKeyAuthentication) -> PEER_DI
 
 
 def create_peer_did_numalgo_2(encryption_keys: List[PublicKeyAgreement], signing_keys: List[PublicKeyAuthentication],
-                              services: Union[List[JSON], JSON]) -> PEER_DID:
+                              services: JSON) -> PEER_DID:
     """
     Generates peer_did according to the second algorithm
     (https://identity.foundation/peer-did-method-spec/index.html#generation-method)
     For this type of algorithm did_doc can be obtained from peer_did
     :param encryption_keys: list of encryption keys
     :param signing_keys: list of signing keys
-    :param services: List of JSON string conforming to the DID specification (https://www.w3.org/TR/did-core/#services)
+    :param services: JSON string conforming to the DID specification (https://www.w3.org/TR/did-core/#services)
     :raises TypeError:If at least one of encryption keys is not instance of PublicKeyAgreement
         or at least one of signing keys is not instance of PublicKeyAuthentication
     :raises ValueError: if at least one of keys is not properly encoded
@@ -64,11 +64,7 @@ def create_peer_did_numalgo_2(encryption_keys: List[PublicKeyAgreement], signing
             raise TypeError(f'Wrong type of signing_key {key}: {str(type(key))}')
         if not _check_key_encoding(key.encoded_value):
             raise ValueError(f"Signing key: {key} is not base58 encoded")
-    if not isinstance(services, list):
-        if services == '':
-            services = []
-        else:
-            services = json.loads(services)
+    services = json.loads(services)
     encryption_keys_str = ''
     if encryption_keys:
         encryption_keys_str = '.Ez' + '.Ez'.join(_create_encnumbasis(key) for key in encryption_keys)
@@ -77,7 +73,7 @@ def create_peer_did_numalgo_2(encryption_keys: List[PublicKeyAgreement], signing
         signing_keys_str = '.Vz' + '.Vz'.join(_create_encnumbasis(key) for key in signing_keys)
     services_str = ''
     if services:
-        services_str = ''.join([_encode_service(str(service)) for service in services])
+        services_str = _encode_service(str(services))
 
     peer_did = 'did:peer:2' + encryption_keys_str + signing_keys_str + services_str
     return peer_did
