@@ -55,6 +55,7 @@ def create_peer_did_numalgo_2(encryption_keys: List[PublicKeyAgreement], signing
     :param encryption_keys: list of encryption keys
     :param signing_keys: list of signing keys
     :param service: JSON string conforming to the DID specification (https://www.w3.org/TR/did-core/#services)
+        or None if there is no services expected for this DID
 
     :raises TypeError:
         1. if at least one of encryption keys is not instance of PublicKeyAgreement or
@@ -83,15 +84,10 @@ def create_peer_did_numalgo_2(encryption_keys: List[PublicKeyAgreement], signing
         raise TypeError('Service is not JSON type') from exte
     except ValueError as exve:
         raise ValueError('Service is not valid JSON') from exve
-    encryption_keys_str = ''
-    if encryption_keys:
-        encryption_keys_str = '.Ez' + '.Ez'.join(_create_encnumbasis(key) for key in encryption_keys)
-    signing_keys_str = ''
-    if signing_keys:
-        signing_keys_str = '.Vz' + '.Vz'.join(_create_encnumbasis(key) for key in signing_keys)
-    service_str = ''
-    if service:
-        service_str = _encode_service(service)
+    encryption_keys_str = '.Ez' + '.Ez'.join(
+        _create_encnumbasis(key) for key in encryption_keys) if encryption_keys else ''
+    signing_keys_str = '.Vz' + '.Vz'.join(_create_encnumbasis(key) for key in signing_keys) if signing_keys else ''
+    service_str = _encode_service(service) if service else ''
 
     peer_did = 'did:peer:2' + encryption_keys_str + signing_keys_str + service_str
     return peer_did
