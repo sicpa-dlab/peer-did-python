@@ -176,36 +176,6 @@ def test_create_numalgo_2_signing_key_as_encryption():
                                                     service=service)
 
 
-def test_create_numalgo_2_service_is_an_array():
-    encryption_keys = [PublicKeyAgreement(encoded_value="JhNWeSVLMYccCk7iopQW4guaSJTojqpMEELgSLhKwRr",
-                                          type=PublicKeyTypeAgreement.X25519, encoding_type=EncodingType.BASE58)]
-    signing_keys = [
-        PublicKeyAuthentication(
-            encoded_value="ByHnpUCFb1vAfh9CFZ8ZkmUZguURW8nSw889hy6rD8L7",
-            type=PublicKeyTypeAuthentication.ED25519, encoding_type=EncodingType.BASE58),
-        PublicKeyAuthentication(
-            encoded_value="3M5RCDjPTWPkKSN3sxUmmMqHbmRPegYP1tjcKyrDbt9J",
-            type=PublicKeyTypeAuthentication.ED25519, encoding_type=EncodingType.BASE58)]
-    service = '''
-            [
-                {
-                    "type": "didcommmessaging",
-                    "serviceEndpoint": "https://example.com/endpoint",
-                    "routingKeys": ["did:example:somemediator#somekey"]
-                },
-                {
-                    "type": "didcommmessaging",
-                    "serviceEndpoint": "https://example.com/endpoint2",
-                    "routingKeys": ["did:example:somemediator#somekey2"]
-                }
-            ]
-            '''
-
-    peer_did_algo_2 = create_peer_did_numalgo_2(encryption_keys=encryption_keys, signing_keys=signing_keys,
-                                                service=service)
-    assert is_peer_did(peer_did_algo_2)
-
-
 def test_create_numalgo_2_service_is_None():
     encryption_keys = [PublicKeyAgreement(encoded_value="JhNWeSVLMYccCk7iopQW4guaSJTojqpMEELgSLhKwRr",
                                           type=PublicKeyTypeAgreement.X25519, encoding_type=EncodingType.BASE58)]
@@ -220,6 +190,9 @@ def test_create_numalgo_2_service_is_None():
 
     peer_did_algo_2 = create_peer_did_numalgo_2(encryption_keys=encryption_keys, signing_keys=signing_keys,
                                                 service=service)
+    assert peer_did_algo_2 == 'did:peer:2.Ez6LSbysY2xFMRpGMhb7tFTLMpeuPRaqaWM1yECx2AtzE3KCc' \
+                              '.Vz6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V' \
+                              '.Vz6MkgoLTnTypo3tDRwCkZXSccTPHRLhF4ZnjhueYAFpEX6vg'
     assert is_peer_did(peer_did_algo_2)
 
 
