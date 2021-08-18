@@ -1,7 +1,6 @@
-import json
 import pytest
 
-from peerdid.peer_did import create_peer_did_numalgo_0, is_peer_did, resolve_peer_did
+from peerdid.peer_did import create_peer_did_numalgo_0, is_peer_did
 from peerdid.types import PublicKeyAuthentication, PublicKeyTypeAuthentication, PublicKeyAgreement, \
     PublicKeyTypeAgreement
 
@@ -59,17 +58,3 @@ def test_create_numalgo_0_invalid_inception_key_type():
 
     with pytest.raises(TypeError):
         peer_did_algo_0 = create_peer_did_numalgo_0(inception_key=signing_keys[0])
-
-
-def test_resolve_numalgo_0_positive():
-    assert json.loads(resolve_peer_did('did:peer:0z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V')) \
-           == \
-           json.loads('''{
-    "id": "did:peer:0z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
-    "authentication": {
-        "id": "did:peer:0z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V#6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
-        "type": "ED25519",
-        "controller": "did:peer:0z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
-        "publicKeyBase58": "ByHnpUCFb1vAfh9CFZ8ZkmUZguURW8nSw889hy6rD8L7"
-    }
-}''')

@@ -353,6 +353,35 @@ def test_create_numalgo_2_different_types_of_services():
     assert is_peer_did(peer_did_algo_2)
 
 
+def test_create_numalgo_2_services_str():
+    encryption_keys = [PublicKeyAgreement(encoded_value="JhNWeSVLMYccCk7iopQW4guaSJTojqpMEELgSLhKwRr",
+                                          type=PublicKeyTypeAgreement.X25519)]
+    signing_keys = [
+        PublicKeyAuthentication(
+            encoded_value="ByHnpUCFb1vAfh9CFZ8ZkmUZguURW8nSw889hy6rD8L7",
+            type=PublicKeyTypeAuthentication.ED25519),
+        PublicKeyAuthentication(
+            encoded_value="3M5RCDjPTWPkKSN3sxUmmMqHbmRPegYP1tjcKyrDbt9J",
+            type=PublicKeyTypeAuthentication.ED25519)]
+    services = '''[
+              {
+                  "type": "example1",
+                  "serviceEndpoint": "https://example.com/endpoint",
+                  "routingKeys": ["did:example:somemediator#somekey"]
+              },
+            {
+                "type": "example2",
+                "serviceEndpoint": "https://example.com/endpoint2",
+                "routingKeys": ["did:example:somemediator#somekey2"]
+            }
+            ]
+            '''
+
+    peer_did_algo_2 = create_peer_did_numalgo_2(encryption_keys=encryption_keys, signing_keys=signing_keys,
+                                                services=services)
+    assert is_peer_did(peer_did_algo_2)
+
+
 def test_create_numalgo_2_malformed_encryption_key_not_base58_encoded():
     encryption_keys = [PublicKeyAgreement(encoded_value="JhNWeSVLMYcc0k7iopQW4guaSJTojqpMEELgSLhKwRr",
                                           type=PublicKeyTypeAgreement.X25519)]

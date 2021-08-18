@@ -20,6 +20,7 @@ def _encode_service(service: JSON) -> str:
     :return: encoded service
     """
     service_to_encode = re.sub(r"[\n\t\s]*", "", service) \
+        .replace('\'', '\"') \
         .replace("type", "t") \
         .replace("serviceEndpoint", "s") \
         .replace("didcommmessaging", 'dm') \
@@ -141,10 +142,15 @@ def _build_did_doc_numalgo_0(peer_did: PEER_DID) -> dict:
     """
     Helper method to create did_doc according to numalgo 0
     :param peer_did: peer_did to resolve
-    :raises ValueError: if peer_did contains encryption key instead of signing
+    :raises ValueError:
+    1) if peer_did contains encryption key instead of signing
+    2) if peer_did contains unsupported transform part
     :return: did_doc
     """
     inception_key = peer_did[11:]
+    transform = peer_did[10]
+    if not transform == 'z':
+        raise ValueError(f'Unsupported transform part of peer_did: {transform}')
     decoded_encnumbasis = _decode_encnumbasis(inception_key, peer_did)
     if not decoded_encnumbasis['type'] in PublicKeyTypeAuthentication.__members__:
         raise ValueError('Invalid key type (encryption instead of signing)')
@@ -191,7 +197,7 @@ def _build_did_doc_numalgo_2(peer_did: PEER_DID) -> dict:
     return did_doc
 
 
-def _check_if_base58_encoded(key: str) -> bool:
+def _check_key_encoding(key: str) -> bool:
     """
     Checks if key base58 encoded
     :param key: any string

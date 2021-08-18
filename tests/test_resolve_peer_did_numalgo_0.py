@@ -1,6 +1,26 @@
+import json
+
 import pytest
 
 from peerdid.peer_did import resolve_peer_did
+
+
+def test_resolve_positive():
+    expected_value = json.loads(
+        '''
+           {
+               "id": "did:peer:0z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
+               "authentication": {
+                   "id": "did:peer:0z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V#6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
+                   "type": "ED25519",
+                   "controller": "did:peer:0z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
+                   "publicKeyBase58": "ByHnpUCFb1vAfh9CFZ8ZkmUZguURW8nSw889hy6rD8L7"
+               }
+           }
+        ''')
+
+    real_value = json.loads(resolve_peer_did(peer_did='did:peer:0z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V'))
+    assert real_value == expected_value
 
 
 def test_resolve_unsupported_did_method():

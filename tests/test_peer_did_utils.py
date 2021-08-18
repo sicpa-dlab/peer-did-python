@@ -1,5 +1,3 @@
-import pytest
-
 from peerdid.peer_did_utils import _encode_service
 
 
@@ -25,7 +23,7 @@ def test_encode_service_without_routing_keys():
         service) == ".SeyJ0IjoiZG0iLCJzIjoiaHR0cHM6Ly9leGFtcGxlLmNvbS9lbmRwb2ludCIsfQ=="
 
 
-def test_encode_service_with_multiple_entries():
+def test_encode_service_with_multiple_entries_list():
     services = ['''
             {
                 "type": "didcommmessaging",
