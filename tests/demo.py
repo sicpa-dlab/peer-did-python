@@ -15,7 +15,7 @@ def test_create_save_resolve_peer_did():
     peer_did_algo_0 = create_peer_did_numalgo_0(inception_key=signing_keys[0])
     peer_did_algo_2 = create_peer_did_numalgo_2(encryption_keys=encryption_keys,
                                                 signing_keys=signing_keys,
-                                                services='''
+                                                service='''
                                                 [
                                                     {
                                                         "type": "didcommmessaging",

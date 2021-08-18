@@ -24,23 +24,22 @@ def test_encode_service_without_routing_keys():
 
 
 def test_encode_service_with_multiple_entries_list():
-    services = ['''
-            {
-                "type": "didcommmessaging",
-                "serviceEndpoint": "https://example.com/endpoint",
-                "routingKeys": ["did:example:somemediator#somekey"]
-            }
-            ''',
-                '''
-            {
-                "type": "didcommmessaging",
-                "serviceEndpoint": "https://example.com/endpoint2",
-                "routingKeys": ["did:example:somemediator#somekey2"]
-            }
+    services = '''
+            [
+                {
+                    "type": "didcommmessaging",
+                    "serviceEndpoint": "https://example.com/endpoint",
+                    "routingKeys": ["did:example:somemediator#somekey"]
+                },
+                {
+                    "type": "didcommmessaging",
+                    "serviceEndpoint": "https://example.com/endpoint2",
+                    "routingKeys": ["did:example:somemediator#somekey2"]
+                }
+            ]
             '''
-                ]
 
-    encoded_services = [_encode_service(service[2:]) for service in services]
-    assert encoded_services == [
-        '.SeyJ0IjoiZG0iLCJzIjoiaHR0cHM6Ly9leGFtcGxlLmNvbS9lbmRwb2ludCIsInIiOlsiZGlkOmV4YW1wbGU6c29tZW1lZGlhdG9yI3NvbWVrZXkiXX0=',
-        '.SeyJ0IjoiZG0iLCJzIjoiaHR0cHM6Ly9leGFtcGxlLmNvbS9lbmRwb2ludDIiLCJyIjpbImRpZDpleGFtcGxlOnNvbWVtZWRpYXRvciNzb21la2V5MiJdfQ==']
+    encoded_services = _encode_service(services)
+    assert encoded_services == '.SW3sidCI6ImRtIiwicyI6Imh0dHBzOi8vZXhhbXBsZS5jb20vZW5kcG9pbnQiLCJyIjpbImRpZDpleGFtcGxlO' \
+                               'nNvbWVtZWRpYXRvciNzb21la2V5Il19LHsidCI6ImRtIiwicyI6Imh0dHBzOi8vZXhhbXBsZS5jb20vZW5kcG9p' \
+                               'bnQyIiwiciI6WyJkaWQ6ZXhhbXBsZTpzb21lbWVkaWF0b3Ijc29tZWtleTIiXX1d'
