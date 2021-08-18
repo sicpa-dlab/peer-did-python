@@ -200,7 +200,7 @@ def _build_did_doc_numalgo_2(peer_did: PEER_DID) -> dict:
     return did_doc
 
 
-def _check_key_encoding(key: str, encoding_type: EncodingType) -> bool:
+def _check_key_correctly_encoded(key: str, encoding_type: EncodingType) -> bool:
     """
     Checks if key correctly encoded
     :param key: any string
@@ -208,14 +208,25 @@ def _check_key_encoding(key: str, encoding_type: EncodingType) -> bool:
     :return: true if key correctly encoded, otherwise false
     """
     if not encoding_type == EncodingType.BASE58:
-        raise TypeError('Unsupported encoding')
+        return False
     alphabet = set('123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz')
     byte_lengths = (32,)
     invalid_chars = set(key) - alphabet
     if invalid_chars:
-        raise ValueError(f'should not contain the following chars {invalid_chars}')
-    if byte_lengths is not None:
-        b58len = len(base58.b58decode(key))
-        if b58len not in byte_lengths:
-            raise ValueError(f'b58 decoded value length {b58len}, should be 32')
-        return True
+        return False
+    b58len = len(base58.b58decode(key))
+    if b58len not in byte_lengths:
+        return False
+    return True
+
+
+def _is_json(str_to_check: str) -> bool:
+    """
+    Checks if str is JSON
+    :param str_to_check: sting to check
+    :return: true if str is JSON, otherwise raises ValueError or TypeError
+    :raises TypeError: if str_to_check is not str type
+    :raises ValueError: if str_to_check is not valid JSON
+    """
+    json.loads(str_to_check)
+    return True

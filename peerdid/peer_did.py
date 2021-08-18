@@ -3,7 +3,7 @@ import re
 from typing import List
 
 from peerdid.peer_did_utils import _encode_service, _create_encnumbasis, \
-    _build_did_doc_numalgo_0, _build_did_doc_numalgo_2, _check_key_encoding
+    _build_did_doc_numalgo_0, _build_did_doc_numalgo_2, _check_key_correctly_encoded, _is_json
 from peerdid.types import PEER_DID, PublicKeyAgreement, PublicKeyAuthentication, JSON
 
 
@@ -29,12 +29,12 @@ def create_peer_did_numalgo_0(inception_key: PublicKeyAuthentication) -> PEER_DI
     For this type of algorithm did_doc can be obtained from peer_did
     :param inception_key: the key that creates the DID and authenticates when exchanging it with the first peer
     :raises TypeError: if the inception_key is not instance of PublicKeyAuthentication
-    :raises ValueError: if the inception_key is not instance correctly encoded
+    :raises ValueError: if the inception_key is not correctly encoded
     :return: generated peer_did
     """
     if not isinstance(inception_key, PublicKeyAuthentication):
         raise TypeError(f"Wrong type of inception_key: {str(type(inception_key))}. Expected: PublicKeyAuthentication")
-    if not _check_key_encoding(inception_key.encoded_value, inception_key.encoding_type):
+    if not _check_key_correctly_encoded(inception_key.encoded_value, inception_key.encoding_type):
         raise ValueError(f"Inception key is not correctly encoded")
     peer_did = 'did:peer:0z' + _create_encnumbasis(inception_key)
     return peer_did
@@ -49,22 +49,31 @@ def create_peer_did_numalgo_2(encryption_keys: List[PublicKeyAgreement], signing
     :param encryption_keys: list of encryption keys
     :param signing_keys: list of signing keys
     :param services: JSON string conforming to the DID specification (https://www.w3.org/TR/did-core/#services)
-    :raises TypeError:If at least one of encryption keys is not instance of PublicKeyAgreement
-        or at least one of signing keys is not instance of PublicKeyAuthentication
-    :raises ValueError: if at least one of keys is not properly encoded
+    :raises TypeError:
+    1) if at least one of encryption keys is not instance of PublicKeyAgreement
+    or at least one of signing keys is not instance of PublicKeyAuthentication
+    2) if service is not JSON type
+    :raises ValueError:
+    1) if at least one of keys is not properly encoded
+    2) if service is not valid JSON
     :return: generated peer_did
     """
     for key in encryption_keys:
         if not isinstance(key, PublicKeyAgreement):
             raise TypeError(f'Wrong type of encryption_key {key}: {str(type(key))}')
-        if not _check_key_encoding(key.encoded_value, key.encoding_type):
+        if not _check_key_correctly_encoded(key.encoded_value, key.encoding_type):
             raise ValueError(f"Encryption key: {key} is not correctly encoded")
     for key in signing_keys:
         if not isinstance(key, PublicKeyAuthentication):
             raise TypeError(f'Wrong type of signing_key {key}: {str(type(key))}')
-        if not _check_key_encoding(key.encoded_value, key.encoding_type):
+        if not _check_key_correctly_encoded(key.encoded_value, key.encoding_type):
             raise ValueError(f"Signing key: {key} is not correctly encoded")
-    services = json.loads(services)
+    try:
+        _is_json(services)
+    except TypeError as exte:
+        raise TypeError('Service is not JSON type') from exte
+    except ValueError as exve:
+        raise ValueError('Service is not valid JSON') from exve
     encryption_keys_str = ''
     if encryption_keys:
         encryption_keys_str = '.Ez' + '.Ez'.join(_create_encnumbasis(key) for key in encryption_keys)
@@ -73,7 +82,7 @@ def create_peer_did_numalgo_2(encryption_keys: List[PublicKeyAgreement], signing
         signing_keys_str = '.Vz' + '.Vz'.join(_create_encnumbasis(key) for key in signing_keys)
     services_str = ''
     if services:
-        services_str = _encode_service(str(services))
+        services_str = _encode_service(services)
 
     peer_did = 'did:peer:2' + encryption_keys_str + signing_keys_str + services_str
     return peer_did
