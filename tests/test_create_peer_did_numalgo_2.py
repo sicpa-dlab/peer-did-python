@@ -2,19 +2,19 @@ import pytest
 
 from peerdid.peer_did import create_peer_did_numalgo_2, is_peer_did
 from peerdid.types import PublicKeyAgreement, PublicKeyTypeAgreement, PublicKeyAuthentication, \
-    PublicKeyTypeAuthentication
+    PublicKeyTypeAuthentication, EncodingType
 
 
 def test_create_numalgo_2_positive():
     encryption_keys = [PublicKeyAgreement(encoded_value="JhNWeSVLMYccCk7iopQW4guaSJTojqpMEELgSLhKwRr",
-                                          type=PublicKeyTypeAgreement.X25519)]
+                                          type=PublicKeyTypeAgreement.X25519, encoding_type=EncodingType.BASE58)]
     signing_keys = [
         PublicKeyAuthentication(
             encoded_value="ByHnpUCFb1vAfh9CFZ8ZkmUZguURW8nSw889hy6rD8L7",
-            type=PublicKeyTypeAuthentication.ED25519),
+            type=PublicKeyTypeAuthentication.ED25519, encoding_type=EncodingType.BASE58),
         PublicKeyAuthentication(
             encoded_value="3M5RCDjPTWPkKSN3sxUmmMqHbmRPegYP1tjcKyrDbt9J",
-            type=PublicKeyTypeAuthentication.ED25519)]
+            type=PublicKeyTypeAuthentication.ED25519, encoding_type=EncodingType.BASE58)]
     services = '''{
         "type": "didcommmessaging",
         "serviceEndpoint": "https://example.com/endpoint",
@@ -36,10 +36,10 @@ def test_create_numalgo_2_without_encryption_keys():
     signing_keys = [
         PublicKeyAuthentication(
             encoded_value="ByHnpUCFb1vAfh9CFZ8ZkmUZguURW8nSw889hy6rD8L7",
-            type=PublicKeyTypeAuthentication.ED25519),
+            type=PublicKeyTypeAuthentication.ED25519, encoding_type=EncodingType.BASE58),
         PublicKeyAuthentication(
             encoded_value="3M5RCDjPTWPkKSN3sxUmmMqHbmRPegYP1tjcKyrDbt9J",
-            type=PublicKeyTypeAuthentication.ED25519)]
+            type=PublicKeyTypeAuthentication.ED25519, encoding_type=EncodingType.BASE58)]
     services = '''{
         "type": "didcommmessaging",
         "serviceEndpoint": "https://example.com/endpoint",
@@ -57,7 +57,7 @@ def test_create_numalgo_2_without_encryption_keys():
 
 def test_create_numalgo_2_without_signing_keys():
     encryption_keys = [PublicKeyAgreement(encoded_value="JhNWeSVLMYccCk7iopQW4guaSJTojqpMEELgSLhKwRr",
-                                          type=PublicKeyTypeAgreement.X25519)]
+                                          type=PublicKeyTypeAgreement.X25519, encoding_type=EncodingType.BASE58)]
     signing_keys = []
     services = '''{
         "type": "didcommmessaging",
@@ -75,14 +75,14 @@ def test_create_numalgo_2_without_signing_keys():
 
 def test_create_numalgo_2_wrong_encryption_key():
     encryption_keys = [PublicKeyAgreement(encoded_value="....",
-                                          type=PublicKeyTypeAgreement.X25519)]
+                                          type=PublicKeyTypeAgreement.X25519, encoding_type=EncodingType.BASE58)]
     signing_keys = [
         PublicKeyAuthentication(
             encoded_value="zXwpBnMdCm1cLmKuzgESn29nqnonp1ioqrQMRHNsmjMypp",
-            type=PublicKeyTypeAuthentication.ED25519),
+            type=PublicKeyTypeAuthentication.ED25519, encoding_type=EncodingType.BASE58),
         PublicKeyAuthentication(
             encoded_value="zx8xB2pv7cw8q1PdDacSrdWE3dtB9f7Nxk886mdzNFoPtY",
-            type=PublicKeyTypeAuthentication.ED25519)]
+            type=PublicKeyTypeAuthentication.ED25519, encoding_type=EncodingType.BASE58)]
     services = '''{
         "type": "didcommmessaging",
         "serviceEndpoint": "https://example.com/endpoint",
@@ -97,14 +97,14 @@ def test_create_numalgo_2_wrong_encryption_key():
 
 def test_create_numalgo_2_wrong_signing_key():
     encryption_keys = [PublicKeyAgreement(encoded_value="6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH",
-                                          type=PublicKeyTypeAgreement.X25519)]
+                                          type=PublicKeyTypeAgreement.X25519, encoding_type=EncodingType.BASE58)]
     signing_keys = [
         PublicKeyAuthentication(
             encoded_value=".......",
-            type=PublicKeyTypeAuthentication.ED25519),
+            type=PublicKeyTypeAuthentication.ED25519, encoding_type=EncodingType.BASE58),
         PublicKeyAuthentication(
             encoded_value="zx8xB2pv7cw8q1PdDacSrdWE3dtB9f7Nxk886mdzNFoPtY",
-            type=PublicKeyTypeAuthentication.ED25519)]
+            type=PublicKeyTypeAuthentication.ED25519, encoding_type=EncodingType.BASE58)]
     services = '''{
         "type": "didcommmessaging",
         "serviceEndpoint": "https://example.com/endpoint",
@@ -119,14 +119,14 @@ def test_create_numalgo_2_wrong_signing_key():
 
 def test_create_numalgo_2_wrong_service():
     encryption_keys = [PublicKeyAgreement(encoded_value="6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH",
-                                          type=PublicKeyTypeAgreement.X25519)]
+                                          type=PublicKeyTypeAgreement.X25519, encoding_type=EncodingType.BASE58)]
     signing_keys = [
         PublicKeyAuthentication(
             encoded_value=".......",
-            type=PublicKeyTypeAuthentication.ED25519),
+            type=PublicKeyTypeAuthentication.ED25519, encoding_type=EncodingType.BASE58),
         PublicKeyAuthentication(
             encoded_value="zx8xB2pv7cw8q1PdDacSrdWE3dtB9f7Nxk886mdzNFoPtY",
-            type=PublicKeyTypeAuthentication.ED25519)]
+            type=PublicKeyTypeAuthentication.ED25519, encoding_type=EncodingType.BASE58)]
     services = '.......'
 
     with pytest.raises(ValueError):
@@ -136,14 +136,14 @@ def test_create_numalgo_2_wrong_service():
 
 def test_create_numalgo_2_encryption_key_as_signing():
     encryption_keys = [PublicKeyAgreement(encoded_value="6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH",
-                                          type=PublicKeyTypeAgreement.X25519)]
+                                          type=PublicKeyTypeAgreement.X25519, encoding_type=EncodingType.BASE58)]
     services = '''{
         "type": "didcommmessaging",
         "serviceEndpoint": "https://example.com/endpoint",
         "routingKeys": ["did:example:somemediator#somekey"]
         }
         '''
-    with pytest.raises(TypeError):
+    with pytest.raises(ValueError):
         peer_did_algo_2 = create_peer_did_numalgo_2(encryption_keys=encryption_keys, signing_keys=encryption_keys,
                                                     services=services)
 
@@ -152,10 +152,10 @@ def test_create_numalgo_2_signing_key_as_encryption():
     signing_keys = [
         PublicKeyAuthentication(
             encoded_value="zXwpBnMdCm1cLmKuzgESn29nqnonp1ioqrQMRHNsmjMypp",
-            type=PublicKeyTypeAuthentication.ED25519),
+            type=PublicKeyTypeAuthentication.ED25519, encoding_type=EncodingType.BASE58),
         PublicKeyAuthentication(
             encoded_value="zx8xB2pv7cw8q1PdDacSrdWE3dtB9f7Nxk886mdzNFoPtY",
-            type=PublicKeyTypeAuthentication.ED25519)]
+            type=PublicKeyTypeAuthentication.ED25519, encoding_type=EncodingType.BASE58)]
     services = '''{
         "type": "didcommmessaging",
         "serviceEndpoint": "https://example.com/endpoint",
@@ -169,14 +169,14 @@ def test_create_numalgo_2_signing_key_as_encryption():
 
 def test_create_numalgo_2_service_is_an_array():
     encryption_keys = [PublicKeyAgreement(encoded_value="JhNWeSVLMYccCk7iopQW4guaSJTojqpMEELgSLhKwRr",
-                                          type=PublicKeyTypeAgreement.X25519)]
+                                          type=PublicKeyTypeAgreement.X25519, encoding_type=EncodingType.BASE58)]
     signing_keys = [
         PublicKeyAuthentication(
             encoded_value="ByHnpUCFb1vAfh9CFZ8ZkmUZguURW8nSw889hy6rD8L7",
-            type=PublicKeyTypeAuthentication.ED25519),
+            type=PublicKeyTypeAuthentication.ED25519, encoding_type=EncodingType.BASE58),
         PublicKeyAuthentication(
             encoded_value="3M5RCDjPTWPkKSN3sxUmmMqHbmRPegYP1tjcKyrDbt9J",
-            type=PublicKeyTypeAuthentication.ED25519)]
+            type=PublicKeyTypeAuthentication.ED25519, encoding_type=EncodingType.BASE58)]
     services = '''
             [
                 {
@@ -199,10 +199,10 @@ def test_create_numalgo_2_service_is_an_array():
 
 def test_create_numalgo_2_encryption_and_signing_keys_are_1_element_array():
     encryption_keys = [PublicKeyAgreement(encoded_value="JhNWeSVLMYccCk7iopQW4guaSJTojqpMEELgSLhKwRr",
-                                          type=PublicKeyTypeAgreement.X25519)]
+                                          type=PublicKeyTypeAgreement.X25519, encoding_type=EncodingType.BASE58)]
     signing_keys = [PublicKeyAuthentication(
         encoded_value="3M5RCDjPTWPkKSN3sxUmmMqHbmRPegYP1tjcKyrDbt9J",
-        type=PublicKeyTypeAuthentication.ED25519)]
+        type=PublicKeyTypeAuthentication.ED25519, encoding_type=EncodingType.BASE58)]
     services = '''{
         "type": "didcommmessaging",
         "serviceEndpoint": "https://example.com/endpoint",
@@ -217,18 +217,18 @@ def test_create_numalgo_2_encryption_and_signing_keys_are_1_element_array():
 
 def test_create_numalgo_2_encryption_and_signing_keys_are_more_than_1_element_array():
     encryption_keys = [PublicKeyAgreement(encoded_value="JhNWeSVLMYccCk7iopQW4guaSJTojqpMEELgSLhKwRr",
-                                          type=PublicKeyTypeAgreement.X25519),
+                                          type=PublicKeyTypeAgreement.X25519, encoding_type=EncodingType.BASE58),
                        PublicKeyAgreement(
                            encoded_value="ByHnpUCFb1vAfh9CFZ8ZkmUZguURW8nSw889hy6rD8L7",
-                           type=PublicKeyTypeAgreement.X25519)
+                           type=PublicKeyTypeAgreement.X25519, encoding_type=EncodingType.BASE58)
                        ]
     signing_keys = [
         PublicKeyAuthentication(
             encoded_value="ByHnpUCFb1vAfh9CFZ8ZkmUZguURW8nSw889hy6rD8L7",
-            type=PublicKeyTypeAuthentication.ED25519),
+            type=PublicKeyTypeAuthentication.ED25519, encoding_type=EncodingType.BASE58),
         PublicKeyAuthentication(
             encoded_value="3M5RCDjPTWPkKSN3sxUmmMqHbmRPegYP1tjcKyrDbt9J",
-            type=PublicKeyTypeAuthentication.ED25519)]
+            type=PublicKeyTypeAuthentication.ED25519, encoding_type=EncodingType.BASE58)]
     services = '''{
         "type": "didcommmessaging",
         "serviceEndpoint": "https://example.com/endpoint",
@@ -243,14 +243,14 @@ def test_create_numalgo_2_encryption_and_signing_keys_are_more_than_1_element_ar
 
 def test_create_numalgo_2_service_has_more_fields_than_in_conversion_table():
     encryption_keys = [PublicKeyAgreement(encoded_value="JhNWeSVLMYccCk7iopQW4guaSJTojqpMEELgSLhKwRr",
-                                          type=PublicKeyTypeAgreement.X25519)]
+                                          type=PublicKeyTypeAgreement.X25519, encoding_type=EncodingType.BASE58)]
     signing_keys = [
         PublicKeyAuthentication(
             encoded_value="ByHnpUCFb1vAfh9CFZ8ZkmUZguURW8nSw889hy6rD8L7",
-            type=PublicKeyTypeAuthentication.ED25519),
+            type=PublicKeyTypeAuthentication.ED25519, encoding_type=EncodingType.BASE58),
         PublicKeyAuthentication(
             encoded_value="3M5RCDjPTWPkKSN3sxUmmMqHbmRPegYP1tjcKyrDbt9J",
-            type=PublicKeyTypeAuthentication.ED25519)]
+            type=PublicKeyTypeAuthentication.ED25519, encoding_type=EncodingType.BASE58)]
     services = '''{
         "type": "didcommmessaging",
         "serviceEndpoint": "https://example.com/endpoint",
@@ -267,14 +267,14 @@ def test_create_numalgo_2_service_has_more_fields_than_in_conversion_table():
 
 def test_create_numalgo_2_service_is_not_didcommmessaging():
     encryption_keys = [PublicKeyAgreement(encoded_value="JhNWeSVLMYccCk7iopQW4guaSJTojqpMEELgSLhKwRr",
-                                          type=PublicKeyTypeAgreement.X25519)]
+                                          type=PublicKeyTypeAgreement.X25519, encoding_type=EncodingType.BASE58)]
     signing_keys = [
         PublicKeyAuthentication(
             encoded_value="ByHnpUCFb1vAfh9CFZ8ZkmUZguURW8nSw889hy6rD8L7",
-            type=PublicKeyTypeAuthentication.ED25519),
+            type=PublicKeyTypeAuthentication.ED25519, encoding_type=EncodingType.BASE58),
         PublicKeyAuthentication(
             encoded_value="3M5RCDjPTWPkKSN3sxUmmMqHbmRPegYP1tjcKyrDbt9J",
-            type=PublicKeyTypeAuthentication.ED25519)]
+            type=PublicKeyTypeAuthentication.ED25519, encoding_type=EncodingType.BASE58)]
     services = '''{
         "type": "example1",
         "serviceEndpoint": "https://example.com/endpoint",
@@ -289,14 +289,14 @@ def test_create_numalgo_2_service_is_not_didcommmessaging():
 
 def test_create_numalgo_2_service_is_empty_string():
     encryption_keys = [PublicKeyAgreement(encoded_value="JhNWeSVLMYccCk7iopQW4guaSJTojqpMEELgSLhKwRr",
-                                          type=PublicKeyTypeAgreement.X25519)]
+                                          type=PublicKeyTypeAgreement.X25519, encoding_type=EncodingType.BASE58)]
     signing_keys = [
         PublicKeyAuthentication(
             encoded_value="ByHnpUCFb1vAfh9CFZ8ZkmUZguURW8nSw889hy6rD8L7",
-            type=PublicKeyTypeAuthentication.ED25519),
+            type=PublicKeyTypeAuthentication.ED25519, encoding_type=EncodingType.BASE58),
         PublicKeyAuthentication(
             encoded_value="3M5RCDjPTWPkKSN3sxUmmMqHbmRPegYP1tjcKyrDbt9J",
-            type=PublicKeyTypeAuthentication.ED25519)]
+            type=PublicKeyTypeAuthentication.ED25519, encoding_type=EncodingType.BASE58)]
     services = ''
 
     with pytest.raises(ValueError):
@@ -306,14 +306,14 @@ def test_create_numalgo_2_service_is_empty_string():
 
 def test_create_numalgo_2_service_is_empty_array():
     encryption_keys = [PublicKeyAgreement(encoded_value="JhNWeSVLMYccCk7iopQW4guaSJTojqpMEELgSLhKwRr",
-                                          type=PublicKeyTypeAgreement.X25519)]
+                                          type=PublicKeyTypeAgreement.X25519, encoding_type=EncodingType.BASE58)]
     signing_keys = [
         PublicKeyAuthentication(
             encoded_value="ByHnpUCFb1vAfh9CFZ8ZkmUZguURW8nSw889hy6rD8L7",
-            type=PublicKeyTypeAuthentication.ED25519),
+            type=PublicKeyTypeAuthentication.ED25519, encoding_type=EncodingType.BASE58),
         PublicKeyAuthentication(
             encoded_value="3M5RCDjPTWPkKSN3sxUmmMqHbmRPegYP1tjcKyrDbt9J",
-            type=PublicKeyTypeAuthentication.ED25519)]
+            type=PublicKeyTypeAuthentication.ED25519, encoding_type=EncodingType.BASE58)]
     services = []
 
     with pytest.raises(TypeError):
@@ -323,14 +323,14 @@ def test_create_numalgo_2_service_is_empty_array():
 
 def test_create_numalgo_2_different_types_of_services():
     encryption_keys = [PublicKeyAgreement(encoded_value="JhNWeSVLMYccCk7iopQW4guaSJTojqpMEELgSLhKwRr",
-                                          type=PublicKeyTypeAgreement.X25519)]
+                                          type=PublicKeyTypeAgreement.X25519, encoding_type=EncodingType.BASE58)]
     signing_keys = [
         PublicKeyAuthentication(
             encoded_value="ByHnpUCFb1vAfh9CFZ8ZkmUZguURW8nSw889hy6rD8L7",
-            type=PublicKeyTypeAuthentication.ED25519),
+            type=PublicKeyTypeAuthentication.ED25519, encoding_type=EncodingType.BASE58),
         PublicKeyAuthentication(
             encoded_value="3M5RCDjPTWPkKSN3sxUmmMqHbmRPegYP1tjcKyrDbt9J",
-            type=PublicKeyTypeAuthentication.ED25519)]
+            type=PublicKeyTypeAuthentication.ED25519, encoding_type=EncodingType.BASE58)]
     services = '''
         [
                   {
@@ -353,14 +353,14 @@ def test_create_numalgo_2_different_types_of_services():
 
 def test_create_numalgo_2_services_str():
     encryption_keys = [PublicKeyAgreement(encoded_value="JhNWeSVLMYccCk7iopQW4guaSJTojqpMEELgSLhKwRr",
-                                          type=PublicKeyTypeAgreement.X25519)]
+                                          type=PublicKeyTypeAgreement.X25519, encoding_type=EncodingType.BASE58)]
     signing_keys = [
         PublicKeyAuthentication(
             encoded_value="ByHnpUCFb1vAfh9CFZ8ZkmUZguURW8nSw889hy6rD8L7",
-            type=PublicKeyTypeAuthentication.ED25519),
+            type=PublicKeyTypeAuthentication.ED25519, encoding_type=EncodingType.BASE58),
         PublicKeyAuthentication(
             encoded_value="3M5RCDjPTWPkKSN3sxUmmMqHbmRPegYP1tjcKyrDbt9J",
-            type=PublicKeyTypeAuthentication.ED25519)]
+            type=PublicKeyTypeAuthentication.ED25519, encoding_type=EncodingType.BASE58)]
     services = '''
         [
             {
@@ -383,14 +383,14 @@ def test_create_numalgo_2_services_str():
 
 def test_create_numalgo_2_malformed_encryption_key_not_base58_encoded():
     encryption_keys = [PublicKeyAgreement(encoded_value="JhNWeSVLMYcc0k7iopQW4guaSJTojqpMEELgSLhKwRr",
-                                          type=PublicKeyTypeAgreement.X25519)]
+                                          type=PublicKeyTypeAgreement.X25519, encoding_type=EncodingType.BASE58)]
     signing_keys = [
         PublicKeyAuthentication(
             encoded_value="ByHnpUCFb1vAfh9CFZ8ZkmUZguURW8nSw889hy6rD8L7",
-            type=PublicKeyTypeAuthentication.ED25519),
+            type=PublicKeyTypeAuthentication.ED25519, encoding_type=EncodingType.BASE58),
         PublicKeyAuthentication(
             encoded_value="3M5RCDjPTWPkKSN3sxUmmMqHbmRPegYP1tjcKyrDbt9J",
-            type=PublicKeyTypeAuthentication.ED25519)]
+            type=PublicKeyTypeAuthentication.ED25519, encoding_type=EncodingType.BASE58)]
     services = '''{
             "type": "didcommmessaging",
             "serviceEndpoint": "https://example.com/endpoint",
@@ -404,56 +404,56 @@ def test_create_numalgo_2_malformed_encryption_key_not_base58_encoded():
 
 def test_create_numalgo_2_malformed_short_encryption_key():
     encryption_keys = [PublicKeyAgreement(encoded_value="JhNWeSV",
-                                          type=PublicKeyTypeAgreement.X25519)]
+                                          type=PublicKeyTypeAgreement.X25519, encoding_type=EncodingType.BASE58)]
     signing_keys = [
         PublicKeyAuthentication(
             encoded_value="ByHnpUCFb1vAfh9CFZ8ZkmUZguURW8nSw889hy6rD8L7",
-            type=PublicKeyTypeAuthentication.ED25519),
+            type=PublicKeyTypeAuthentication.ED25519, encoding_type=EncodingType.BASE58),
         PublicKeyAuthentication(
             encoded_value="3M5RCDjPTWPkKSN3sxUmmMqHbmRPegYP1tjcKyrDbt9J",
-            type=PublicKeyTypeAuthentication.ED25519)]
+            type=PublicKeyTypeAuthentication.ED25519, encoding_type=EncodingType.BASE58)]
     services = '''{
             "type": "didcommmessaging",
             "serviceEndpoint": "https://example.com/endpoint",
             "routingKeys": ["did:example:somemediator#somekey"]
             }
             '''
-    peer_did_algo_2 = create_peer_did_numalgo_2(encryption_keys=encryption_keys, signing_keys=signing_keys,
-                                                services=services)
-    assert not is_peer_did(peer_did_algo_2)
+    with pytest.raises(ValueError):
+        peer_did_algo_2 = create_peer_did_numalgo_2(encryption_keys=encryption_keys, signing_keys=signing_keys,
+                                                    services=services)
 
 
 def test_create_numalgo_2_malformed_long_encryption_key():
     encryption_keys = [PublicKeyAgreement(encoded_value="JhNWeSVJhNWeSVJhNWeSVJhNWeSVJhNWeSVJhNWeSVJhNWeSVJhNWeSVJhNWe",
-                                          type=PublicKeyTypeAgreement.X25519)]
+                                          type=PublicKeyTypeAgreement.X25519, encoding_type=EncodingType.BASE58)]
     signing_keys = [
         PublicKeyAuthentication(
             encoded_value="ByHnpUCFb1vAfh9CFZ8ZkmUZguURW8nSw889hy6rD8L7",
-            type=PublicKeyTypeAuthentication.ED25519),
+            type=PublicKeyTypeAuthentication.ED25519, encoding_type=EncodingType.BASE58),
         PublicKeyAuthentication(
             encoded_value="3M5RCDjPTWPkKSN3sxUmmMqHbmRPegYP1tjcKyrDbt9J",
-            type=PublicKeyTypeAuthentication.ED25519)]
+            type=PublicKeyTypeAuthentication.ED25519, encoding_type=EncodingType.BASE58)]
     services = '''{
             "type": "didcommmessaging",
             "serviceEndpoint": "https://example.com/endpoint",
             "routingKeys": ["did:example:somemediator#somekey"]
             }
             '''
-    peer_did_algo_2 = create_peer_did_numalgo_2(encryption_keys=encryption_keys, signing_keys=signing_keys,
-                                                services=services)
-    assert not is_peer_did(peer_did_algo_2)
+    with pytest.raises(ValueError):
+        peer_did_algo_2 = create_peer_did_numalgo_2(encryption_keys=encryption_keys, signing_keys=signing_keys,
+                                                    services=services)
 
 
 def test_create_numalgo_2_malformed_encryption_key_empty():
     encryption_keys = [PublicKeyAgreement(encoded_value="",
-                                          type=PublicKeyTypeAgreement.X25519)]
+                                          type=PublicKeyTypeAgreement.X25519, encoding_type=EncodingType.BASE58)]
     signing_keys = [
         PublicKeyAuthentication(
             encoded_value="ByHnpUCFb1vAfh9CFZ8ZkmUZguURW8nSw889hy6rD8L7",
-            type=PublicKeyTypeAuthentication.ED25519),
+            type=PublicKeyTypeAuthentication.ED25519, encoding_type=EncodingType.BASE58),
         PublicKeyAuthentication(
             encoded_value="3M5RCDjPTWPkKSN3sxUmmMqHbmRPegYP1tjcKyrDbt9J",
-            type=PublicKeyTypeAuthentication.ED25519)]
+            type=PublicKeyTypeAuthentication.ED25519, encoding_type=EncodingType.BASE58)]
     services = '''{
             "type": "didcommmessaging",
             "serviceEndpoint": "https://example.com/endpoint",
@@ -468,14 +468,14 @@ def test_create_numalgo_2_malformed_encryption_key_empty():
 def test_create_numalgo_2_invalid_encryption_key_type():
     encryption_keys = [PublicKeyAuthentication(
         encoded_value="ByHnpUCFb1vAfh9CFZ8ZkmUZguURW8nSw889hy6rD8L7",
-        type=PublicKeyTypeAuthentication.ED25519)]
+        type=PublicKeyTypeAuthentication.ED25519, encoding_type=EncodingType.BASE58)]
     signing_keys = [
         PublicKeyAuthentication(
             encoded_value="ByHnpUCFb1vAfh9CFZ8ZkmUZguURW8nSw889hy6rD8L7",
-            type=PublicKeyTypeAuthentication.ED25519),
+            type=PublicKeyTypeAuthentication.ED25519, encoding_type=EncodingType.BASE58),
         PublicKeyAuthentication(
             encoded_value="3M5RCDjPTWPkKSN3sxUmmMqHbmRPegYP1tjcKyrDbt9J",
-            type=PublicKeyTypeAuthentication.ED25519)]
+            type=PublicKeyTypeAuthentication.ED25519, encoding_type=EncodingType.BASE58)]
     services = '''{
         "type": "didcommmessaging",
         "serviceEndpoint": "https://example.com/endpoint",
@@ -490,10 +490,10 @@ def test_create_numalgo_2_invalid_encryption_key_type():
 
 def test_create_numalgo_2_malformed_signing_key_not_base58_encoded():
     encryption_keys = [PublicKeyAgreement(encoded_value="JhNWeSVLMYccCk7iopQW4guaSJTojqpMEELgSLhKwRr",
-                                          type=PublicKeyTypeAgreement.X25519)]
+                                          type=PublicKeyTypeAgreement.X25519, encoding_type=EncodingType.BASE58)]
     signing_keys = [PublicKeyAuthentication(
         encoded_value="3M5RCDjPTWPkKSN3sxU0mMqHbmRPegYP1tjcKyrDbt9J",
-        type=PublicKeyTypeAuthentication.ED25519)]
+        type=PublicKeyTypeAuthentication.ED25519, encoding_type=EncodingType.BASE58)]
     services = '''{
         "type": "didcommmessaging",
         "serviceEndpoint": "https://example.com/endpoint",
@@ -508,10 +508,10 @@ def test_create_numalgo_2_malformed_signing_key_not_base58_encoded():
 
 def test_create_numalgo_2_malformed_short_signing_key():
     encryption_keys = [PublicKeyAgreement(encoded_value="JhNWeSVLMYccCk7iopQW4guaSJTojqpMEELgSLhKwRr",
-                                          type=PublicKeyTypeAgreement.X25519)]
+                                          type=PublicKeyTypeAgreement.X25519, encoding_type=EncodingType.BASE58)]
     signing_keys = [PublicKeyAuthentication(
         encoded_value="ByHnpUCF",
-        type=PublicKeyTypeAuthentication.ED25519)]
+        type=PublicKeyTypeAuthentication.ED25519, encoding_type=EncodingType.BASE58)]
     services = '''{
         "type": "didcommmessaging",
         "serviceEndpoint": "https://example.com/endpoint",
@@ -519,17 +519,17 @@ def test_create_numalgo_2_malformed_short_signing_key():
         }
         '''
 
-    peer_did_algo_2 = create_peer_did_numalgo_2(encryption_keys=encryption_keys, signing_keys=signing_keys,
-                                                services=services)
-    assert not is_peer_did(peer_did_algo_2)
+    with pytest.raises(ValueError):
+        peer_did_algo_2 = create_peer_did_numalgo_2(encryption_keys=encryption_keys, signing_keys=signing_keys,
+                                                    services=services)
 
 
 def test_create_numalgo_2_malformed_long_signing_key():
     encryption_keys = [PublicKeyAgreement(encoded_value="JhNWeSVLMYccCk7iopQW4guaSJTojqpMEELgSLhKwRr",
-                                          type=PublicKeyTypeAgreement.X25519)]
+                                          type=PublicKeyTypeAgreement.X25519, encoding_type=EncodingType.BASE58)]
     signing_keys = [PublicKeyAuthentication(
         encoded_value="3M5RCDjxUmmMqHbmRPegYPPTWPkKSN3sxUmmMqHbmRPegYPxUmmMqHbmRPegYP1tjcKxUmmMqHbmRPegYPyrDbt9J",
-        type=PublicKeyTypeAuthentication.ED25519)]
+        type=PublicKeyTypeAuthentication.ED25519, encoding_type=EncodingType.BASE58)]
     services = '''{
         "type": "didcommmessaging",
         "serviceEndpoint": "https://example.com/endpoint",
@@ -537,17 +537,17 @@ def test_create_numalgo_2_malformed_long_signing_key():
         }
         '''
 
-    peer_did_algo_2 = create_peer_did_numalgo_2(encryption_keys=encryption_keys, signing_keys=signing_keys,
-                                                services=services)
-    assert not is_peer_did(peer_did_algo_2)
+    with pytest.raises(ValueError):
+        peer_did_algo_2 = create_peer_did_numalgo_2(encryption_keys=encryption_keys, signing_keys=signing_keys,
+                                                    services=services)
 
 
 def test_create_numalgo_2_malformed_empty_signing_key():
     encryption_keys = [PublicKeyAgreement(encoded_value="JhNWeSVLMYccCk7iopQW4guaSJTojqpMEELgSLhKwRr",
-                                          type=PublicKeyTypeAgreement.X25519)]
+                                          type=PublicKeyTypeAgreement.X25519, encoding_type=EncodingType.BASE58)]
     signing_keys = [PublicKeyAuthentication(
         encoded_value="",
-        type=PublicKeyTypeAuthentication.ED25519)]
+        type=PublicKeyTypeAuthentication.ED25519, encoding_type=EncodingType.BASE58)]
     services = '''{
         "type": "didcommmessaging",
         "serviceEndpoint": "https://example.com/endpoint",
@@ -562,10 +562,10 @@ def test_create_numalgo_2_malformed_empty_signing_key():
 
 def test_create_numalgo_0_invalid_inception_key_type():
     encryption_keys = [PublicKeyAgreement(encoded_value="JhNWeSVLMYccCk7iopQW4guaSJTojqpMEELgSLhKwRr",
-                                          type=PublicKeyTypeAgreement.X25519)]
+                                          type=PublicKeyTypeAgreement.X25519, encoding_type=EncodingType.BASE58)]
     signing_keys = [PublicKeyAgreement(
         encoded_value="ByHnpUCFb1vAfh9CFZ8ZkmUZguURW8nSw889hy6rD8L7",
-        type=PublicKeyTypeAgreement.X25519)]
+        type=PublicKeyTypeAgreement.X25519, encoding_type=EncodingType.BASE58)]
     services = '''{
         "type": "didcommmessaging",
         "serviceEndpoint": "https://example.com/endpoint",

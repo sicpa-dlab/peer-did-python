@@ -2,13 +2,13 @@ import base64
 import hashlib
 import json
 import re
-from typing import Union
+from typing import Union, List
 
 import base58
 import varint
 
 from peerdid.types import JSON, PublicKeyAgreement, PublicKeyAuthentication, PublicKeyTypeAgreement, \
-    PublicKeyTypeAuthentication, PEER_DID
+    PublicKeyTypeAuthentication, PEER_DID, EncodingType
 
 
 def _encode_service(service: JSON) -> str:
@@ -29,7 +29,7 @@ def _encode_service(service: JSON) -> str:
     return '.S' + base64.b64encode(service_to_encode).decode("utf-8")
 
 
-def _decode_service(service: str, peer_did: PEER_DID) -> dict:
+def _decode_service(service: str, peer_did: PEER_DID) -> List[dict]:
     """
     Decodes service according to Peer DID spec
     (https://identity.foundation/peer-did-method-spec/index.html#example-2-abnf-for-peer-dids)
@@ -46,9 +46,9 @@ def _decode_service(service: str, peer_did: PEER_DID) -> dict:
     if not isinstance(list_of_service_dict, list):
         list_of_service_dict = [list_of_service_dict]
     for service in list_of_service_dict:
-        type = service.pop('t').replace("dm", 'didcommmessaging')
-        service['id'] = peer_did + f'#{type}'
-        service['type'] = type
+        service_type = service.pop('t').replace("dm", 'didcommmessaging')
+        service['id'] = peer_did + f'#{service_type}'
+        service['type'] = service_type
         service['serviceEndpoint'] = service.pop('s')
         service['routingKeys'] = service.pop('r')
     return list_of_service_dict
@@ -200,11 +200,22 @@ def _build_did_doc_numalgo_2(peer_did: PEER_DID) -> dict:
     return did_doc
 
 
-def _check_key_encoding(key: str) -> bool:
+def _check_key_encoding(key: str, encoding_type: EncodingType) -> bool:
     """
-    Checks if key base58 encoded
+    Checks if key correctly encoded
     :param key: any string
-    :return: true if key base58 encoded, otherwise false
+    :param encoding_type: encoding type
+    :return: true if key correctly encoded, otherwise false
     """
-    base58_pattern = re.compile(r"^[123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]+$")
-    return bool(re.match(base58_pattern, key))
+    if not encoding_type == EncodingType.BASE58:
+        raise TypeError('Unsupported encoding')
+    alphabet = set('123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz')
+    byte_lengths = (32,)
+    invalid_chars = set(key) - alphabet
+    if invalid_chars:
+        raise ValueError(f'should not contain the following chars {invalid_chars}')
+    if byte_lengths is not None:
+        b58len = len(base58.b58decode(key))
+        if b58len not in byte_lengths:
+            raise ValueError(f'b58 decoded value length {b58len}, should be 32')
+        return True

@@ -50,7 +50,7 @@ def test_resolve_numalgo_0_unsupported_transform_code():
 
 def test_resolve_numalgo_0_malformed_multicodec_encoding():
     with pytest.raises(ValueError):
-        print(resolve_peer_did(peer_did='did:peer:0z6666RYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V'))
+        resolve_peer_did(peer_did='did:peer:0z6666RYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V')
 
 
 def test_resolve_numalgo_0_invalid_key_type():

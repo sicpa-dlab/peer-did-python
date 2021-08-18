@@ -2,21 +2,20 @@ from peerdid.peer_did import create_peer_did_numalgo_0, create_peer_did_numalgo_
 from peerdid.peer_did_utils import _encode_filename
 from peerdid.storage import FileStorage
 from peerdid.types import PublicKeyAuthentication, PublicKeyAgreement, PublicKeyTypeAgreement, \
-    PublicKeyTypeAuthentication
+    PublicKeyTypeAuthentication, EncodingType
 
 
 def test_create_save_resolve_peer_did():
     encryption_keys = [PublicKeyAgreement(encoded_value="DmgBSHMqaZiYqwNMEJJuxWzsGGC8jUYADrfSdBrC6L8s",
-                                          type=PublicKeyTypeAgreement.X25519)]
+                                          type=PublicKeyTypeAgreement.X25519, encoding_type=EncodingType.BASE58)]
     signing_keys = [PublicKeyAuthentication(
         encoded_value="ByHnpUCFb1vAfh9CFZ8ZkmUZguURW8nSw889hy6rD8L7",
-        type=PublicKeyTypeAuthentication.ED25519)]
+        type=PublicKeyTypeAuthentication.ED25519, encoding_type=EncodingType.BASE58)]
 
     peer_did_algo_0 = create_peer_did_numalgo_0(inception_key=signing_keys[0])
     peer_did_algo_2 = create_peer_did_numalgo_2(encryption_keys=encryption_keys,
                                                 signing_keys=signing_keys,
-                                                services=
-                                                '''
+                                                services='''
                                                 [
                                                     {
                                                         "type": "didcommmessaging",

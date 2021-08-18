@@ -3,7 +3,7 @@ import re
 from typing import List
 
 from peerdid.peer_did_utils import _encode_service, _create_encnumbasis, \
-    _build_did_doc_numalgo_0, _build_did_doc_numalgo_2, _check_key_encoding, _decode_service
+    _build_did_doc_numalgo_0, _build_did_doc_numalgo_2, _check_key_encoding
 from peerdid.types import PEER_DID, PublicKeyAgreement, PublicKeyAuthentication, JSON
 
 
@@ -34,8 +34,8 @@ def create_peer_did_numalgo_0(inception_key: PublicKeyAuthentication) -> PEER_DI
     """
     if not isinstance(inception_key, PublicKeyAuthentication):
         raise TypeError(f"Wrong type of inception_key: {str(type(inception_key))}. Expected: PublicKeyAuthentication")
-    if not _check_key_encoding(inception_key.encoded_value):
-        raise ValueError(f"Inception key is not base58 encoded")
+    if not _check_key_encoding(inception_key.encoded_value, inception_key.encoding_type):
+        raise ValueError(f"Inception key is not correctly encoded")
     peer_did = 'did:peer:0z' + _create_encnumbasis(inception_key)
     return peer_did
 
@@ -57,13 +57,13 @@ def create_peer_did_numalgo_2(encryption_keys: List[PublicKeyAgreement], signing
     for key in encryption_keys:
         if not isinstance(key, PublicKeyAgreement):
             raise TypeError(f'Wrong type of encryption_key {key}: {str(type(key))}')
-        if not _check_key_encoding(key.encoded_value):
-            raise ValueError(f"Encryption key: {key} is not base58 encoded")
+        if not _check_key_encoding(key.encoded_value, key.encoding_type):
+            raise ValueError(f"Encryption key: {key} is not correctly encoded")
     for key in signing_keys:
         if not isinstance(key, PublicKeyAuthentication):
             raise TypeError(f'Wrong type of signing_key {key}: {str(type(key))}')
-        if not _check_key_encoding(key.encoded_value):
-            raise ValueError(f"Signing key: {key} is not base58 encoded")
+        if not _check_key_encoding(key.encoded_value, key.encoding_type):
+            raise ValueError(f"Signing key: {key} is not correctly encoded")
     services = json.loads(services)
     encryption_keys_str = ''
     if encryption_keys:
