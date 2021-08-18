@@ -1,24 +1,46 @@
-import pytest
-from peerdid.peer_did import create_peer_did_numalgo_0, create_peer_did_numalgo_2, resolve_peer_did, save_peer_did
+from peerdid.peer_did import create_peer_did_numalgo_0, create_peer_did_numalgo_2, resolve_peer_did
+from peerdid.peer_did_utils import _encode_filename
 from peerdid.storage import FileStorage
-from peerdid.types import PublicKeyAuthentication, PublicKeyAgreement, KeyTypeAgreement, KeyTypeAuthentication
+from peerdid.types import PublicKeyAuthentication, PublicKeyAgreement, PublicKeyTypeAgreement, \
+    PublicKeyTypeAuthentication, EncodingType
 
 
 def test_create_save_resolve_peer_did():
-    encryption_keys = [PublicKeyAgreement(encoded_value="Ez6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH",
-                                          type=KeyTypeAgreement.X25519)]
+    encryption_keys = [PublicKeyAgreement(encoded_value="DmgBSHMqaZiYqwNMEJJuxWzsGGC8jUYADrfSdBrC6L8s",
+                                          type=PublicKeyTypeAgreement.X25519, encoding_type=EncodingType.BASE58)]
     signing_keys = [PublicKeyAuthentication(
-        encoded_value="zXwpBnMdCm1cLmKuzgESn29nqnonp1ioqrQMRHNsmjMyppzx8xB2pv7cw8q1PdDacSrdWE3dtB9f7Nxk886mdzNFoPtY",
-        type=KeyTypeAuthentication.ED25519)]
+        encoded_value="ByHnpUCFb1vAfh9CFZ8ZkmUZguURW8nSw889hy6rD8L7",
+        type=PublicKeyTypeAuthentication.ED25519, encoding_type=EncodingType.BASE58)]
 
     peer_did_algo_0 = create_peer_did_numalgo_0(inception_key=signing_keys[0])
     peer_did_algo_2 = create_peer_did_numalgo_2(encryption_keys=encryption_keys,
                                                 signing_keys=signing_keys,
-                                                service_endpoint="https://example.com/endpoint")
+                                                service='''
+                                                [
+                                                    {
+                                                        "type": "didcommmessaging",
+                                                        "serviceEndpoint": "https://example.com/endpoint",
+                                                        "routingKeys": ["did:example:somemediator#somekey"]
+                                                    },
+                                                    {
+                                                      "type": "example",
+                                                      "serviceEndpoint": "https://example.com/endpoint2",
+                                                      "routingKeys": ["did:example:somemediator#somekey2"]
+                                                    }
+                                                ]
+                                                '''
+                                                )
 
-    file_storage = FileStorage()
-    save_peer_did(peer_did=peer_did_algo_0, storage=file_storage)
-    save_peer_did(peer_did=peer_did_algo_2, storage=file_storage)
+    print('peer_did_algo_0:' + peer_did_algo_0)
+    print('==================================')
+    print('peer_did_algo_2:' + peer_did_algo_2)
+    print('==================================')
+
+    file_storage = FileStorage(peer_did_filename=_encode_filename(peer_did_algo_2))
+    file_storage.save(bytes(peer_did_algo_2, encoding='utf-8'))
 
     did_doc_algo_0 = resolve_peer_did(peer_did=peer_did_algo_0)
     did_doc_algo_2 = resolve_peer_did(peer_did=peer_did_algo_2)
+    print('did_doc_algo_0:' + did_doc_algo_0)
+    print('==================================')
+    print('did_doc_algo_2:' + did_doc_algo_2)
