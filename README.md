@@ -6,6 +6,8 @@ This is a work-in-progress implementation of the Peer DID specification:
 
  - [Peer DID method specification](https://identity.foundation/peer-did-method-spec/)
 
+This version of API implements only [static layer of support](https://identity.foundation/peer-did-method-spec/#layers-of-support)
+
 ## Example
 
 Example code:
