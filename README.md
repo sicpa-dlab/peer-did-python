@@ -1,9 +1,9 @@
 # Peer DID python API
 
-This is an implementation of the [Peer DID method specification](https://identity.foundation/peer-did-method-spec/)
+This is an implementation of the [Peer DID method specification](https://identity.foundation/peer-did-method-spec/).
 
 This version of API implements
-only [static layers of support (1, 2a, 2b)](https://identity.foundation/peer-did-method-spec/#layers-of-support)
+only [static layers of support (1, 2a, 2b)](https://identity.foundation/peer-did-method-spec/#layers-of-support).
 
 ## Example
 
