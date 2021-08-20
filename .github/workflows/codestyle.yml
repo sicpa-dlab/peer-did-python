@@ -7,19 +7,26 @@ on:
 
 jobs:
   autoblack:
-    runs-on: [ ubuntu-latest, windows-latest, macos-latest ]
+    strategy:
+      matrix:
+        os: [ ubuntu-latest, windows-latest, macos-latest ]
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
       - uses: psf/black@stable
   flake8_py3:
-    runs-on: [ ubuntu-latest, windows-latest, macos-latest ]
-    needs: [ autoblack ]
+    strategy:
+      matrix:
+        os: [ ubuntu-latest, windows-latest, macos-latest ]
+        python-version: [ 3.5, 3.6, 3.7, 3.8, 3.9 ]
+    runs-on: ${{ matrix.os }}
+    needs: [autoblack]
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
-          python-version: '3.x'
+          python-version: ${{ matrix.python-version }}
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
