@@ -1,33 +1,37 @@
-from dataclasses import dataclass
 from enum import Enum
+from typing import NamedTuple
 
 
 class PublicKeyTypeAgreement(Enum):
-    X25519 = 0xec
+    X25519 = 0xEC
 
 
 class PublicKeyTypeAuthentication(Enum):
-    ED25519 = 0xed
-    SECP256K1 = 0xe7
+    ED25519 = 0xED
+    SECP256K1 = 0xE7
 
 
 class EncodingType(Enum):
     BASE58 = 0
 
 
-@dataclass
-class PublicKeyAgreement:
-    encoding_type: EncodingType
-    encoded_value: str
-    type: PublicKeyTypeAgreement
+PublicKeyAgreement = NamedTuple(
+    "PublicKeyAgreement",
+    [
+        ("encoding_type", EncodingType),
+        ("encoded_value", str),
+        ("type", PublicKeyTypeAgreement),
+    ],
+)
 
-
-@dataclass
-class PublicKeyAuthentication:
-    encoding_type: EncodingType
-    encoded_value: str
-    type: PublicKeyTypeAuthentication
-
+PublicKeyAuthentication = NamedTuple(
+    "PublicKeyAuthentication",
+    [
+        ("encoding_type", EncodingType),
+        ("encoded_value", str),
+        ("type", PublicKeyTypeAuthentication),
+    ],
+)
 
 JSON = str
 PEER_DID = str
