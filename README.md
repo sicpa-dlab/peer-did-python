@@ -105,5 +105,4 @@ pipeline is executed on all PRs before review and contributors are expected to a
 ### A Continuous Integration (CI) pipeline does the following jobs:
 
 - Executes all unit tests from the pull request.
-- Uses the command line code formatting tool [black](https://github.com/psf/black) for validating Python code style.
 - Analyzes code style using Flake8.
