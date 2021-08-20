@@ -3,7 +3,7 @@ name: codestyle
 on:
   push:
     paths:
-      - '*.py'
+      - '**.py'
 
 jobs:
   autoblack:
