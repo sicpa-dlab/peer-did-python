@@ -28,12 +28,11 @@ def _encode_service(service: JSON) -> str:
     """
     service_to_encode = (
         re.sub(r"[\n\t\s]*", "", service)
-        .replace("'", '"')
         .replace("type", "t")
         .replace("serviceEndpoint", "s")
         .replace("didcommmessaging", "dm")
         .replace("routingKeys", "r")
-        .encode("ascii")
+        .encode("utf-8")
     )
     return ".S" + base64.b64encode(service_to_encode).decode("utf-8")
 
