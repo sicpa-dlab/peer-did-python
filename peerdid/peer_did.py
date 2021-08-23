@@ -134,3 +134,14 @@ def resolve_peer_did(peer_did: PEER_DID, version_id=None) -> JSON:
         return json.dumps(_build_did_doc_numalgo_0(peer_did=peer_did), indent=4)
     if peer_did[9] == "2":
         return json.dumps(_build_did_doc_numalgo_2(peer_did=peer_did), indent=4)
+
+
+# the method is not needed for the static layer, because did_doc can be obtained from peer_did and vice versa.
+# But the method will be needed for dynamic layer support
+# def save_did_doc(did_doc: JSON, storage: Optional[Storage]):
+#     """
+#     Saves did_doc to a storage
+#     :param did_doc: did_doc to save
+#     :param storage: repository responsible for did_doc saving
+#     """
+#     pass
