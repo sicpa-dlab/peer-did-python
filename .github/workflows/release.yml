@@ -171,15 +171,16 @@ jobs:
           python -m pip install --upgrade twine
         shell: bash
 
-      # NOTE uncomment once test pypi account is available
-      # - name: Publish to TestPyPI
-      #   if: github.ref != 'refs/heads/stable'
-      #   env:
-      #     TWINE_PASSWORD: ${{ secrets.TEST_PYPI_API_TOKEN }}
-      #   run: python -m twine upload --non-interactive --username __token__ --repository testpypi dist/*
-      #   shell: bash
+      # TODO add non-stable branch triggers once TestPyPI account is created
+      - name: Publish to TestPyPI
+        if: github.ref != 'refs/heads/stable'
+        env:
+          TWINE_PASSWORD: ${{ secrets.TEST_PYPI_API_TOKEN }}
+        run: python -m twine upload --non-interactive --username __token__ --repository testpypi dist/*
+        shell: bash
 
       - name: Publish to PyPI
+        # if: github.ref == 'refs/heads/stable'
         env:
           TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
         run: python -m twine upload --non-interactive --username __token__ dist/*
