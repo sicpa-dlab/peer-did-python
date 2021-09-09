@@ -23,5 +23,5 @@ setup(
     ],
     packages=["peerdid"],
     install_requires=[],
-    test_requires=['pytest']
+    test_requires=["pytest"],
 )
