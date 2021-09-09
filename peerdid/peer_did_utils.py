@@ -54,9 +54,11 @@ def _decode_service(service: str, peer_did: PEER_DID) -> List[dict]:
     list_of_service_dict = json.loads(decoded_service.decode("utf-8"))
     if not isinstance(list_of_service_dict, list):
         list_of_service_dict = [list_of_service_dict]
-    for service in list_of_service_dict:
+
+    for i in range(len(list_of_service_dict)):
+        service = list_of_service_dict[i]
         service_type = service.pop("t").replace("dm", "didcommmessaging")
-        service["id"] = peer_did + "#" + service_type
+        service["id"] = peer_did + "#" + service_type + "-" + str(i)
         service["type"] = service_type
         service["serviceEndpoint"] = service.pop("s")
         service["routingKeys"] = service.pop("r")
