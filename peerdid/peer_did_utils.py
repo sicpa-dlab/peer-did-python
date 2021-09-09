@@ -58,7 +58,7 @@ def _decode_service(service: str, peer_did: PEER_DID) -> List[dict]:
     for i in range(len(list_of_service_dict)):
         service = list_of_service_dict[i]
         service_type = service.pop("t").replace("dm", "didcommmessaging")
-        service["id"] = peer_did + "#" + service_type + "#" + str(i)
+        service["id"] = peer_did + "#" + service_type + "-" + str(i)
         service["type"] = service_type
         service["serviceEndpoint"] = service.pop("s")
         service["routingKeys"] = service.pop("r")
