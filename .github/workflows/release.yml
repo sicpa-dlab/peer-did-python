@@ -194,8 +194,8 @@ jobs:
 
       - name: set dev version
         run: |
-          sed -r 's~version="(.+)"~version="\1.dev0+${${{ env.GITHUB_SHA }}:0:7}"~' ./setup.py
-          sed -i -r 's~version="(.+)"~version="\1.dev0+${${{ env.GITHUB_SHA }}:0:7}"~' ./setup.py
+          sed -i -r "s~version=\"(.+)\"~version=\"\1.dev0+${GITHUB_SHA:0:7}\"~" ./setup.py
+          grep version ./setup.py
         shell: bash
 
       - name: build dist
