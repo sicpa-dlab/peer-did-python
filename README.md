@@ -96,7 +96,7 @@ Example of DID documents:
 ## Assumptions and limitations
 - Input keys are expected in `base58` format only
 - Only `X25519` keys are support for key agreement
-- Only `ED25519` keys are support for authentication
+- Only `Ed25519` keys are support for authentication
 - Verification materials in the resolved DID Doc can be either in JWK (`publicKeyJwk`), base58 (`publicKeyBase58`) or base58 in multibase (`publicKeyMultibase`) format. 
 
 

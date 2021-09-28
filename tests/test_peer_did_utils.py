@@ -1,6 +1,13 @@
 import pytest
 
-from peerdid.peer_did_utils import _encode_service, _decode_encnumbasis
+from peerdid.did_doc import (
+    PublicKeyField,
+    VerificationMaterial,
+    VerificationMaterialType,
+    VerificationMaterialTypeAgreement,
+    VerificationMaterialTypeAuthentication,
+)
+from peerdid.peer_did_utils import _encode_service, _decode_multibase_encnumbasis
 from peerdid.types import VerificationMaterialFormat
 
 
@@ -55,86 +62,79 @@ def test_encode_service_with_multiple_entries_list():
     )
 
 
-PEER_DID = "did:peer:0z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V"
-
-
 @pytest.mark.parametrize(
-    "test_value",
+    "input_multibase,format,expected",
     [
         (
-            "6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
-            "Ed25519VerificationKey2018",
-            "ByHnpUCFb1vAfh9CFZ8ZkmUZguURW8nSw889hy6rD8L7",
+            "z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
+            VerificationMaterialFormat.BASE58,
+            VerificationMaterial(
+                field=PublicKeyField.BASE58,
+                type=VerificationMaterialTypeAuthentication.ED25519_VERIFICATION_KEY_2018,
+                value="ByHnpUCFb1vAfh9CFZ8ZkmUZguURW8nSw889hy6rD8L7",
+                encnumbasis="6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
+            ),
         ),
         (
-            "6LSbysY2xFMRpGMhb7tFTLMpeuPRaqaWM1yECx2AtzE3KCc",
-            "X25519KeyAgreementKey2019",
-            "JhNWeSVLMYccCk7iopQW4guaSJTojqpMEELgSLhKwRr",
+            "z6LSbysY2xFMRpGMhb7tFTLMpeuPRaqaWM1yECx2AtzE3KCc",
+            VerificationMaterialFormat.BASE58,
+            VerificationMaterial(
+                field=PublicKeyField.BASE58,
+                type=VerificationMaterialTypeAgreement.X25519_KEY_AGREEMENT_KEY_2019,
+                value="JhNWeSVLMYccCk7iopQW4guaSJTojqpMEELgSLhKwRr",
+                encnumbasis="6LSbysY2xFMRpGMhb7tFTLMpeuPRaqaWM1yECx2AtzE3KCc",
+            ),
+        ),
+        (
+            "z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
+            VerificationMaterialFormat.MULTIBASE,
+            VerificationMaterial(
+                field=PublicKeyField.MULTIBASE,
+                type=VerificationMaterialTypeAuthentication.ED25519_VERIFICATION_KEY_2020,
+                value="zByHnpUCFb1vAfh9CFZ8ZkmUZguURW8nSw889hy6rD8L7",
+                encnumbasis="6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
+            ),
+        ),
+        (
+            "z6LSbysY2xFMRpGMhb7tFTLMpeuPRaqaWM1yECx2AtzE3KCc",
+            VerificationMaterialFormat.MULTIBASE,
+            VerificationMaterial(
+                field=PublicKeyField.MULTIBASE,
+                type=VerificationMaterialTypeAgreement.X25519_KEY_AGREEMENT_KEY_2020,
+                value="zJhNWeSVLMYccCk7iopQW4guaSJTojqpMEELgSLhKwRr",
+                encnumbasis="6LSbysY2xFMRpGMhb7tFTLMpeuPRaqaWM1yECx2AtzE3KCc",
+            ),
+        ),
+        (
+            "z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
+            VerificationMaterialFormat.JWK,
+            VerificationMaterial(
+                field=PublicKeyField.JWK,
+                type=VerificationMaterialTypeAuthentication.JSON_WEB_KEY_2020,
+                value={
+                    "kty": "OKP",
+                    "crv": "Ed25519",
+                    "x": "owBhCbktDjkfS6PdQddT0D3yjSitaSysP3YimJ_YgmA=",
+                },
+                encnumbasis="6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
+            ),
+        ),
+        (
+            "z6LSbysY2xFMRpGMhb7tFTLMpeuPRaqaWM1yECx2AtzE3KCc",
+            VerificationMaterialFormat.JWK,
+            VerificationMaterial(
+                field=PublicKeyField.JWK,
+                type=VerificationMaterialTypeAgreement.JSON_WEB_KEY_2020,
+                value={
+                    "kty": "OKP",
+                    "crv": "X25519",
+                    "x": "BIiFcQEn3dfvB2pjlhOQQour6jXy9d5s2FKEJNTOJik=",
+                },
+                encnumbasis="6LSbysY2xFMRpGMhb7tFTLMpeuPRaqaWM1yECx2AtzE3KCc",
+            ),
         ),
     ],
 )
-def test_decode_encumbasis_base58(test_value):
-    enc_num_bassis = test_value[0]
-    res = _decode_encnumbasis(
-        enc_num_bassis, PEER_DID, VerificationMaterialFormat.BASE58
-    )
-    assert res["id"] == PEER_DID + "#" + enc_num_bassis
-    assert res["controller"] == PEER_DID
-    assert res["type"] == test_value[1]
-    assert "publicKeyBase58" in res
-    assert res["publicKeyBase58"] == test_value[2]
-
-
-@pytest.mark.parametrize(
-    "test_value",
-    [
-        (
-            "6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
-            "Ed25519VerificationKey2020",
-            "zByHnpUCFb1vAfh9CFZ8ZkmUZguURW8nSw889hy6rD8L7",
-        ),
-        (
-            "6LSbysY2xFMRpGMhb7tFTLMpeuPRaqaWM1yECx2AtzE3KCc",
-            "X25519KeyAgreementKey2019",
-            "zJhNWeSVLMYccCk7iopQW4guaSJTojqpMEELgSLhKwRr",
-        ),
-    ],
-)
-def test_decode_encumbasis_multibase(test_value):
-    enc_num_bassis = test_value[0]
-    res = _decode_encnumbasis(
-        enc_num_bassis, PEER_DID, VerificationMaterialFormat.MULTIBASE
-    )
-    assert res["id"] == PEER_DID + "#" + enc_num_bassis
-    assert res["controller"] == PEER_DID
-    assert res["type"] == test_value[1]
-    assert "publicKeyMultibase" in res
-    assert res["publicKeyMultibase"] == test_value[2]
-
-
-@pytest.mark.parametrize(
-    "test_value",
-    [
-        (
-            "6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
-            "Ed25519",
-            "owBhCbktDjkfS6PdQddT0D3yjSitaSysP3YimJ_YgmA=",
-        ),
-        (
-            "6LSbysY2xFMRpGMhb7tFTLMpeuPRaqaWM1yECx2AtzE3KCc",
-            "X25519",
-            "BIiFcQEn3dfvB2pjlhOQQour6jXy9d5s2FKEJNTOJik=",
-        ),
-    ],
-)
-def test_decode_encumbasis_jwk(test_value):
-    enc_num_bassis = test_value[0]
-    res = _decode_encnumbasis(enc_num_bassis, PEER_DID, VerificationMaterialFormat.JWK)
-    assert res["id"] == PEER_DID + "#" + enc_num_bassis
-    assert res["controller"] == PEER_DID
-    assert res["type"] == "JsonWebKey2020"
-    assert "publicKeyJwk" in res
-    jwk = res["publicKeyJwk"]
-    assert jwk["kty"] == "OKP"
-    assert jwk["crv"] == test_value[1]
-    assert jwk["x"] == test_value[2]
+def test_decode_encumbasis(input_multibase, format, expected):
+    res = _decode_multibase_encnumbasis(input_multibase, format)
+    assert res == expected
