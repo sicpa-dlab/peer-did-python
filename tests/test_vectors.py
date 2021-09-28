@@ -37,10 +37,10 @@ DID_DOC_NUMALGO_O_JWK = """
                     "type": "JsonWebKey2020",
                     "controller": "did:peer:0z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
                     "publicKeyJwk": {
-                         "kty": "OKP",                       
-                         "crv": "Ed25519",
-                         "x": "owBhCbktDjkfS6PdQddT0D3yjSitaSysP3YimJ_YgmA="
-                     }
+                        "kty": "OKP",
+                        "crv": "Ed25519",
+                        "x": "owBhCbktDjkfS6PdQddT0D3yjSitaSysP3YimJ_YgmA="
+                    }
                 }
             ]
         }
@@ -139,7 +139,7 @@ DID_DOC_NUMALGO_2_JWK = """
                    "type": "JsonWebKey2020",
                    "controller": "did:peer:2.Ez6LSbysY2xFMRpGMhb7tFTLMpeuPRaqaWM1yECx2AtzE3KCc.Vz6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V.Vz6MkgoLTnTypo3tDRwCkZXSccTPHRLhF4ZnjhueYAFpEX6vg.SeyJ0IjoiZG0iLCJzIjoiaHR0cHM6Ly9leGFtcGxlLmNvbS9lbmRwb2ludCIsInIiOlsiZGlkOmV4YW1wbGU6c29tZW1lZGlhdG9yI3NvbWVrZXkiXX0=",
                     "publicKeyJwk": {
-                         "kty": "OKP",                       
+                         "kty": "OKP",
                          "crv": "Ed25519",
                          "x": "owBhCbktDjkfS6PdQddT0D3yjSitaSysP3YimJ_YgmA="
                      }
@@ -149,7 +149,7 @@ DID_DOC_NUMALGO_2_JWK = """
                    "type": "JsonWebKey2020",
                    "controller": "did:peer:2.Ez6LSbysY2xFMRpGMhb7tFTLMpeuPRaqaWM1yECx2AtzE3KCc.Vz6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V.Vz6MkgoLTnTypo3tDRwCkZXSccTPHRLhF4ZnjhueYAFpEX6vg.SeyJ0IjoiZG0iLCJzIjoiaHR0cHM6Ly9leGFtcGxlLmNvbS9lbmRwb2ludCIsInIiOlsiZGlkOmV4YW1wbGU6c29tZW1lZGlhdG9yI3NvbWVrZXkiXX0=",
                     "publicKeyJwk": {
-                         "kty": "OKP",                       
+                         "kty": "OKP",
                          "crv": "Ed25519",
                          "x": "Itv8B__b1-Jos3LCpUe8EdTFGTCa_Dza6_3848P3R70="
                      }
@@ -161,7 +161,7 @@ DID_DOC_NUMALGO_2_JWK = """
                    "type": "JsonWebKey2020",
                    "controller": "did:peer:2.Ez6LSbysY2xFMRpGMhb7tFTLMpeuPRaqaWM1yECx2AtzE3KCc.Vz6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V.Vz6MkgoLTnTypo3tDRwCkZXSccTPHRLhF4ZnjhueYAFpEX6vg.SeyJ0IjoiZG0iLCJzIjoiaHR0cHM6Ly9leGFtcGxlLmNvbS9lbmRwb2ludCIsInIiOlsiZGlkOmV4YW1wbGU6c29tZW1lZGlhdG9yI3NvbWVrZXkiXX0=",
                     "publicKeyJwk": {
-                         "kty": "OKP",                       
+                         "kty": "OKP",
                          "crv": "X25519",
                          "x": "BIiFcQEn3dfvB2pjlhOQQour6jXy9d5s2FKEJNTOJik="
                      }
