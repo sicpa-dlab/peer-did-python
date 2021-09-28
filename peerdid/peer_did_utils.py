@@ -8,8 +8,13 @@ from typing import Union, List
 import base58
 import varint
 
-from peerdid.did_doc import VerificationMaterial, VerificationMaterialTypeAgreement, \
-    VerificationMaterialTypeAuthentication, PublicKeyField, JWK_OKP
+from peerdid.did_doc import (
+    VerificationMaterial,
+    VerificationMaterialTypeAgreement,
+    VerificationMaterialTypeAuthentication,
+    PublicKeyField,
+    JWK_OKP,
+)
 from peerdid.types import (
     JSON,
     PublicKeyAgreement,
@@ -43,13 +48,17 @@ def _encode_service(service: JSON) -> str:
     """
     service_to_encode = (
         re.sub(r"[\n\t\s]*", "", service)
-            .replace("type", "t")
-            .replace("serviceEndpoint", "s")
-            .replace("didcommmessaging", "dm")
-            .replace("routingKeys", "r")
-            .encode("utf-8")
+        .replace("type", "t")
+        .replace("serviceEndpoint", "s")
+        .replace("didcommmessaging", "dm")
+        .replace("routingKeys", "r")
+        .encode("utf-8")
     )
-    return "." + Numalgo2Prefix.SERVICE.value + base64.b64encode(service_to_encode).decode("utf-8")
+    return (
+        "."
+        + Numalgo2Prefix.SERVICE.value
+        + base64.b64encode(service_to_encode).decode("utf-8")
+    )
 
 
 def _decode_service(service: str, peer_did: PEER_DID) -> List[dict]:
@@ -80,7 +89,9 @@ def _decode_service(service: str, peer_did: PEER_DID) -> List[dict]:
     return list_of_service_dict
 
 
-def _create_multibase_encnumbasis(key: Union[PublicKeyAgreement, PublicKeyAuthentication]) -> str:
+def _create_multibase_encnumbasis(
+    key: Union[PublicKeyAgreement, PublicKeyAuthentication]
+) -> str:
     """
     Creates multibased encnumbasis according to Peer DID spec
     (https://identity.foundation/peer-did-method-spec/index.html#method-specific-identifier)
@@ -94,8 +105,8 @@ def _create_multibase_encnumbasis(key: Union[PublicKeyAgreement, PublicKeyAuthen
 
 
 def _decode_multibase_encnumbasis(
-        multibase: str,
-        ver_material_format: VerificationMaterialFormat,
+    multibase: str,
+    ver_material_format: VerificationMaterialFormat,
 ) -> VerificationMaterial:
     """
     Decodes multibased encnumbasis to a verification material for DID DOC
@@ -111,14 +122,16 @@ def _decode_multibase_encnumbasis(
     decoded_encnumbasis_without_prefix = _remove_prefix(decoded_encnumbasis)
 
     if ver_material_format == VerificationMaterialFormat.BASE58:
-        public_key_value = base58.b58encode(decoded_encnumbasis_without_prefix) \
-            .decode("utf-8")
+        public_key_value = base58.b58encode(decoded_encnumbasis_without_prefix).decode(
+            "utf-8"
+        )
         public_key_field = PublicKeyField.BASE58
         ver_material_type = __get_2018_2019_ver_material_type(decoded_encnumbasis)
 
     elif ver_material_format == VerificationMaterialFormat.MULTIBASE:
-        public_key_value = MultibasePrefix.BASE58.value + \
-                           base58.b58encode(decoded_encnumbasis_without_prefix).decode("utf-8")
+        public_key_value = MultibasePrefix.BASE58.value + base58.b58encode(
+            decoded_encnumbasis_without_prefix
+        ).decode("utf-8")
         public_key_field = PublicKeyField.MULTIBASE
         ver_material_type = __get_2020_ver_material_type(decoded_encnumbasis)
 
@@ -135,7 +148,7 @@ def _decode_multibase_encnumbasis(
         field=public_key_field,
         type=ver_material_type,
         value=public_key_value,
-        encnumbasis=encnumbasis
+        encnumbasis=encnumbasis,
     )
 
 
@@ -184,7 +197,7 @@ def _remove_prefix(data: bytes) -> bytes:
     """
     prefix_int = _extract_prefix(data)
     prefix = varint.encode(prefix_int)
-    return data[len(prefix):]
+    return data[len(prefix) :]
 
 
 def _extract_prefix(data: bytes) -> int:
@@ -201,7 +214,7 @@ def _extract_prefix(data: bytes) -> int:
 
 
 def _add_prefix(
-        key_type: Union[PublicKeyTypeAgreement, PublicKeyTypeAuthentication], data: bytes
+    key_type: Union[PublicKeyTypeAgreement, PublicKeyTypeAuthentication], data: bytes
 ) -> bytes:
     """
     Adds prefix to a data

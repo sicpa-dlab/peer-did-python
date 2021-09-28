@@ -22,6 +22,7 @@ class VerificationMaterialFormat(Enum):
     BASE58 = 2
     MULTIBASE = 3
 
+
 PublicKeyAgreement = NamedTuple(
     "PublicKeyAgreement",
     [

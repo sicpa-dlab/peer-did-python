@@ -2,12 +2,19 @@ import json
 import re
 from typing import List, Optional
 
-from peerdid.did_doc import VerificationMaterialTypeAuthentication, DIDDoc, VerificationMethod, \
-    VerificationMaterialTypeAgreement
+from peerdid.did_doc import (
+    VerificationMaterialTypeAuthentication,
+    DIDDoc,
+    VerificationMethod,
+    VerificationMaterialTypeAgreement,
+)
 from peerdid.peer_did_utils import (
     _encode_service,
     _check_key_correctly_encoded,
-    _is_json, Numalgo2Prefix, _decode_service, _create_multibase_encnumbasis,
+    _is_json,
+    Numalgo2Prefix,
+    _decode_service,
+    _create_multibase_encnumbasis,
     _decode_multibase_encnumbasis,
 )
 from peerdid.types import (
@@ -52,7 +59,7 @@ def create_peer_did_numalgo_0(inception_key: PublicKeyAuthentication) -> PEER_DI
             + ". Expected: PublicKeyAuthentication"
         )
     if not _check_key_correctly_encoded(
-            inception_key.encoded_value, inception_key.encoding_type
+        inception_key.encoded_value, inception_key.encoding_type
     ):
         raise ValueError("Inception key is not correctly encoded")
 
@@ -60,9 +67,9 @@ def create_peer_did_numalgo_0(inception_key: PublicKeyAuthentication) -> PEER_DI
 
 
 def create_peer_did_numalgo_2(
-        encryption_keys: List[PublicKeyAgreement],
-        signing_keys: List[PublicKeyAuthentication],
-        service: Optional[JSON],
+    encryption_keys: List[PublicKeyAgreement],
+    signing_keys: List[PublicKeyAuthentication],
+    service: Optional[JSON],
 ) -> PEER_DID:
     """
     Generates peer_did according to the second algorithm
@@ -113,12 +120,14 @@ def create_peer_did_numalgo_2(
     enc_sep = "." + Numalgo2Prefix.KEY_AGREEMENT.value
     auth_sep = "." + Numalgo2Prefix.AUTHENTICATION.value
     encryption_keys_str = (
-        enc_sep + enc_sep.join(_create_multibase_encnumbasis(key) for key in encryption_keys)
+        enc_sep
+        + enc_sep.join(_create_multibase_encnumbasis(key) for key in encryption_keys)
         if encryption_keys
         else ""
     )
     auth_keys_str = (
-        auth_sep + auth_sep.join(_create_multibase_encnumbasis(key) for key in signing_keys)
+        auth_sep
+        + auth_sep.join(_create_multibase_encnumbasis(key) for key in signing_keys)
         if signing_keys
         else ""
     )
@@ -129,8 +138,8 @@ def create_peer_did_numalgo_2(
 
 
 def resolve_peer_did(
-        peer_did: PEER_DID,
-        format: VerificationMaterialFormat = VerificationMaterialFormat.BASE58,
+    peer_did: PEER_DID,
+    format: VerificationMaterialFormat = VerificationMaterialFormat.MULTIBASE,
 ) -> JSON:
     """
     Resolves did_doc from peer_did
@@ -149,21 +158,23 @@ def resolve_peer_did(
 
 
 def _build_did_doc_numalgo_0(
-        peer_did: PEER_DID, format: VerificationMaterialFormat
+    peer_did: PEER_DID, format: VerificationMaterialFormat
 ) -> dict:
     verification_material = _decode_multibase_encnumbasis(peer_did[10:], format)
-    if not isinstance(verification_material.type, VerificationMaterialTypeAuthentication):
+    if not isinstance(
+        verification_material.type, VerificationMaterialTypeAuthentication
+    ):
         raise ValueError("Invalid key type (key agreement instead of authentication)")
 
     did_doc = DIDDoc(
         did=peer_did,
-        authentication=[VerificationMethod(verification_material, peer_did)]
+        authentication=[VerificationMethod(verification_material, peer_did)],
     )
     return did_doc.to_dict()
 
 
 def _build_did_doc_numalgo_2(
-        peer_did: PEER_DID, format: VerificationMaterialFormat
+    peer_did: PEER_DID, format: VerificationMaterialFormat
 ) -> dict:
     keys = peer_did[11:]
     keys = keys.split(".")
@@ -177,13 +188,23 @@ def _build_did_doc_numalgo_2(
             service = key[1:]
         elif prefix == Numalgo2Prefix.AUTHENTICATION.value:
             verification_material = _decode_multibase_encnumbasis(key[1:], format)
-            if not isinstance(verification_material.type, VerificationMaterialTypeAuthentication):
-                raise ValueError("Invalid key type (key agreement instead of authentication) of:  " + key)
+            if not isinstance(
+                verification_material.type, VerificationMaterialTypeAuthentication
+            ):
+                raise ValueError(
+                    "Invalid key type (key agreement instead of authentication) of:  "
+                    + key
+                )
             authentication.append(VerificationMethod(verification_material, peer_did))
         elif prefix == Numalgo2Prefix.KEY_AGREEMENT.value:
             verification_material = _decode_multibase_encnumbasis(key[1:], format)
-            if not isinstance(verification_material.type, VerificationMaterialTypeAgreement):
-                raise ValueError("Invalid key type (authentication instead of key agreement) of:  " + key)
+            if not isinstance(
+                verification_material.type, VerificationMaterialTypeAgreement
+            ):
+                raise ValueError(
+                    "Invalid key type (authentication instead of key agreement) of:  "
+                    + key
+                )
             key_agreement.append(VerificationMethod(verification_material, peer_did))
         else:
             raise ValueError("Unkniwn prefix: " + prefix)
@@ -193,10 +214,11 @@ def _build_did_doc_numalgo_2(
         did=peer_did,
         authentication=authentication,
         key_agreement=key_agreement,
-        service=decoded_service
+        service=decoded_service,
     )
 
     return did_doc.to_dict()
+
 
 # the method is not needed for the static layer, because did_doc can be obtained from peer_did and vice versa.
 # But the method will be needed for dynamic layer support

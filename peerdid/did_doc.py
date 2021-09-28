@@ -23,7 +23,9 @@ class VerificationMaterialTypeAuthentication(Enum):
         return [e.value for e in VerificationMaterialTypeAuthentication]
 
 
-VerificationMaterialType = Union[VerificationMaterialTypeAgreement, VerificationMaterialTypeAuthentication]
+VerificationMaterialType = Union[
+    VerificationMaterialTypeAgreement, VerificationMaterialTypeAuthentication
+]
 
 
 class PublicKeyField(Enum):
@@ -38,13 +40,12 @@ VerificationMaterial = NamedTuple(
         ("field", PublicKeyField),
         ("type", VerificationMaterialType),
         ("value", Union[str, Dict]),
-        ("encnumbasis", str)
+        ("encnumbasis", str),
     ],
 )
 
 
 class VerificationMethod:
-
     def __init__(self, ver_material: VerificationMaterial, did: str):
         self.ver_material = ver_material
         self.did = did
@@ -59,12 +60,14 @@ class VerificationMethod:
 
 
 class JWK_OKP:
-
     def __init__(self, ver_material_type: VerificationMaterialType, value: bytes):
         self.x = base64.urlsafe_b64encode(value).decode("utf-8")
         if ver_material_type == VerificationMaterialTypeAgreement.JSON_WEB_KEY_2020:
             self.crv = "X25519"
-        elif ver_material_type == VerificationMaterialTypeAuthentication.JSON_WEB_KEY_2020:
+        elif (
+            ver_material_type
+            == VerificationMaterialTypeAuthentication.JSON_WEB_KEY_2020
+        ):
             self.crv = "Ed25519"
         else:
             raise ValueError("Unsupported JWK type: " + ver_material_type.value)
@@ -78,12 +81,13 @@ class JWK_OKP:
 
 
 class DIDDoc:
-
-    def __init__(self,
-                 did: str,
-                 authentication: List[VerificationMethod],
-                 key_agreement: Optional[List[VerificationMethod]] = None,
-                 service: Optional[List[Dict]] = None):
+    def __init__(
+        self,
+        did: str,
+        authentication: List[VerificationMethod],
+        key_agreement: Optional[List[VerificationMethod]] = None,
+        service: Optional[List[Dict]] = None,
+    ):
         self.authentication = authentication
         self.did = did
         self.key_agreement = key_agreement

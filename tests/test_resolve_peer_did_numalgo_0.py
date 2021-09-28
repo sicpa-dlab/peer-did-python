@@ -14,7 +14,7 @@ from tests.test_vectors import (
 
 def test_resolve_positive_default():
     did_doc = resolve_peer_did(peer_did=PEER_DID_NUMALGO_0)
-    assert json.loads(did_doc) == json.loads(DID_DOC_NUMALGO_O_BASE58)
+    assert json.loads(did_doc) == json.loads(DID_DOC_NUMALGO_O_MULTIBASE)
 
 
 def test_resolve_positive_base58():

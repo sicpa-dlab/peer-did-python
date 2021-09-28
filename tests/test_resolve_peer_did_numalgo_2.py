@@ -16,7 +16,7 @@ from tests.test_vectors import (
 
 def test_resolve_numalgo_2_positive_default():
     did_doc = resolve_peer_did(peer_did=PEER_DID_NUMALGO_2)
-    assert json.loads(did_doc) == json.loads(DID_DOC_NUMALGO_2_BASE58)
+    assert json.loads(did_doc) == json.loads(DID_DOC_NUMALGO_2_MULTIBASE)
 
 
 def test_resolve_numalgo_2_positive_base58():
