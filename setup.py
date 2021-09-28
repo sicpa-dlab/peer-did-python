@@ -1,6 +1,6 @@
 import pathlib
 
-from setuptools import setup
+from setuptools import setup, find_packages
 
 HERE = pathlib.Path(__file__).parent
 README = (HERE / "README.md").read_text()
@@ -21,7 +21,11 @@ setup(
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.5",
     ],
-    packages=["peerdid"],
-    install_requires=[],
-    test_requires=["pytest"],
+    packages=find_packages(exclude=["tests", "tests.*"]),
+    install_requires=["base58~=2.1.0", "varint~=1.0.2"],
+    extras_require={
+        "tests": [
+            "pytest==5.4.3",
+        ]
+    },
 )
