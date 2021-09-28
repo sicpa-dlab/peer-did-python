@@ -3,7 +3,6 @@ import pytest
 from peerdid.did_doc import (
     PublicKeyField,
     VerificationMaterial,
-    VerificationMaterialType,
     VerificationMaterialTypeAgreement,
     VerificationMaterialTypeAuthentication,
 )
