@@ -1,7 +1,8 @@
 import base64
 import hashlib
-import re
 import json
+import re
+from collections import namedtuple
 from typing import Union, List
 
 import base58
@@ -15,6 +16,10 @@ from peerdid.types import (
     PublicKeyTypeAuthentication,
     PEER_DID,
     EncodingType,
+    VerificationMaterialFormat,
+    VerificationMaterialTypeAuthentication,
+    VerificationMaterialTypeAgreement,
+    PublicKeyType,
 )
 
 
@@ -35,6 +40,9 @@ def _encode_service(service: JSON) -> str:
         .encode("utf-8")
     )
     return ".S" + base64.b64encode(service_to_encode).decode("utf-8")
+
+
+VerificationMaterial = namedtuple("VerificationMaterial", "type, field, value")
 
 
 def _decode_service(service: str, peer_did: PEER_DID) -> List[dict]:
@@ -78,23 +86,78 @@ def _create_encnumbasis(key: Union[PublicKeyAgreement, PublicKeyAuthentication])
     return encnumbasis.decode("utf-8")
 
 
-def _decode_encnumbasis(encnumbasis: str, peer_did: PEER_DID) -> dict:
+def _decode_encnumbasis(
+    encnumbasis: str,
+    peer_did: PEER_DID,
+    ver_material_format: VerificationMaterialFormat,
+) -> dict:
     """
     Decodes encnumbasis
     :param encnumbasis: encnumbasis to decode
     :param peer_did: peer_did which will be used as an ID
+    :param ver_material_format: the format of public keys in the DID DOC
     :return: decoded encnumbasis
     """
     decoded_encnumbasis = base58.b58decode(encnumbasis)
-    codec = _get_codec(data=bytes(decoded_encnumbasis))
-    decoded_encnumbasis_without_prefix = _remove_prefix(decoded_encnumbasis)
-    public_key = base58.b58encode(decoded_encnumbasis_without_prefix).decode("utf-8")
+    ver_material = _get_verification_material(decoded_encnumbasis, ver_material_format)
     return {
         "id": peer_did + "#" + encnumbasis,
-        "type": codec,
+        "type": ver_material.type,
         "controller": peer_did,
-        "publicKeyBase58": public_key,
+        ver_material.field: ver_material.value,
     }
+
+
+def _get_verification_material(
+    decoded_encnumbasis: bytes, ver_material_format: VerificationMaterialFormat
+) -> VerificationMaterial:
+    type = _get_public_key_type(data=bytes(decoded_encnumbasis))
+    decoded_encnumbasis_without_prefix = _remove_prefix(decoded_encnumbasis)
+
+    if ver_material_format == VerificationMaterialFormat.BASE58:
+        public_key_value = base58.b58encode(decoded_encnumbasis_without_prefix).decode(
+            "utf-8"
+        )
+        public_key_field = "publicKeyBase58"
+        if type == PublicKeyTypeAgreement.X25519:
+            public_key_type = "X25519KeyAgreementKey2019"
+        elif type == PublicKeyTypeAuthentication.ED25519:
+            public_key_type = "Ed25519VerificationKey2018"
+        else:
+            raise ValueError("Unknown public key type {}".format(type))
+
+    elif ver_material_format == VerificationMaterialFormat.MULTIBASE:
+        public_key_value = "z" + base58.b58encode(
+            decoded_encnumbasis_without_prefix
+        ).decode("utf-8")
+        public_key_field = "publicKeyMultibase"
+        if type == PublicKeyTypeAgreement.X25519:
+            public_key_type = "X25519KeyAgreementKey2019"
+        elif type == PublicKeyTypeAuthentication.ED25519:
+            public_key_type = "Ed25519VerificationKey2020"
+        else:
+            raise ValueError("Unknown public key type {}".format(type))
+
+    elif ver_material_format == VerificationMaterialFormat.JWK:
+        public_key_field = "publicKeyJwk"
+        public_key_type = "JsonWebKey2020"
+        if type == PublicKeyTypeAgreement.X25519 or PublicKeyTypeAuthentication.ED25519:
+            crv = "X25519" if type == PublicKeyTypeAgreement.X25519 else "Ed25519"
+            x = base64.urlsafe_b64encode(decoded_encnumbasis_without_prefix).decode(
+                "utf-8"
+            )
+            public_key_value = {
+                "kty": "OKP",
+                "crv": crv,
+                "x": x,
+            }
+        else:
+            raise ValueError("Unknown public key type {}".format(type))
+
+    else:
+        raise ValueError("Unknown format {}".format(ver_material_format))
+
+    return VerificationMaterial(public_key_type, public_key_field, public_key_value)
 
 
 def _remove_prefix(data: bytes) -> bytes:
@@ -108,7 +171,7 @@ def _remove_prefix(data: bytes) -> bytes:
     return data[len(prefix) :]
 
 
-def _get_codec(data: bytes) -> str:
+def _get_public_key_type(data: bytes) -> PublicKeyType:
     """
     Gets codec from data
     :param data: prefixed data
@@ -117,9 +180,9 @@ def _get_codec(data: bytes) -> str:
     """
     prefix = _extract_prefix(data)
     if prefix in set(item.value for item in PublicKeyTypeAuthentication):
-        return PublicKeyTypeAuthentication(prefix).name
+        return PublicKeyTypeAuthentication(prefix)
     elif prefix in set(item.value for item in PublicKeyTypeAgreement):
-        return PublicKeyTypeAgreement(prefix).name
+        return PublicKeyTypeAgreement(prefix)
     else:
         raise ValueError("Prefix {} not present in the lookup table".format(prefix))
 
@@ -159,10 +222,13 @@ def _encode_filename(filename: str) -> str:
     return hashlib.sha256(filename.encode()).hexdigest()
 
 
-def _build_did_doc_numalgo_0(peer_did: PEER_DID) -> dict:
+def _build_did_doc_numalgo_0(
+    peer_did: PEER_DID, format: VerificationMaterialFormat
+) -> dict:
     """
     Helper method to create did_doc according to numalgo 0
     :param peer_did: peer_did to resolve
+    :param format: the format of public keys in the DID DOC
     :raises ValueError:
         1) if peer_did contains encryption key instead of signing
         2) if peer_did contains unsupported transform part
@@ -172,17 +238,23 @@ def _build_did_doc_numalgo_0(peer_did: PEER_DID) -> dict:
     encoding_algorithm = peer_did[10]
     if not encoding_algorithm == "z":
         raise ValueError("Unsupported encoding algorithm of key: " + encoding_algorithm)
-    decoded_encnumbasis = _decode_encnumbasis(inception_key, peer_did)
-    if not decoded_encnumbasis["type"] in PublicKeyTypeAuthentication.__members__:
+    decoded_encnumbasis = _decode_encnumbasis(inception_key, peer_did, format)
+    if (
+        not decoded_encnumbasis["type"]
+        in VerificationMaterialTypeAuthentication.values()
+    ):
         raise ValueError("Invalid key type (encryption instead of signing)")
-    did_doc = {"id": peer_did, "authentication": decoded_encnumbasis}
+    did_doc = {"id": peer_did, "authentication": [decoded_encnumbasis]}
     return did_doc
 
 
-def _build_did_doc_numalgo_2(peer_did: PEER_DID) -> dict:
+def _build_did_doc_numalgo_2(
+    peer_did: PEER_DID, format: VerificationMaterialFormat
+) -> dict:
     """
     Helper method to create did_doc according to numalgo 2
     :param peer_did: peer_did to resolve
+    :param format: the format of public keys in the DID DOC
     :return: did_doc
     """
     keys = peer_did[11:]
@@ -198,7 +270,7 @@ def _build_did_doc_numalgo_2(peer_did: PEER_DID) -> dict:
         else:
             service = key[1:]
     decoded_encnumbasises = [
-        _decode_encnumbasis(key, peer_did) for key in keys_without_purpose_code
+        _decode_encnumbasis(key, peer_did, format) for key in keys_without_purpose_code
     ]
     decoded_service = _decode_service(service, peer_did)
 
@@ -206,12 +278,14 @@ def _build_did_doc_numalgo_2(peer_did: PEER_DID) -> dict:
     key_agreement = []
     for i in range(len(decoded_encnumbasises)):
         if (
-            decoded_encnumbasises[i]["type"] in PublicKeyTypeAuthentication.__members__
+            decoded_encnumbasises[i]["type"]
+            in VerificationMaterialTypeAuthentication.values()
             and keys[i][0] == "V"
         ):
             authentication.append(decoded_encnumbasises[i])
         elif (
-            decoded_encnumbasises[i]["type"] in PublicKeyTypeAgreement.__members__
+            decoded_encnumbasises[i]["type"]
+            in VerificationMaterialTypeAgreement.values()
             and keys[i][0] == "E"
         ):
             key_agreement.append(decoded_encnumbasises[i])

@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import NamedTuple
+from typing import NamedTuple, Union
 
 
 class PublicKeyTypeAgreement(Enum):
@@ -8,11 +8,38 @@ class PublicKeyTypeAgreement(Enum):
 
 class PublicKeyTypeAuthentication(Enum):
     ED25519 = 0xED
-    SECP256K1 = 0xE7
+
+
+PublicKeyType = Union[PublicKeyTypeAgreement, PublicKeyTypeAuthentication]
 
 
 class EncodingType(Enum):
     BASE58 = 0
+
+
+class VerificationMaterialFormat(Enum):
+    JWK = 1
+    BASE58 = 2
+    MULTIBASE = 3
+
+
+class VerificationMaterialTypeAgreement(Enum):
+    JSON_WEB_KEY_2020 = "JsonWebKey2020"
+    X25519_KEY_AGREEMENT_KEY_2019 = "X25519KeyAgreementKey2019"
+
+    @staticmethod
+    def values():
+        return [e.value for e in VerificationMaterialTypeAgreement]
+
+
+class VerificationMaterialTypeAuthentication(Enum):
+    JSON_WEB_KEY_2020 = "JsonWebKey2020"
+    ED25519_VERIFICATION_KEY_2018 = "Ed25519VerificationKey2018"
+    ED25519_VERIFICATION_KEY_2020 = "Ed25519VerificationKey2020"
+
+    @staticmethod
+    def values():
+        return [e.value for e in VerificationMaterialTypeAuthentication]
 
 
 PublicKeyAgreement = NamedTuple(

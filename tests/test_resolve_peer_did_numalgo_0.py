@@ -3,29 +3,39 @@ import json
 import pytest
 
 from peerdid.peer_did import resolve_peer_did
+from peerdid.types import VerificationMaterialFormat
+from tests.test_vectors import (
+    PEER_DID_NUMALGO_0,
+    DID_DOC_NUMALGO_O_BASE58,
+    DID_DOC_NUMALGO_O_MULTIBASE,
+    DID_DOC_NUMALGO_O_JWK,
+)
 
 
-def test_resolve_positive():
-    expected_value = json.loads(
-        """
-           {
-               "id": "did:peer:0z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
-               "authentication": {
-                   "id": "did:peer:0z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V#6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
-                   "type": "ED25519",
-                   "controller": "did:peer:0z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
-                   "publicKeyBase58": "ByHnpUCFb1vAfh9CFZ8ZkmUZguURW8nSw889hy6rD8L7"
-               }
-           }
-        """
+def test_resolve_positive_default():
+    did_doc = resolve_peer_did(peer_did=PEER_DID_NUMALGO_0)
+    assert json.loads(did_doc) == json.loads(DID_DOC_NUMALGO_O_BASE58)
+
+
+def test_resolve_positive_base58():
+    did_doc = resolve_peer_did(
+        peer_did=PEER_DID_NUMALGO_0, format=VerificationMaterialFormat.BASE58
     )
+    assert json.loads(did_doc) == json.loads(DID_DOC_NUMALGO_O_BASE58)
 
-    real_value = json.loads(
-        resolve_peer_did(
-            peer_did="did:peer:0z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V"
-        )
+
+def test_resolve_positive_multibase():
+    did_doc = resolve_peer_did(
+        peer_did=PEER_DID_NUMALGO_0, format=VerificationMaterialFormat.MULTIBASE
     )
-    assert real_value == expected_value
+    assert json.loads(did_doc) == json.loads(DID_DOC_NUMALGO_O_MULTIBASE)
+
+
+def test_resolve_positive_jwk():
+    did_doc = resolve_peer_did(
+        peer_did=PEER_DID_NUMALGO_0, format=VerificationMaterialFormat.JWK
+    )
+    assert json.loads(did_doc) == json.loads(DID_DOC_NUMALGO_O_JWK)
 
 
 def test_resolve_unsupported_did_method():

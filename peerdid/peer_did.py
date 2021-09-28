@@ -10,7 +10,13 @@ from peerdid.peer_did_utils import (
     _check_key_correctly_encoded,
     _is_json,
 )
-from peerdid.types import PEER_DID, PublicKeyAgreement, PublicKeyAuthentication, JSON
+from peerdid.types import (
+    PEER_DID,
+    PublicKeyAgreement,
+    PublicKeyAuthentication,
+    JSON,
+    VerificationMaterialFormat,
+)
 
 
 def is_peer_did(peer_did: PEER_DID) -> bool:
@@ -119,21 +125,30 @@ def create_peer_did_numalgo_2(
     return peer_did
 
 
-def resolve_peer_did(peer_did: PEER_DID, version_id=None) -> JSON:
+def resolve_peer_did(
+    peer_did: PEER_DID,
+    version_id=None,
+    format: VerificationMaterialFormat = VerificationMaterialFormat.BASE58,
+) -> JSON:
     """
     Resolves did_doc from peer_did
     :param peer_did: peer_did to resolve
     :param version_id: a specific version of a DID doc. If value is default, version of DID doc will be latest.
         version_id is not used for now, as we support only static layer where did doc never changes
+    :param format: the format of public keys in the DID DOC. Default format is base58.
     :raises ValueError: if peer_did parameter does not match peer_did spec
     :return: resolved did_doc as a JSON string
     """
     if not is_peer_did(peer_did):
         raise ValueError("Invalid Peer DID")
     if peer_did[9] == "0":
-        return json.dumps(_build_did_doc_numalgo_0(peer_did=peer_did), indent=4)
+        return json.dumps(
+            _build_did_doc_numalgo_0(peer_did=peer_did, format=format), indent=4
+        )
     if peer_did[9] == "2":
-        return json.dumps(_build_did_doc_numalgo_2(peer_did=peer_did), indent=4)
+        return json.dumps(
+            _build_did_doc_numalgo_2(peer_did=peer_did, format=format), indent=4
+        )
 
 
 # the method is not needed for the static layer, because did_doc can be obtained from peer_did and vice versa.
