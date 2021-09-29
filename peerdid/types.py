@@ -8,11 +8,16 @@ class PublicKeyTypeAgreement(Enum):
 
 class PublicKeyTypeAuthentication(Enum):
     ED25519 = 0xED
-    SECP256K1 = 0xE7
 
 
 class EncodingType(Enum):
     BASE58 = 0
+
+
+class DIDDocVerMaterialFormat(Enum):
+    JWK = 1
+    BASE58 = 2
+    MULTIBASE = 3
 
 
 PublicKeyAgreement = NamedTuple(
