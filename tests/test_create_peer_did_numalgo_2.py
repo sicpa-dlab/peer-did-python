@@ -29,7 +29,7 @@ VALID_ED25519_KEY_2 = PublicKeyAuthentication(
 
 VALID_SERVICE = """
     {
-        "type": "didcommmessaging",
+        "type": "DIDCommMessaging",
         "serviceEndpoint": "https://example.com/endpoint",
         "routingKeys": ["did:example:somemediator#somekey"],
         "accept": ["didcomm/v2", "didcomm/aip2;env=rfc587"]
@@ -45,7 +45,7 @@ def test_create_numalgo_2_positive():
     ]
     service = """[
             {
-                "type": "didcommmessaging",
+                "type": "DIDCommMessaging",
                 "serviceEndpoint": "https://example.com/endpoint",
                 "routingKeys": ["did:example:somemediator#somekey"]
             },
@@ -287,7 +287,7 @@ def test_create_numalgo_2_service_has_more_fields_than_in_conversion_table():
         VALID_ED25519_KEY_2,
     ]
     service = """{
-        "type": "didcommmessaging",
+        "type": "DIDCommMessaging",
         "serviceEndpoint": "https://example.com/endpoint",
         "routingKeys": ["did:example:somemediator#somekey"],
         "example1": "myExample1",
@@ -388,7 +388,7 @@ def test_create_numalgo_2_malformed_encryption_key_not_base58_encoded():
         VALID_ED25519_KEY_2,
     ]
     service = """{
-            "type": "didcommmessaging",
+            "type": "DIDCommMessaging",
             "serviceEndpoint": "https://example.com/endpoint",
             "routingKeys": ["did:example:somemediator#somekey"]
             }
@@ -412,7 +412,7 @@ def test_create_numalgo_2_malformed_short_encryption_key():
         VALID_ED25519_KEY_2,
     ]
     service = """{
-            "type": "didcommmessaging",
+            "type": "DIDCommMessaging",
             "serviceEndpoint": "https://example.com/endpoint",
             "routingKeys": ["did:example:somemediator#somekey"]
             }
@@ -436,7 +436,7 @@ def test_create_numalgo_2_malformed_long_encryption_key():
         VALID_ED25519_KEY_2,
     ]
     service = """{
-            "type": "didcommmessaging",
+            "type": "DIDCommMessaging",
             "serviceEndpoint": "https://example.com/endpoint",
             "routingKeys": ["did:example:somemediator#somekey"]
             }
@@ -460,7 +460,7 @@ def test_create_numalgo_2_malformed_encryption_key_empty():
         VALID_ED25519_KEY_2,
     ]
     service = """{
-            "type": "didcommmessaging",
+            "type": "DIDCommMessaging",
             "serviceEndpoint": "https://example.com/endpoint",
             "routingKeys": ["did:example:somemediator#somekey"]
             }

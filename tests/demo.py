@@ -32,7 +32,7 @@ def test_create_save_resolve_peer_did():
     service = """
             [
                 {
-                    "type": "didcommmessaging",
+                    "type": "DIDCommMessaging",
                     "serviceEndpoint": "https://example.com/endpoint",
                     "routingKeys": ["did:example:somemediator#somekey"]
                 },

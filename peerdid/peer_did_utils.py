@@ -52,7 +52,7 @@ def _encode_service(service: JSON) -> str:
         re.sub(r"[\n\t\s]*", "", service)
         .replace("type", "t")
         .replace("serviceEndpoint", "s")
-        .replace("didcommmessaging", "dm")
+        .replace("DIDCommMessaging", "dm")
         .replace("routingKeys", "r")
         .replace("accept", "a")
         .encode("utf-8")
@@ -86,8 +86,8 @@ def _decode_service(service: str, peer_did: PEER_DID) -> List[dict]:
         service = list_of_service_dict[i]
         if "t" not in service:
             raise ValueError("service doesn't contain a type")
-        service_type = service.pop("t").replace("dm", "didcommmessaging")
-        service["id"] = peer_did + "#" + service_type + "-" + str(i)
+        service_type = service.pop("t").replace("dm", "DIDCommMessaging")
+        service["id"] = peer_did + "#" + service_type.lower() + "-" + str(i)
         service["type"] = service_type
         if "s" in service:
             service["serviceEndpoint"] = service.pop("s")

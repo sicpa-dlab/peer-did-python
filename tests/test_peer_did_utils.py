@@ -17,7 +17,7 @@ from tests.test_vectors import PEER_DID_NUMALGO_2
 
 def test_encode_service():
     service = """{
-        "type": "didcommmessaging",
+        "type": "DIDCommMessaging",
         "serviceEndpoint": "https://example.com/endpoint",
         "routingKeys": ["did:example:somemediator#somekey"],
         "accept": ["didcomm/v2", "didcomm/aip2;env=rfc587"]
@@ -38,7 +38,7 @@ def test_decode_service():
     expected = [
         {
             "id": PEER_DID_NUMALGO_2 + "#didcommmessaging-0",
-            "type": "didcommmessaging",
+            "type": "DIDCommMessaging",
             "serviceEndpoint": "https://example.com/endpoint",
             "routingKeys": ["did:example:somemediator#somekey"],
             "accept": ["didcomm/v2", "didcomm/aip2;env=rfc587"],
@@ -49,7 +49,7 @@ def test_decode_service():
 
 def test_encode_service_minimal_fields():
     service = """{
-        "type": "didcommmessaging",
+        "type": "DIDCommMessaging",
         "serviceEndpoint": "https://example.com/endpoint"
         }
         """
@@ -67,7 +67,7 @@ def test_decode_service_minimal_fields():
     expected = [
         {
             "id": PEER_DID_NUMALGO_2 + "#didcommmessaging-0",
-            "type": "didcommmessaging",
+            "type": "DIDCommMessaging",
             "serviceEndpoint": "https://example.com/endpoint",
         }
     ]
@@ -78,13 +78,13 @@ def test_encode_service_with_multiple_entries_list():
     services = """
             [
                 {
-                    "type": "didcommmessaging",
+                    "type": "DIDCommMessaging",
                     "serviceEndpoint": "https://example.com/endpoint",
                     "routingKeys": ["did:example:somemediator#somekey"],
                     "accept": ["didcomm/v2", "didcomm/aip2;env=rfc587"]
                 },
                 {
-                    "type": "didcommmessaging",
+                    "type": "DIDCommMessaging",
                     "serviceEndpoint": "https://example.com/endpoint2",
                     "routingKeys": ["did:example:somemediator#somekey2"]
                 }
