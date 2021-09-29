@@ -89,7 +89,7 @@ DID_DOC_NUMALGO_2_BASE58 = """
                    ],
                    "accept": [
                         "didcomm/v2", "didcomm/aip2;env=rfc587"
-                   ]                   
+                   ]
                }
            ]
        }
@@ -183,7 +183,7 @@ DID_DOC_NUMALGO_2_JWK = """
                    ],
                    "accept": [
                         "didcomm/v2", "didcomm/aip2;env=rfc587"
-                   ]                   
+                   ]
                }
            ]
        }
