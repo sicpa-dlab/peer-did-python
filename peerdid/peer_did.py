@@ -22,7 +22,7 @@ from peerdid.types import (
     PublicKeyAgreement,
     PublicKeyAuthentication,
     JSON,
-    VerificationMaterialFormat,
+    DIDDocVerMaterialFormat,
 )
 
 
@@ -139,12 +139,12 @@ def create_peer_did_numalgo_2(
 
 def resolve_peer_did(
     peer_did: PEER_DID,
-    format: VerificationMaterialFormat = VerificationMaterialFormat.MULTIBASE,
+    format: DIDDocVerMaterialFormat = DIDDocVerMaterialFormat.MULTIBASE,
 ) -> JSON:
     """
     Resolves did_doc from peer_did
     :param peer_did: peer_did to resolve
-    :param format: the format of public keys in the DID DOC. Default format is base58.
+    :param format: the format of public keys in the DID DOC. Default format is multibase.
     :raises ValueError: if peer_did parameter does not match peer_did spec
     :return: resolved did_doc as a JSON string
     """
@@ -158,7 +158,7 @@ def resolve_peer_did(
 
 
 def _build_did_doc_numalgo_0(
-    peer_did: PEER_DID, format: VerificationMaterialFormat
+    peer_did: PEER_DID, format: DIDDocVerMaterialFormat
 ) -> dict:
     verification_material = _decode_multibase_encnumbasis(peer_did[10:], format)
     if not isinstance(
@@ -174,7 +174,7 @@ def _build_did_doc_numalgo_0(
 
 
 def _build_did_doc_numalgo_2(
-    peer_did: PEER_DID, format: VerificationMaterialFormat
+    peer_did: PEER_DID, format: DIDDocVerMaterialFormat
 ) -> dict:
     keys = peer_did[11:]
     keys = keys.split(".")

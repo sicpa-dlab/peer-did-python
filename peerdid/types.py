@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import NamedTuple, Union
+from typing import NamedTuple
 
 
 class PublicKeyTypeAgreement(Enum):
@@ -10,14 +10,11 @@ class PublicKeyTypeAuthentication(Enum):
     ED25519 = 0xED
 
 
-PublicKeyType = Union[PublicKeyTypeAgreement, PublicKeyTypeAuthentication]
-
-
 class EncodingType(Enum):
     BASE58 = 0
 
 
-class VerificationMaterialFormat(Enum):
+class DIDDocVerMaterialFormat(Enum):
     JWK = 1
     BASE58 = 2
     MULTIBASE = 3

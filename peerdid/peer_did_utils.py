@@ -23,8 +23,7 @@ from peerdid.types import (
     PublicKeyTypeAuthentication,
     PEER_DID,
     EncodingType,
-    VerificationMaterialFormat,
-    PublicKeyType,
+    DIDDocVerMaterialFormat,
 )
 
 
@@ -36,6 +35,9 @@ class Numalgo2Prefix(Enum):
 
 class MultibasePrefix(Enum):
     BASE58 = "z"
+
+
+PublicKeyType = Union[PublicKeyTypeAgreement, PublicKeyTypeAuthentication]
 
 
 def _encode_service(service: JSON) -> str:
@@ -106,7 +108,7 @@ def _create_multibase_encnumbasis(
 
 def _decode_multibase_encnumbasis(
     multibase: str,
-    ver_material_format: VerificationMaterialFormat,
+    ver_material_format: DIDDocVerMaterialFormat,
 ) -> VerificationMaterial:
     """
     Decodes multibased encnumbasis to a verification material for DID DOC
@@ -121,21 +123,21 @@ def _decode_multibase_encnumbasis(
     decoded_encnumbasis = base58.b58decode(encnumbasis)
     decoded_encnumbasis_without_prefix = _remove_prefix(decoded_encnumbasis)
 
-    if ver_material_format == VerificationMaterialFormat.BASE58:
+    if ver_material_format == DIDDocVerMaterialFormat.BASE58:
         public_key_value = base58.b58encode(decoded_encnumbasis_without_prefix).decode(
             "utf-8"
         )
         public_key_field = PublicKeyField.BASE58
         ver_material_type = __get_2018_2019_ver_material_type(decoded_encnumbasis)
 
-    elif ver_material_format == VerificationMaterialFormat.MULTIBASE:
+    elif ver_material_format == DIDDocVerMaterialFormat.MULTIBASE:
         public_key_value = MultibasePrefix.BASE58.value + base58.b58encode(
             decoded_encnumbasis_without_prefix
         ).decode("utf-8")
         public_key_field = PublicKeyField.MULTIBASE
         ver_material_type = __get_2020_ver_material_type(decoded_encnumbasis)
 
-    elif ver_material_format == VerificationMaterialFormat.JWK:
+    elif ver_material_format == DIDDocVerMaterialFormat.JWK:
         public_key_field = PublicKeyField.JWK
         ver_material_type = __get_jwk_ver_material_type(decoded_encnumbasis)
         jwk = JWK_OKP(ver_material_type, decoded_encnumbasis_without_prefix)

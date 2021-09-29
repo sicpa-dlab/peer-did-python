@@ -7,7 +7,7 @@ from peerdid.did_doc import (
     VerificationMaterialTypeAuthentication,
 )
 from peerdid.peer_did_utils import _encode_service, _decode_multibase_encnumbasis
-from peerdid.types import VerificationMaterialFormat
+from peerdid.types import DIDDocVerMaterialFormat
 
 
 def test_encode_service():
@@ -66,7 +66,7 @@ def test_encode_service_with_multiple_entries_list():
     [
         (
             "z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
-            VerificationMaterialFormat.BASE58,
+            DIDDocVerMaterialFormat.BASE58,
             VerificationMaterial(
                 field=PublicKeyField.BASE58,
                 type=VerificationMaterialTypeAuthentication.ED25519_VERIFICATION_KEY_2018,
@@ -76,7 +76,7 @@ def test_encode_service_with_multiple_entries_list():
         ),
         (
             "z6LSbysY2xFMRpGMhb7tFTLMpeuPRaqaWM1yECx2AtzE3KCc",
-            VerificationMaterialFormat.BASE58,
+            DIDDocVerMaterialFormat.BASE58,
             VerificationMaterial(
                 field=PublicKeyField.BASE58,
                 type=VerificationMaterialTypeAgreement.X25519_KEY_AGREEMENT_KEY_2019,
@@ -86,7 +86,7 @@ def test_encode_service_with_multiple_entries_list():
         ),
         (
             "z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
-            VerificationMaterialFormat.MULTIBASE,
+            DIDDocVerMaterialFormat.MULTIBASE,
             VerificationMaterial(
                 field=PublicKeyField.MULTIBASE,
                 type=VerificationMaterialTypeAuthentication.ED25519_VERIFICATION_KEY_2020,
@@ -96,7 +96,7 @@ def test_encode_service_with_multiple_entries_list():
         ),
         (
             "z6LSbysY2xFMRpGMhb7tFTLMpeuPRaqaWM1yECx2AtzE3KCc",
-            VerificationMaterialFormat.MULTIBASE,
+            DIDDocVerMaterialFormat.MULTIBASE,
             VerificationMaterial(
                 field=PublicKeyField.MULTIBASE,
                 type=VerificationMaterialTypeAgreement.X25519_KEY_AGREEMENT_KEY_2020,
@@ -106,7 +106,7 @@ def test_encode_service_with_multiple_entries_list():
         ),
         (
             "z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
-            VerificationMaterialFormat.JWK,
+            DIDDocVerMaterialFormat.JWK,
             VerificationMaterial(
                 field=PublicKeyField.JWK,
                 type=VerificationMaterialTypeAuthentication.JSON_WEB_KEY_2020,
@@ -120,7 +120,7 @@ def test_encode_service_with_multiple_entries_list():
         ),
         (
             "z6LSbysY2xFMRpGMhb7tFTLMpeuPRaqaWM1yECx2AtzE3KCc",
-            VerificationMaterialFormat.JWK,
+            DIDDocVerMaterialFormat.JWK,
             VerificationMaterial(
                 field=PublicKeyField.JWK,
                 type=VerificationMaterialTypeAgreement.JSON_WEB_KEY_2020,
