@@ -207,7 +207,7 @@ def _build_did_doc_numalgo_2(
                 )
             key_agreement.append(VerificationMethod(verification_material, peer_did))
         else:
-            raise ValueError("Unkniwn prefix: " + prefix)
+            raise ValueError("Unknown prefix: " + prefix)
     decoded_service = _decode_service(service, peer_did)
 
     did_doc = DIDDoc(

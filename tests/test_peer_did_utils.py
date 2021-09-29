@@ -101,7 +101,7 @@ def test_encode_service_with_multiple_entries_list():
 @pytest.mark.parametrize(
     "input_multibase,format,expected",
     [
-        (
+        pytest.param(
             "z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
             DIDDocVerMaterialFormat.BASE58,
             VerificationMaterial(
@@ -110,8 +110,9 @@ def test_encode_service_with_multiple_entries_list():
                 value="ByHnpUCFb1vAfh9CFZ8ZkmUZguURW8nSw889hy6rD8L7",
                 encnumbasis="6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
             ),
+            id="base58-ed25519",
         ),
-        (
+        pytest.param(
             "z6LSbysY2xFMRpGMhb7tFTLMpeuPRaqaWM1yECx2AtzE3KCc",
             DIDDocVerMaterialFormat.BASE58,
             VerificationMaterial(
@@ -120,8 +121,9 @@ def test_encode_service_with_multiple_entries_list():
                 value="JhNWeSVLMYccCk7iopQW4guaSJTojqpMEELgSLhKwRr",
                 encnumbasis="6LSbysY2xFMRpGMhb7tFTLMpeuPRaqaWM1yECx2AtzE3KCc",
             ),
+            id="base58-x25519",
         ),
-        (
+        pytest.param(
             "z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
             DIDDocVerMaterialFormat.MULTIBASE,
             VerificationMaterial(
@@ -130,8 +132,9 @@ def test_encode_service_with_multiple_entries_list():
                 value="zByHnpUCFb1vAfh9CFZ8ZkmUZguURW8nSw889hy6rD8L7",
                 encnumbasis="6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
             ),
+            id="multibase-ed25519",
         ),
-        (
+        pytest.param(
             "z6LSbysY2xFMRpGMhb7tFTLMpeuPRaqaWM1yECx2AtzE3KCc",
             DIDDocVerMaterialFormat.MULTIBASE,
             VerificationMaterial(
@@ -140,8 +143,9 @@ def test_encode_service_with_multiple_entries_list():
                 value="zJhNWeSVLMYccCk7iopQW4guaSJTojqpMEELgSLhKwRr",
                 encnumbasis="6LSbysY2xFMRpGMhb7tFTLMpeuPRaqaWM1yECx2AtzE3KCc",
             ),
+            id="multibase-x25519",
         ),
-        (
+        pytest.param(
             "z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
             DIDDocVerMaterialFormat.JWK,
             VerificationMaterial(
@@ -154,8 +158,9 @@ def test_encode_service_with_multiple_entries_list():
                 },
                 encnumbasis="6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
             ),
+            id="jwk-ed25519",
         ),
-        (
+        pytest.param(
             "z6LSbysY2xFMRpGMhb7tFTLMpeuPRaqaWM1yECx2AtzE3KCc",
             DIDDocVerMaterialFormat.JWK,
             VerificationMaterial(
@@ -168,6 +173,7 @@ def test_encode_service_with_multiple_entries_list():
                 },
                 encnumbasis="6LSbysY2xFMRpGMhb7tFTLMpeuPRaqaWM1yECx2AtzE3KCc",
             ),
+            id="jwk-x25519",
         ),
     ],
 )

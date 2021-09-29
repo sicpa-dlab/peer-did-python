@@ -3,7 +3,7 @@ import hashlib
 import json
 import re
 from enum import Enum
-from typing import Union, List
+from typing import Union, List, Optional
 
 import base58
 import varint
@@ -64,7 +64,7 @@ def _encode_service(service: JSON) -> str:
     )
 
 
-def _decode_service(service: str, peer_did: PEER_DID) -> List[dict]:
+def _decode_service(service: str, peer_did: PEER_DID) -> Optional[List[dict]]:
     """
     Decodes service according to Peer DID spec
     (https://identity.foundation/peer-did-method-spec/index.html#example-2-abnf-for-peer-dids)
@@ -73,10 +73,8 @@ def _decode_service(service: str, peer_did: PEER_DID) -> List[dict]:
     :raises ValueError: if peer_did parameter is not valid
     :return: decoded service
     """
-    from peerdid.peer_did import is_peer_did
-
-    if not is_peer_did(peer_did):
-        raise ValueError("Invalid peer_did")
+    if not service:
+        return None
     decoded_service = base64.b64decode(service)
     list_of_service_dict = json.loads(decoded_service.decode("utf-8"))
     if not isinstance(list_of_service_dict, list):
