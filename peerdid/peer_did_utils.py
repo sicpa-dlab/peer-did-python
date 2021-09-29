@@ -75,10 +75,6 @@ def _decode_service(service: str, peer_did: PEER_DID) -> Optional[List[dict]]:
     """
     if not service:
         return None
-    from peerdid.peer_did import is_peer_did
-
-    if not is_peer_did(peer_did):
-        raise ValueError("Invalid peer_did")
     decoded_service = base64.b64decode(service)
     list_of_service_dict = json.loads(decoded_service.decode("utf-8"))
     if not isinstance(list_of_service_dict, list):
