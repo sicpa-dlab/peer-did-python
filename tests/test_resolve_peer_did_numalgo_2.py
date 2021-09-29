@@ -9,7 +9,9 @@ from tests.test_vectors import (
     PEER_DID_NUMALGO_2,
     DID_DOC_NUMALGO_2_MULTIBASE,
     DID_DOC_NUMALGO_2_JWK,
-    DID_DOC_NUMALGO_2_BASE58_2_SERVICES,
+    DID_DOC_NUMALGO_2_MULTIBASE_2_SERVICES,
+    PEER_DID_NUMALGO_2_NO_SERVICES,
+    DID_DOC_NUMALGO_2_MULTIBASE_NO_SERVICES,
     PEER_DID_NUMALGO_2_2_SERVICES,
 )
 
@@ -42,7 +44,12 @@ def test_resolve_numalgo_2_positive_jwk():
 
 def test_resolve_numalgo_2_positive_service_is_2_element_array():
     did_doc = resolve_peer_did(PEER_DID_NUMALGO_2_2_SERVICES)
-    assert json.loads(did_doc) == json.loads(DID_DOC_NUMALGO_2_BASE58_2_SERVICES)
+    assert json.loads(did_doc) == json.loads(DID_DOC_NUMALGO_2_MULTIBASE_2_SERVICES)
+
+
+def test_resolve_numalgo_2_positive_no_service():
+    did_doc = resolve_peer_did(PEER_DID_NUMALGO_2_NO_SERVICES)
+    assert json.loads(did_doc) == json.loads(DID_DOC_NUMALGO_2_MULTIBASE_NO_SERVICES)
 
 
 def test_resolve_numalgo_2_unsupported_transform_code():

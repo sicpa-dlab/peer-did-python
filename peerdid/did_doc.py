@@ -10,7 +10,7 @@ class VerificationMaterialTypeAgreement(Enum):
 
     @classmethod
     def values(cls):
-        return [e.value for e in VerificationMaterialTypeAgreement]
+        return [e.value for e in cls]
 
 
 class VerificationMaterialTypeAuthentication(Enum):
@@ -20,7 +20,7 @@ class VerificationMaterialTypeAuthentication(Enum):
 
     @classmethod
     def values(cls):
-        return [e.value for e in VerificationMaterialTypeAuthentication]
+        return [e.value for e in cls]
 
 
 VerificationMaterialType = Union[
