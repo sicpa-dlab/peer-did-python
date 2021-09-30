@@ -122,7 +122,7 @@ def test_create_numalgo_2_service_1_element_array():
                 "type": "DIDCommMessaging",
                 "serviceEndpoint": "https://example.com/endpoint",
                 "routingKeys": ["did:example:somemediator#somekey"]
-            }       
+            }
         ]
             """
 
