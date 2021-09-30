@@ -12,7 +12,7 @@ from peerdid.types import (
 )
 
 
-def test_create_save_resolve_peer_did():
+def demo():
     encryption_keys = [
         PublicKeyAgreement(
             type=PublicKeyTypeAgreement.X25519,
@@ -51,3 +51,7 @@ def test_create_save_resolve_peer_did():
     print("did_doc_algo_0:" + did_doc_algo_0)
     print("==================================")
     print("did_doc_algo_2:" + did_doc_algo_2)
+
+
+if __name__ == "__main__":
+    demo()

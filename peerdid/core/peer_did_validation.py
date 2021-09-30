@@ -1,7 +1,7 @@
 from typing import List, Optional
 
 from peerdid.core.peer_did_helper import _check_key_correctly_encoded
-from peerdid.core.utils import _is_json
+from peerdid.core.utils import _validate_json
 from peerdid.types import PublicKeyAuthentication, PublicKeyAgreement, JSON
 
 
@@ -47,7 +47,7 @@ def _validate_create_peer_did_numalgo_2_input(
             )
     try:
         if service is not None:
-            _is_json(service)
+            _validate_json(service)
     except TypeError as exte:
         raise TypeError("Service is not JSON type") from exte
     except ValueError as exve:
