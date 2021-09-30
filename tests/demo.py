@@ -3,8 +3,6 @@ from peerdid.peer_did import (
     create_peer_did_numalgo_2,
     resolve_peer_did,
 )
-from peerdid.storage import FileStorage
-from peerdid.peer_did_utils import _encode_filename
 from peerdid.types import (
     PublicKeyAuthentication,
     PublicKeyAgreement,
@@ -30,19 +28,13 @@ def test_create_save_resolve_peer_did():
         )
     ]
     service = """
-            [
                 {
                     "type": "DIDCommMessaging",
-                    "serviceEndpoint": "https://example.com/endpoint",
-                    "routingKeys": ["did:example:somemediator#somekey"]
-                },
-                {
-                    "type": "example",
-                    "serviceEndpoint": "https://example.com/endpoint2",
-                    "routingKeys": ["did:example:somemediator#somekey2"]
+                    "serviceEndpoint": "https://example.com/endpoint1",
+                    "routingKeys": ["did:example:somemediator#somekey1"],
+                    "accept": ["didcomm/v2", "didcomm/aip2;env=rfc587"]
                 }
-            ]
-        """
+            """
 
     peer_did_algo_0 = create_peer_did_numalgo_0(inception_key=signing_keys[0])
     peer_did_algo_2 = create_peer_did_numalgo_2(
@@ -53,9 +45,6 @@ def test_create_save_resolve_peer_did():
     print("==================================")
     print("peer_did_algo_2:" + peer_did_algo_2)
     print("==================================")
-
-    file_storage = FileStorage(peer_did_filename=_encode_filename(peer_did_algo_2))
-    file_storage.save(bytes(peer_did_algo_2, encoding="utf-8"))
 
     did_doc_algo_0 = resolve_peer_did(peer_did=peer_did_algo_0)
     did_doc_algo_2 = resolve_peer_did(peer_did=peer_did_algo_2)

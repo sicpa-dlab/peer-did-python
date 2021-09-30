@@ -71,6 +71,67 @@ def test_create_numalgo_2_positive():
     assert is_peer_did(peer_did_algo_2)
 
 
+def test_create_numalgo_2_service_not_array():
+    encryption_keys = [VALID_X25519_KEY]
+    signing_keys = [
+        VALID_ED25519_KEY_1,
+        VALID_ED25519_KEY_2,
+    ]
+    service = """
+            {
+                "type": "DIDCommMessaging",
+                "serviceEndpoint": "https://example.com/endpoint",
+                "routingKeys": ["did:example:somemediator#somekey"]
+            }
+            """
+
+    peer_did_algo_2 = create_peer_did_numalgo_2(
+        encryption_keys=encryption_keys, signing_keys=signing_keys, service=service
+    )
+    assert is_peer_did(peer_did_algo_2)
+
+
+def test_create_numalgo_2_service_minimal_fields():
+    encryption_keys = [VALID_X25519_KEY]
+    signing_keys = [
+        VALID_ED25519_KEY_1,
+        VALID_ED25519_KEY_2,
+    ]
+    service = """
+            {
+                "type": "DIDCommMessaging",
+                "serviceEndpoint": "https://example.com/endpoint"
+            }
+            """
+
+    peer_did_algo_2 = create_peer_did_numalgo_2(
+        encryption_keys=encryption_keys, signing_keys=signing_keys, service=service
+    )
+    assert is_peer_did(peer_did_algo_2)
+
+
+def test_create_numalgo_2_service_1_element_array():
+    encryption_keys = [VALID_X25519_KEY]
+    signing_keys = [
+        VALID_ED25519_KEY_1,
+        VALID_ED25519_KEY_2,
+    ]
+    service = """
+        [
+            {
+                "type": "DIDCommMessaging",
+                "serviceEndpoint": "https://example.com/endpoint",
+                "routingKeys": ["did:example:somemediator#somekey"]
+            }       
+        ]
+            """
+
+    peer_did_algo_2 = create_peer_did_numalgo_2(
+        encryption_keys=encryption_keys, signing_keys=signing_keys, service=service
+    )
+    assert is_peer_did(peer_did_algo_2)
+
+
 def test_create_numalgo_2_without_encryption_keys():
     encryption_keys = []
     signing_keys = [

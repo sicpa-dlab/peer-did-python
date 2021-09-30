@@ -17,10 +17,10 @@ from tests.test_vectors import PEER_DID_NUMALGO_2
 
 def test_encode_service():
     service = """{
-        "type": "DIDCommMessaging",
-        "serviceEndpoint": "https://example.com/endpoint",
-        "routingKeys": ["did:example:somemediator#somekey"],
-        "accept": ["didcomm/v2", "didcomm/aip2;env=rfc587"]
+			"type": "DIDCommMessaging",
+			"serviceEndpoint": "https://example.com/endpoint",
+			"routingKeys": ["did:example:somemediator#somekey"],
+            "accept": ["didcomm/v2", "didcomm/aip2;env=rfc587"]
         }
         """
 
