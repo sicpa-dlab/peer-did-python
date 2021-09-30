@@ -8,38 +8,38 @@ only [static layers of support (1, 2a, 2b)](https://identity.foundation/peer-did
 ## Example
 
 Example code:
-
+```
     encryption_keys = [
-        PublicKeyAgreement(type=PublicKeyTypeAgreement.X25519, encoding_type=EncodingType.BASE58,
-                           encoded_value="DmgBSHMqaZiYqwNMEJJuxWzsGGC8jUYADrfSdBrC6L8s")
+        PublicKeyAgreement(
+            type=PublicKeyTypeAgreement.X25519,
+            encoding_type=EncodingType.BASE58,
+            encoded_value="DmgBSHMqaZiYqwNMEJJuxWzsGGC8jUYADrfSdBrC6L8s",
+        )
     ]
     signing_keys = [
-        PublicKeyAuthentication(type=PublicKeyTypeAuthentication.ED25519, encoding_type=EncodingType.BASE58,
-                                encoded_value="ByHnpUCFb1vAfh9CFZ8ZkmUZguURW8nSw889hy6rD8L7")
+        PublicKeyAuthentication(
+            type=PublicKeyTypeAuthentication.ED25519,
+            encoding_type=EncodingType.BASE58,
+            encoded_value="ByHnpUCFb1vAfh9CFZ8ZkmUZguURW8nSw889hy6rD8L7",
+        )
     ]
-    service = \
-        '''
-            [
+    service = """
                 {
                     "type": "DIDCommMessaging",
-                    "serviceEndpoint": "https://example.com/endpoint",
-                    "routingKeys": ["did:example:somemediator#somekey"]
-                },
-                {
-                    "type": "example",
-                    "serviceEndpoint": "https://example.com/endpoint2",
-                    "routingKeys": ["did:example:somemediator#somekey2"]
+                    "serviceEndpoint": "https://example.com/endpoint1",
+                    "routingKeys": ["did:example:somemediator#somekey1"],
+                    "accept": ["didcomm/v2", "didcomm/aip2;env=rfc587"]
                 }
-            ]
-        '''
+              """
 
     peer_did_algo_0 = create_peer_did_numalgo_0(inception_key=signing_keys[0])
-    peer_did_algo_2 = create_peer_did_numalgo_2(encryption_keys=encryption_keys,
-                                                signing_keys=signing_keys,
-                                                service=service)
+    peer_did_algo_2 = create_peer_did_numalgo_2(
+        encryption_keys=encryption_keys, signing_keys=signing_keys, service=service
+    )
 
     did_doc_algo_0 = resolve_peer_did(peer_did=peer_did_algo_0)
     did_doc_algo_2 = resolve_peer_did(peer_did=peer_did_algo_2)
+```
 
 Example of DID documents:
 
