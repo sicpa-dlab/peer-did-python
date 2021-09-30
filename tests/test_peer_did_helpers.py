@@ -1,15 +1,15 @@
 import pytest
 
-from peerdid.did_doc import (
-    PublicKeyField,
+from peerdid.core.did_doc import (
     VerificationMaterial,
-    VerificationMaterialTypeAgreement,
+    PublicKeyField,
     VerificationMaterialTypeAuthentication,
+    VerificationMaterialTypeAgreement,
 )
-from peerdid.peer_did_utils import (
+from peerdid.core.peer_did_helper import (
     _encode_service,
-    _decode_multibase_encnumbasis,
     _decode_service,
+    _decode_multibase_encnumbasis,
 )
 from peerdid.types import DIDDocVerMaterialFormat
 from tests.test_vectors import PEER_DID_NUMALGO_2
@@ -26,13 +26,13 @@ def test_encode_service():
 
     assert (
         _encode_service(service)
-        == ".SeyJ0IjoiZG0iLCJzIjoiaHR0cHM6Ly9leGFtcGxlLmNvbS9lbmRwb2ludCIsInIiOlsiZGlkOmV4YW1wbGU6c29tZW1lZGlhdG9yI3NvbWVrZXkiXSwiYSI6WyJkaWRjb21tL3YyIiwiZGlkY29tbS9haXAyO2Vudj1yZmM1ODciXX0="
+        == ".SeyJ0IjoiZG0iLCJzIjoiaHR0cHM6Ly9leGFtcGxlLmNvbS9lbmRwb2ludCIsInIiOlsiZGlkOmV4YW1wbGU6c29tZW1lZGlhdG9yI3NvbWVrZXkiXSwiYSI6WyJkaWRjb21tL3YyIiwiZGlkY29tbS9haXAyO2Vudj1yZmM1ODciXX0"
     )
 
 
 def test_decode_service():
     service = _decode_service(
-        service="eyJ0IjoiZG0iLCJzIjoiaHR0cHM6Ly9leGFtcGxlLmNvbS9lbmRwb2ludCIsInIiOlsiZGlkOmV4YW1wbGU6c29tZW1lZGlhdG9yI3NvbWVrZXkiXSwiYSI6WyJkaWRjb21tL3YyIiwiZGlkY29tbS9haXAyO2Vudj1yZmM1ODciXX0=",
+        service="eyJ0IjoiZG0iLCJzIjoiaHR0cHM6Ly9leGFtcGxlLmNvbS9lbmRwb2ludCIsInIiOlsiZGlkOmV4YW1wbGU6c29tZW1lZGlhdG9yI3NvbWVrZXkiXSwiYSI6WyJkaWRjb21tL3YyIiwiZGlkY29tbS9haXAyO2Vudj1yZmM1ODciXX0",
         peer_did=PEER_DID_NUMALGO_2,
     )
     expected = [
@@ -98,6 +98,29 @@ def test_encode_service_with_multiple_entries_list():
     )
 
 
+def test_decode_service_with_multiple_entries_list():
+    service = _decode_service(
+        service="W3sidCI6ImRtIiwicyI6Imh0dHBzOi8vZXhhbXBsZS5jb20vZW5kcG9pbnQiLCJyIjpbImRpZDpleGFtcGxlOnNvbWVtZWRpYXRvciNzb21la2V5Il0sImEiOlsiZGlkY29tbS92MiIsImRpZGNvbW0vYWlwMjtlbnY9cmZjNTg3Il19LHsidCI6ImRtIiwicyI6Imh0dHBzOi8vZXhhbXBsZS5jb20vZW5kcG9pbnQyIiwiciI6WyJkaWQ6ZXhhbXBsZTpzb21lbWVkaWF0b3Ijc29tZWtleTIiXX1d",
+        peer_did=PEER_DID_NUMALGO_2,
+    )
+    expected = [
+        {
+            "id": PEER_DID_NUMALGO_2 + "#didcommmessaging-0",
+            "type": "DIDCommMessaging",
+            "serviceEndpoint": "https://example.com/endpoint",
+            "routingKeys": ["did:example:somemediator#somekey"],
+            "accept": ["didcomm/v2", "didcomm/aip2;env=rfc587"],
+        },
+        {
+            "id": PEER_DID_NUMALGO_2 + "#didcommmessaging-1",
+            "type": "DIDCommMessaging",
+            "serviceEndpoint": "https://example.com/endpoint2",
+            "routingKeys": ["did:example:somemediator#somekey2"],
+        },
+    ]
+    assert service == expected
+
+
 @pytest.mark.parametrize(
     "input_multibase,format,expected",
     [
@@ -154,7 +177,7 @@ def test_encode_service_with_multiple_entries_list():
                 value={
                     "kty": "OKP",
                     "crv": "Ed25519",
-                    "x": "owBhCbktDjkfS6PdQddT0D3yjSitaSysP3YimJ_YgmA=",
+                    "x": "owBhCbktDjkfS6PdQddT0D3yjSitaSysP3YimJ_YgmA",
                 },
                 encnumbasis="6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
             ),
@@ -169,7 +192,7 @@ def test_encode_service_with_multiple_entries_list():
                 value={
                     "kty": "OKP",
                     "crv": "X25519",
-                    "x": "BIiFcQEn3dfvB2pjlhOQQour6jXy9d5s2FKEJNTOJik=",
+                    "x": "BIiFcQEn3dfvB2pjlhOQQour6jXy9d5s2FKEJNTOJik",
                 },
                 encnumbasis="6LSbysY2xFMRpGMhb7tFTLMpeuPRaqaWM1yECx2AtzE3KCc",
             ),

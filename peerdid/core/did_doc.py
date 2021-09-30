@@ -1,6 +1,7 @@
-import base64
 from enum import Enum
 from typing import NamedTuple, Union, Dict, List, Optional
+
+from peerdid.core.utils import _urlsafe_b64encode
 
 
 class VerificationMaterialTypeAgreement(Enum):
@@ -61,7 +62,7 @@ class VerificationMethod:
 
 class JWK_OKP:
     def __init__(self, ver_material_type: VerificationMaterialType, value: bytes):
-        self.x = base64.urlsafe_b64encode(value).decode("utf-8")
+        self.x = _urlsafe_b64encode(value).decode("utf-8")
         if ver_material_type == VerificationMaterialTypeAgreement.JSON_WEB_KEY_2020:
             self.crv = "X25519"
         elif (

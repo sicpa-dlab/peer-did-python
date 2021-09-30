@@ -1,4 +1,3 @@
-import base64
 import hashlib
 import json
 import re
@@ -8,13 +7,14 @@ from typing import Union, List, Optional
 import base58
 import varint
 
-from peerdid.did_doc import (
+from peerdid.core.did_doc import (
     VerificationMaterial,
+    PublicKeyField,
     VerificationMaterialTypeAgreement,
     VerificationMaterialTypeAuthentication,
-    PublicKeyField,
     JWK_OKP,
 )
+from peerdid.core.utils import _urlsafe_b64encode, _urlsafe_b64decode
 from peerdid.types import (
     JSON,
     PublicKeyAgreement,
@@ -60,7 +60,7 @@ def _encode_service(service: JSON) -> str:
     return (
         "."
         + Numalgo2Prefix.SERVICE.value
-        + base64.b64encode(service_to_encode).decode("utf-8")
+        + _urlsafe_b64encode(service_to_encode).decode("utf-8")
     )
 
 
@@ -75,7 +75,7 @@ def _decode_service(service: str, peer_did: PEER_DID) -> Optional[List[dict]]:
     """
     if not service:
         return None
-    decoded_service = base64.b64decode(service)
+    decoded_service = _urlsafe_b64decode(service.encode())
     list_of_service_dict = json.loads(decoded_service.decode("utf-8"))
     if not isinstance(list_of_service_dict, list):
         list_of_service_dict = [list_of_service_dict]
@@ -106,9 +106,7 @@ def _create_multibase_encnumbasis(
     :return: transform+encnumbasis
     """
     decoded_key = base58.b58decode(key.encoded_value)
-    prefixed_decoded_key = _add_prefix(key.type, decoded_key)
-    encnumbasis = base58.b58encode(prefixed_decoded_key)
-    return MultibasePrefix.BASE58.value + encnumbasis.decode("utf-8")
+    return _to_base58_multibase(_add_prefix(key.type, decoded_key))
 
 
 def _decode_multibase_encnumbasis(
@@ -129,34 +127,32 @@ def _decode_multibase_encnumbasis(
     decoded_encnumbasis_without_prefix = _remove_prefix(decoded_encnumbasis)
 
     if ver_material_format == DIDDocVerMaterialFormat.BASE58:
-        public_key_value = base58.b58encode(decoded_encnumbasis_without_prefix).decode(
-            "utf-8"
+        return VerificationMaterial(
+            field=PublicKeyField.BASE58,
+            type=__get_2018_2019_ver_material_type(decoded_encnumbasis),
+            value=base58.b58encode(decoded_encnumbasis_without_prefix).decode("utf-8"),
+            encnumbasis=encnumbasis,
         )
-        public_key_field = PublicKeyField.BASE58
-        ver_material_type = __get_2018_2019_ver_material_type(decoded_encnumbasis)
 
-    elif ver_material_format == DIDDocVerMaterialFormat.MULTIBASE:
-        public_key_value = MultibasePrefix.BASE58.value + base58.b58encode(
-            decoded_encnumbasis_without_prefix
-        ).decode("utf-8")
-        public_key_field = PublicKeyField.MULTIBASE
-        ver_material_type = __get_2020_ver_material_type(decoded_encnumbasis)
+    if ver_material_format == DIDDocVerMaterialFormat.MULTIBASE:
+        return VerificationMaterial(
+            field=PublicKeyField.MULTIBASE,
+            type=__get_2020_ver_material_type(decoded_encnumbasis),
+            value=_to_base58_multibase(decoded_encnumbasis_without_prefix),
+            encnumbasis=encnumbasis,
+        )
 
-    elif ver_material_format == DIDDocVerMaterialFormat.JWK:
-        public_key_field = PublicKeyField.JWK
+    if ver_material_format == DIDDocVerMaterialFormat.JWK:
         ver_material_type = __get_jwk_ver_material_type(decoded_encnumbasis)
-        jwk = JWK_OKP(ver_material_type, decoded_encnumbasis_without_prefix)
-        public_key_value = jwk.to_dict()
-
-    else:
-        raise ValueError("Unknown format {}".format(ver_material_format))
-
-    return VerificationMaterial(
-        field=public_key_field,
-        type=ver_material_type,
-        value=public_key_value,
-        encnumbasis=encnumbasis,
-    )
+        return VerificationMaterial(
+            field=PublicKeyField.JWK,
+            type=ver_material_type,
+            value=JWK_OKP(
+                ver_material_type, decoded_encnumbasis_without_prefix
+            ).to_dict(),
+            encnumbasis=encnumbasis,
+        )
+    raise ValueError("Unknown format {}".format(ver_material_format))
 
 
 def __get_2018_2019_ver_material_type(decoded_encnumbasis):
@@ -233,6 +229,10 @@ def _add_prefix(
     return b"".join([prefix, data])
 
 
+def _to_base58_multibase(value: bytes) -> str:
+    return MultibasePrefix.BASE58.value + base58.b58encode(value).decode("utf-8")
+
+
 def _encode_filename(filename: str) -> str:
     """
     Encodes filename to SHA256 string
@@ -259,16 +259,4 @@ def _check_key_correctly_encoded(key: str, encoding_type: EncodingType) -> bool:
     b58len = len(base58.b58decode(key))
     if b58len not in byte_lengths:
         return False
-    return True
-
-
-def _is_json(str_to_check: str) -> bool:
-    """
-    Checks if str is JSON
-    :param str_to_check: sting to check
-    :return: true if str is JSON, otherwise raises ValueError or TypeError
-    :raises TypeError: if str_to_check is not str type
-    :raises ValueError: if str_to_check is not valid JSON
-    """
-    json.loads(str_to_check)
     return True
