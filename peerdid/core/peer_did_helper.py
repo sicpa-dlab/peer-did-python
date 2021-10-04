@@ -2,19 +2,26 @@ import hashlib
 import json
 import re
 from enum import Enum
-from typing import Union, List, Optional
+from typing import Union, List, Optional, NamedTuple
 
 import base58
 import varint
 
-from peerdid.core.did_doc import (
-    VerificationMaterial,
-    PublicKeyField,
-    VerificationMaterialTypeAgreement,
-    VerificationMaterialTypeAuthentication,
-    JWK_OKP,
-)
 from peerdid.core.utils import _urlsafe_b64encode, _urlsafe_b64decode
+from peerdid.did_doc import (
+    VerificationMaterialPeerDID,
+    VerificationMethodField,
+    VerificationMethodTypeAgreement,
+    VerificationMethodTypeAuthentication,
+    JWK_OKP,
+    ServicePeerDID,
+    SERVICE_DIDCOMM_MESSAGING,
+    SERVICE_ENDPOINT,
+    SERVICE_TYPE,
+    SERVICE_ROUTING_KEYS,
+    SERVICE_ACCEPT,
+    SERVICE_ID,
+)
 from peerdid.types import (
     JSON,
     PublicKeyAgreement,
@@ -23,7 +30,7 @@ from peerdid.types import (
     PublicKeyTypeAuthentication,
     PEER_DID,
     EncodingType,
-    DIDDocVerMaterialFormat,
+    VerificationMaterialFormatPeerDID,
 )
 
 
@@ -39,6 +46,22 @@ class MultibasePrefix(Enum):
 
 PublicKeyType = Union[PublicKeyTypeAgreement, PublicKeyTypeAuthentication]
 
+ServiceField = NamedTuple(
+    "ServiceField",
+    [
+        ("full", str),
+        ("short", str),
+    ],
+)
+
+ServicePrefix = {
+    SERVICE_TYPE: "t",
+    SERVICE_ENDPOINT: "s",
+    SERVICE_DIDCOMM_MESSAGING: "dm",
+    SERVICE_ROUTING_KEYS: "r",
+    SERVICE_ACCEPT: "a",
+}
+
 
 def _encode_service(service: JSON) -> str:
     """
@@ -50,11 +73,11 @@ def _encode_service(service: JSON) -> str:
     """
     service_to_encode = (
         re.sub(r"[\n\t\s]*", "", service)
-        .replace("type", "t")
-        .replace("serviceEndpoint", "s")
-        .replace("DIDCommMessaging", "dm")
-        .replace("routingKeys", "r")
-        .replace("accept", "a")
+        .replace(SERVICE_TYPE, ServicePrefix[SERVICE_TYPE])
+        .replace(SERVICE_ENDPOINT, ServicePrefix[SERVICE_ENDPOINT])
+        .replace(SERVICE_DIDCOMM_MESSAGING, ServicePrefix[SERVICE_DIDCOMM_MESSAGING])
+        .replace(SERVICE_ROUTING_KEYS, ServicePrefix[SERVICE_ROUTING_KEYS])
+        .replace(SERVICE_ACCEPT, ServicePrefix[SERVICE_ACCEPT])
         .encode("utf-8")
     )
     return (
@@ -64,14 +87,14 @@ def _encode_service(service: JSON) -> str:
     )
 
 
-def _decode_service(service: str, peer_did: PEER_DID) -> Optional[List[dict]]:
+def _decode_service(service: str, peer_did: PEER_DID) -> Optional[List[ServicePeerDID]]:
     """
     Decodes service according to Peer DID spec
     (https://identity.foundation/peer-did-method-spec/index.html#example-2-abnf-for-peer-dids)
     :param service: service to decode
     :param peer_did: peer_did which will be used as an ID
     :raises ValueError: if peer_did parameter is not valid
-    :return: decoded service
+    :return: decoded service (either dict or DIDCommServicePeerDID instance)
     """
     if not service:
         return None
@@ -79,20 +102,25 @@ def _decode_service(service: str, peer_did: PEER_DID) -> Optional[List[dict]]:
     list_of_service_dict = json.loads(decoded_service.decode("utf-8"))
     if not isinstance(list_of_service_dict, list):
         list_of_service_dict = [list_of_service_dict]
-
+    res = []
     for i in range(len(list_of_service_dict)):
         service = list_of_service_dict[i]
-        if "t" not in service:
+        if ServicePrefix[SERVICE_TYPE] not in service:
             raise ValueError("service doesn't contain a type")
-        service_type = service.pop("t").replace("dm", "DIDCommMessaging")
-        service["id"] = peer_did + "#" + service_type.lower() + "-" + str(i)
-        service["type"] = service_type
-        if "s" in service:
-            service["serviceEndpoint"] = service.pop("s")
-        if "r" in service:
-            service["routingKeys"] = service.pop("r")
-        if "a" in service:
-            service["accept"] = service.pop("a")
+        service_type = service.pop(ServicePrefix[SERVICE_TYPE]).replace(
+            ServicePrefix[SERVICE_DIDCOMM_MESSAGING], SERVICE_DIDCOMM_MESSAGING
+        )
+        service[SERVICE_ID] = peer_did + "#" + service_type.lower() + "-" + str(i)
+        service[SERVICE_TYPE] = service_type
+        if ServicePrefix[SERVICE_ENDPOINT] in service:
+            service[SERVICE_ENDPOINT] = service.pop(ServicePrefix[SERVICE_ENDPOINT])
+        if ServicePrefix[SERVICE_ROUTING_KEYS] in service:
+            service[SERVICE_ROUTING_KEYS] = service.pop(
+                ServicePrefix[SERVICE_ROUTING_KEYS]
+            )
+        if ServicePrefix[SERVICE_ACCEPT] in service:
+            service[SERVICE_ACCEPT] = service.pop(ServicePrefix[SERVICE_ACCEPT])
+
     return list_of_service_dict
 
 
@@ -111,8 +139,8 @@ def _create_multibase_encnumbasis(
 
 def _decode_multibase_encnumbasis(
     multibase: str,
-    ver_material_format: DIDDocVerMaterialFormat,
-) -> VerificationMaterial:
+    ver_material_format: VerificationMaterialFormatPeerDID,
+) -> VerificationMaterialPeerDID:
     """
     Decodes multibased encnumbasis to a verification material for DID DOC
     :param multibase: transform+encnumbasis to decode
@@ -126,30 +154,33 @@ def _decode_multibase_encnumbasis(
     decoded_encnumbasis = base58.b58decode(encnumbasis)
     decoded_encnumbasis_without_prefix = _remove_prefix(decoded_encnumbasis)
 
-    if ver_material_format == DIDDocVerMaterialFormat.BASE58:
-        return VerificationMaterial(
-            field=PublicKeyField.BASE58,
+    if ver_material_format == VerificationMaterialFormatPeerDID.BASE58:
+        return VerificationMaterialPeerDID(
+            field=VerificationMethodField.BASE58,
             type=__get_2018_2019_ver_material_type(decoded_encnumbasis),
             value=base58.b58encode(decoded_encnumbasis_without_prefix).decode("utf-8"),
+            format=VerificationMaterialFormatPeerDID.BASE58,
             encnumbasis=encnumbasis,
         )
 
-    if ver_material_format == DIDDocVerMaterialFormat.MULTIBASE:
-        return VerificationMaterial(
-            field=PublicKeyField.MULTIBASE,
+    if ver_material_format == VerificationMaterialFormatPeerDID.MULTIBASE:
+        return VerificationMaterialPeerDID(
+            field=VerificationMethodField.MULTIBASE,
             type=__get_2020_ver_material_type(decoded_encnumbasis),
             value=_to_base58_multibase(decoded_encnumbasis_without_prefix),
+            format=VerificationMaterialFormatPeerDID.MULTIBASE,
             encnumbasis=encnumbasis,
         )
 
-    if ver_material_format == DIDDocVerMaterialFormat.JWK:
+    if ver_material_format == VerificationMaterialFormatPeerDID.JWK:
         ver_material_type = __get_jwk_ver_material_type(decoded_encnumbasis)
-        return VerificationMaterial(
-            field=PublicKeyField.JWK,
+        return VerificationMaterialPeerDID(
+            field=VerificationMethodField.JWK,
             type=ver_material_type,
             value=JWK_OKP(
                 ver_material_type, decoded_encnumbasis_without_prefix
             ).to_dict(),
+            format=VerificationMaterialFormatPeerDID.JWK,
             encnumbasis=encnumbasis,
         )
     raise ValueError("Unknown format {}".format(ver_material_format))
@@ -158,27 +189,27 @@ def _decode_multibase_encnumbasis(
 def __get_2018_2019_ver_material_type(decoded_encnumbasis):
     public_key_type = __get_public_key_type(decoded_encnumbasis)
     if public_key_type == PublicKeyTypeAgreement.X25519:
-        return VerificationMaterialTypeAgreement.X25519_KEY_AGREEMENT_KEY_2019
+        return VerificationMethodTypeAgreement.X25519_KEY_AGREEMENT_KEY_2019
     elif public_key_type == PublicKeyTypeAuthentication.ED25519:
-        return VerificationMaterialTypeAuthentication.ED25519_VERIFICATION_KEY_2018
+        return VerificationMethodTypeAuthentication.ED25519_VERIFICATION_KEY_2018
     raise ValueError("Unknown public key type {}".format(public_key_type))
 
 
 def __get_2020_ver_material_type(decoded_encnumbasis):
     public_key_type = __get_public_key_type(decoded_encnumbasis)
     if public_key_type == PublicKeyTypeAgreement.X25519:
-        return VerificationMaterialTypeAgreement.X25519_KEY_AGREEMENT_KEY_2020
+        return VerificationMethodTypeAgreement.X25519_KEY_AGREEMENT_KEY_2020
     elif public_key_type == PublicKeyTypeAuthentication.ED25519:
-        return VerificationMaterialTypeAuthentication.ED25519_VERIFICATION_KEY_2020
+        return VerificationMethodTypeAuthentication.ED25519_VERIFICATION_KEY_2020
     raise ValueError("Unknown public key type {}".format(public_key_type))
 
 
 def __get_jwk_ver_material_type(decoded_encnumbasis):
     public_key_type = __get_public_key_type(decoded_encnumbasis)
     if public_key_type == PublicKeyTypeAgreement.X25519:
-        return VerificationMaterialTypeAgreement.JSON_WEB_KEY_2020
+        return VerificationMethodTypeAgreement.JSON_WEB_KEY_2020
     elif public_key_type == PublicKeyTypeAuthentication.ED25519:
-        return VerificationMaterialTypeAuthentication.JSON_WEB_KEY_2020
+        return VerificationMethodTypeAuthentication.JSON_WEB_KEY_2020
     raise ValueError("Unknown public key type {}".format(type))
 
 

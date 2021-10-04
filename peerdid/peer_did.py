@@ -1,11 +1,6 @@
-import json
 import re
 from typing import List, Optional
 
-from peerdid.core.did_doc import (
-    DIDDoc,
-    VerificationMethod,
-)
 from peerdid.core.peer_did_helper import (
     _create_multibase_encnumbasis,
     Numalgo2Prefix,
@@ -19,13 +14,14 @@ from peerdid.core.peer_did_validation import (
     _validate_verification_material_auth,
     _validate_verification_material_agreem,
 )
+from peerdid.did_doc import DIDDocPeerDID, VerificationMethodPeerDID
 from peerdid.errors import MalformedPeerDIDError
 from peerdid.types import (
     PEER_DID,
     PublicKeyAgreement,
     PublicKeyAuthentication,
     JSON,
-    DIDDocVerMaterialFormat,
+    VerificationMaterialFormatPeerDID,
 )
 
 
@@ -105,7 +101,7 @@ def create_peer_did_numalgo_2(
 
 def resolve_peer_did(
     peer_did: PEER_DID,
-    format: DIDDocVerMaterialFormat = DIDDocVerMaterialFormat.MULTIBASE,
+    format: VerificationMaterialFormatPeerDID = VerificationMaterialFormatPeerDID.MULTIBASE,
 ) -> JSON:
     """
     Resolves did_doc from peer_did
@@ -120,23 +116,25 @@ def resolve_peer_did(
         did_doc = _build_did_doc_numalgo_0(peer_did=peer_did, format=format)
     else:
         did_doc = _build_did_doc_numalgo_2(peer_did=peer_did, format=format)
-    return json.dumps(did_doc.to_dict(), indent=4)
+    return did_doc.to_json()
 
 
 def _build_did_doc_numalgo_0(
-    peer_did: PEER_DID, format: DIDDocVerMaterialFormat
-) -> DIDDoc:
+    peer_did: PEER_DID, format: VerificationMaterialFormatPeerDID
+) -> DIDDocPeerDID:
     verification_material = __do_decode_multibase_encnumbasis(peer_did[10:], format)
     _validate_verification_material_auth(verification_material)
-    return DIDDoc(
+    return DIDDocPeerDID(
         did=peer_did,
-        authentication=[VerificationMethod(verification_material, peer_did)],
+        authentication=[
+            VerificationMethodPeerDID(did=peer_did, ver_material=verification_material)
+        ],
     )
 
 
 def _build_did_doc_numalgo_2(
-    peer_did: PEER_DID, format: DIDDocVerMaterialFormat
-) -> DIDDoc:
+    peer_did: PEER_DID, format: VerificationMaterialFormatPeerDID
+) -> DIDDocPeerDID:
     keys = peer_did[11:]
     keys = keys.split(".")
     service = ""
@@ -150,16 +148,24 @@ def _build_did_doc_numalgo_2(
         elif prefix == Numalgo2Prefix.AUTHENTICATION.value:
             verification_material = __do_decode_multibase_encnumbasis(key[1:], format)
             _validate_verification_material_auth(verification_material)
-            authentication.append(VerificationMethod(verification_material, peer_did))
+            authentication.append(
+                VerificationMethodPeerDID(
+                    did=peer_did, ver_material=verification_material
+                )
+            )
         elif prefix == Numalgo2Prefix.KEY_AGREEMENT.value:
             verification_material = __do_decode_multibase_encnumbasis(key[1:], format)
             _validate_verification_material_agreem(verification_material)
-            key_agreement.append(VerificationMethod(verification_material, peer_did))
+            key_agreement.append(
+                VerificationMethodPeerDID(
+                    did=peer_did, ver_material=verification_material
+                )
+            )
         else:
             raise MalformedPeerDIDError("Unknown prefix: {}.".format(prefix))
     decoded_service = __do_decode_service(service, peer_did)
 
-    return DIDDoc(
+    return DIDDocPeerDID(
         did=peer_did,
         authentication=authentication,
         key_agreement=key_agreement,
@@ -168,7 +174,7 @@ def _build_did_doc_numalgo_2(
 
 
 def __do_decode_multibase_encnumbasis(
-    multibase: str, ver_material_format: DIDDocVerMaterialFormat
+    multibase: str, ver_material_format: VerificationMaterialFormatPeerDID
 ):
     try:
         return _decode_multibase_encnumbasis(multibase, ver_material_format)

@@ -37,8 +37,11 @@ Example code:
         encryption_keys=encryption_keys, signing_keys=signing_keys, service=service
     )
 
-    did_doc_algo_0 = resolve_peer_did(peer_did=peer_did_algo_0)
-    did_doc_algo_2 = resolve_peer_did(peer_did=peer_did_algo_2)
+    did_doc_algo_0_json = resolve_peer_did(peer_did=peer_did_algo_0)
+    did_doc_algo_2_json = resolve_peer_did(peer_did=peer_did_algo_2)
+
+    did_doc_algo_0 = DIDDocPeerDID.from_json(did_doc_algo_0_json)
+    did_doc_algo_2 = DIDDocPeerDID.from_json(did_doc_algo_2_json)
 ```
 
 Example of DID documents:

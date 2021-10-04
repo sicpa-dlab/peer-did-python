@@ -14,7 +14,7 @@ class EncodingType(Enum):
     BASE58 = 0
 
 
-class DIDDocVerMaterialFormat(Enum):
+class VerificationMaterialFormatPeerDID(Enum):
     JWK = 1
     BASE58 = 2
     MULTIBASE = 3

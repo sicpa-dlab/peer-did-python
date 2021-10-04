@@ -4,7 +4,7 @@ import pytest
 
 from peerdid.errors import MalformedPeerDIDError
 from peerdid.peer_did import resolve_peer_did
-from peerdid.types import DIDDocVerMaterialFormat
+from peerdid.types import VerificationMaterialFormatPeerDID
 from tests.test_vectors import (
     DID_DOC_NUMALGO_2_BASE58,
     PEER_DID_NUMALGO_2,
@@ -14,6 +14,8 @@ from tests.test_vectors import (
     PEER_DID_NUMALGO_2_NO_SERVICES,
     DID_DOC_NUMALGO_2_MULTIBASE_NO_SERVICES,
     PEER_DID_NUMALGO_2_2_SERVICES,
+    DID_DOC_NUMALGO_2_MULTIBASE_MINIMAL_SERVICES,
+    PEER_DID_NUMALGO_2_MINIMAL_SERVICES,
 )
 
 
@@ -24,21 +26,21 @@ def test_resolve_numalgo_2_positive_default():
 
 def test_resolve_numalgo_2_positive_base58():
     did_doc = resolve_peer_did(
-        peer_did=PEER_DID_NUMALGO_2, format=DIDDocVerMaterialFormat.BASE58
+        peer_did=PEER_DID_NUMALGO_2, format=VerificationMaterialFormatPeerDID.BASE58
     )
     assert json.loads(did_doc) == json.loads(DID_DOC_NUMALGO_2_BASE58)
 
 
 def test_resolve_numalgo_2_positive_multibase():
     did_doc = resolve_peer_did(
-        peer_did=PEER_DID_NUMALGO_2, format=DIDDocVerMaterialFormat.MULTIBASE
+        peer_did=PEER_DID_NUMALGO_2, format=VerificationMaterialFormatPeerDID.MULTIBASE
     )
     assert json.loads(did_doc) == json.loads(DID_DOC_NUMALGO_2_MULTIBASE)
 
 
 def test_resolve_numalgo_2_positive_jwk():
     did_doc = resolve_peer_did(
-        peer_did=PEER_DID_NUMALGO_2, format=DIDDocVerMaterialFormat.JWK
+        peer_did=PEER_DID_NUMALGO_2, format=VerificationMaterialFormatPeerDID.JWK
     )
     assert json.loads(did_doc) == json.loads(DID_DOC_NUMALGO_2_JWK)
 
@@ -51,6 +53,13 @@ def test_resolve_numalgo_2_positive_service_is_2_element_array():
 def test_resolve_numalgo_2_positive_no_service():
     did_doc = resolve_peer_did(PEER_DID_NUMALGO_2_NO_SERVICES)
     assert json.loads(did_doc) == json.loads(DID_DOC_NUMALGO_2_MULTIBASE_NO_SERVICES)
+
+
+def test_resolve_numalgo_2_positive_minimal_service():
+    did_doc = resolve_peer_did(PEER_DID_NUMALGO_2_MINIMAL_SERVICES)
+    assert json.loads(did_doc) == json.loads(
+        DID_DOC_NUMALGO_2_MULTIBASE_MINIMAL_SERVICES
+    )
 
 
 def test_resolve_numalgo_2_unsupported_transform_code():

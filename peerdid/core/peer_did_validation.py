@@ -1,12 +1,12 @@
 from typing import List, Optional
 
-from peerdid.core.did_doc import (
-    VerificationMaterial,
-    VerificationMaterialTypeAuthentication,
-    VerificationMaterialTypeAgreement,
-)
 from peerdid.core.peer_did_helper import _check_key_correctly_encoded
 from peerdid.core.utils import _validate_json
+from peerdid.did_doc import (
+    VerificationMaterialPeerDID,
+    VerificationMethodTypeAuthentication,
+    VerificationMethodTypeAgreement,
+)
 from peerdid.errors import MalformedPeerDIDError
 from peerdid.types import PublicKeyAuthentication, PublicKeyAgreement, JSON
 
@@ -60,17 +60,19 @@ def _validate_create_peer_did_numalgo_2_input(
         raise ValueError("Service is not valid JSON") from exve
 
 
-def _validate_verification_material_auth(verification_material: VerificationMaterial):
-    if not isinstance(
-        verification_material.type, VerificationMaterialTypeAuthentication
-    ):
+def _validate_verification_material_auth(
+    verification_material: VerificationMaterialPeerDID,
+):
+    if not isinstance(verification_material.type, VerificationMethodTypeAuthentication):
         raise MalformedPeerDIDError(
             "Invalid key type (key agreement instead of authentication)."
         )
 
 
-def _validate_verification_material_agreem(verification_material: VerificationMaterial):
-    if not isinstance(verification_material.type, VerificationMaterialTypeAgreement):
+def _validate_verification_material_agreem(
+    verification_material: VerificationMaterialPeerDID,
+):
+    if not isinstance(verification_material.type, VerificationMethodTypeAgreement):
         raise MalformedPeerDIDError(
             "Invalid key type (authentication instead of key agreement)"
         )
