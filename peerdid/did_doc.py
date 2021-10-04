@@ -11,18 +11,18 @@ from peerdid.types import VerificationMaterialFormatPeerDID, JSON
 
 class DIDDocPeerDID:
     def __init__(
-            self,
-            did: str,
-            authentication: List[VerificationMethodPeerDID],
-            key_agreement: Optional[List[VerificationMethodPeerDID]] = None,
-            service: Optional[List[ServicePeerDID]] = None,
+        self,
+        did: str,
+        authentication: List[VerificationMethodPeerDID],
+        key_agreement: Optional[List[VerificationMethodPeerDID]] = None,
+        service: Optional[List[ServicePeerDID]] = None,
     ):
         self.authentication = authentication
         self.did = did
         self.key_agreement = key_agreement
         self.service = service
 
-    def to_dict(self) -> JSON:
+    def to_dict(self) -> dict:
         res = {
             "id": self.did,
             "authentication": [a.to_dict() for a in self.authentication],
@@ -38,6 +38,12 @@ class DIDDocPeerDID:
 
     @classmethod
     def from_json(cls, value: JSON) -> DIDDocPeerDID:
+        """
+        Creates a new instance of DIDDocPeerDID from the given DID Doc JSON.
+        :param value: DID doc as JSON
+        :raises MalformedPeerDIDDocError: if the JSON can not be converted to a valid DID Doc object
+        :return: a new instance of DIDDocPeerDID
+        """
         did_doc_dict = json.loads(value)
         if "id" not in value:
             raise MalformedPeerDIDDocError("No 'id' field")
@@ -109,11 +115,11 @@ SERVICE_ACCEPT = "accept"
 
 class DIDCommServicePeerDID:
     def __init__(
-            self,
-            id: str,
-            service_endpoint: Optional[str],
-            routing_keys: Optional[List[str]],
-            accept: Optional[List[str]],
+        self,
+        id: str,
+        service_endpoint: Optional[str],
+        routing_keys: Optional[List[str]],
+        accept: Optional[List[str]],
     ) -> None:
         self.id = id
         self.service_endpoint = service_endpoint
@@ -187,8 +193,8 @@ class VerificationMethodPeerDID:
         did = value["id"].split("#")[0]
 
         if (
-                ver_method_type
-                == VerificationMethodTypeAuthentication.ED25519_VERIFICATION_KEY_2018.value
+            ver_method_type
+            == VerificationMethodTypeAuthentication.ED25519_VERIFICATION_KEY_2018.value
         ):
             ver_material = _get_ver_material(
                 value=value,
@@ -199,8 +205,8 @@ class VerificationMethodPeerDID:
             )
 
         elif (
-                ver_method_type
-                == VerificationMethodTypeAuthentication.ED25519_VERIFICATION_KEY_2020.value
+            ver_method_type
+            == VerificationMethodTypeAuthentication.ED25519_VERIFICATION_KEY_2020.value
         ):
             ver_material = _get_ver_material(
                 value=value,
@@ -211,8 +217,8 @@ class VerificationMethodPeerDID:
             )
 
         elif (
-                ver_method_type
-                == VerificationMethodTypeAgreement.X25519_KEY_AGREEMENT_KEY_2019.value
+            ver_method_type
+            == VerificationMethodTypeAgreement.X25519_KEY_AGREEMENT_KEY_2019.value
         ):
             ver_material = _get_ver_material(
                 value=value,
@@ -223,8 +229,8 @@ class VerificationMethodPeerDID:
             )
 
         elif (
-                ver_method_type
-                == VerificationMethodTypeAgreement.X25519_KEY_AGREEMENT_KEY_2020.value
+            ver_method_type
+            == VerificationMethodTypeAgreement.X25519_KEY_AGREEMENT_KEY_2020.value
         ):
             ver_material = _get_ver_material(
                 value=value,
@@ -235,9 +241,9 @@ class VerificationMethodPeerDID:
             )
 
         elif (
-                ver_method_type == VerificationMethodTypeAgreement.JSON_WEB_KEY_2020.value
-                or ver_method_type
-                == VerificationMethodTypeAuthentication.JSON_WEB_KEY_2020.value
+            ver_method_type == VerificationMethodTypeAgreement.JSON_WEB_KEY_2020.value
+            or ver_method_type
+            == VerificationMethodTypeAuthentication.JSON_WEB_KEY_2020.value
         ):
             ver_material = _get_ver_material_jwk(
                 value=value,
@@ -262,8 +268,8 @@ class JWK_OKP:
         if self.ver_method_type == VerificationMethodTypeAgreement.JSON_WEB_KEY_2020:
             crv = "X25519"
         elif (
-                self.ver_method_type
-                == VerificationMethodTypeAuthentication.JSON_WEB_KEY_2020
+            self.ver_method_type
+            == VerificationMethodTypeAuthentication.JSON_WEB_KEY_2020
         ):
             crv = "Ed25519"
         else:
@@ -290,11 +296,11 @@ class JWK_OKP:
 
 
 def _get_ver_material(
-        value: dict,
-        field: VerificationMethodField,
-        format: VerificationMaterialFormatPeerDID,
-        type: VerificationMethodType,
-        encnumbasis: str,
+    value: dict,
+    field: VerificationMethodField,
+    format: VerificationMaterialFormatPeerDID,
+    type: VerificationMethodType,
+    encnumbasis: str,
 ) -> VerificationMaterialPeerDID:
     if field.value not in value:
         raise MalformedPeerDIDDocError(
@@ -310,10 +316,10 @@ def _get_ver_material(
 
 
 def _get_ver_material_jwk(
-        value: dict,
-        field: VerificationMethodField,
-        format: VerificationMaterialFormatPeerDID,
-        encnumbasis: str,
+    value: dict,
+    field: VerificationMethodField,
+    format: VerificationMaterialFormatPeerDID,
+    encnumbasis: str,
 ) -> VerificationMaterialPeerDID:
     if field.value not in value:
         raise MalformedPeerDIDDocError(
