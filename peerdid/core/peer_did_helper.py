@@ -2,7 +2,7 @@ import hashlib
 import json
 import re
 from enum import Enum
-from typing import Union, List, Optional, NamedTuple
+from typing import Union, List, Optional
 
 import base58
 import varint
@@ -45,14 +45,6 @@ class MultibasePrefix(Enum):
 
 
 PublicKeyType = Union[PublicKeyTypeAgreement, PublicKeyTypeAuthentication]
-
-ServiceField = NamedTuple(
-    "ServiceField",
-    [
-        ("full", str),
-        ("short", str),
-    ],
-)
 
 ServicePrefix = {
     SERVICE_TYPE: "t",
@@ -102,7 +94,6 @@ def _decode_service(service: str, peer_did: PEER_DID) -> Optional[List[ServicePe
     list_of_service_dict = json.loads(decoded_service.decode("utf-8"))
     if not isinstance(list_of_service_dict, list):
         list_of_service_dict = [list_of_service_dict]
-    res = []
     for i in range(len(list_of_service_dict)):
         service = list_of_service_dict[i]
         if ServicePrefix[SERVICE_TYPE] not in service:
