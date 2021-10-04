@@ -4,9 +4,7 @@ from typing import List, Optional
 
 from peerdid.core.did_doc import (
     DIDDoc,
-    VerificationMaterialTypeAuthentication,
     VerificationMethod,
-    VerificationMaterialTypeAgreement,
 )
 from peerdid.core.peer_did_helper import (
     _create_multibase_encnumbasis,
@@ -18,7 +16,10 @@ from peerdid.core.peer_did_helper import (
 from peerdid.core.peer_did_validation import (
     _validate_create_peer_did_numalgo_0_input,
     _validate_create_peer_did_numalgo_2_input,
+    _validate_verification_material_auth,
+    _validate_verification_material_agreem,
 )
+from peerdid.errors import MalformedPeerDIDError
 from peerdid.types import (
     PEER_DID,
     PublicKeyAgreement,
@@ -110,11 +111,11 @@ def resolve_peer_did(
     Resolves did_doc from peer_did
     :param peer_did: peer_did to resolve
     :param format: the format of public keys in the DID DOC. Default format is multibase.
-    :raises ValueError: if peer_did parameter does not match peer_did spec
+    :raises MalformedPeerDIDError: if peer_did parameter does not match peer_did spec
     :return: resolved did_doc as a JSON string
     """
     if not is_peer_did(peer_did):
-        raise ValueError("Invalid Peer DID")
+        raise MalformedPeerDIDError("Does not match peer DID regexp")
     if peer_did[9] == "0":
         did_doc = _build_did_doc_numalgo_0(peer_did=peer_did, format=format)
     else:
@@ -125,12 +126,8 @@ def resolve_peer_did(
 def _build_did_doc_numalgo_0(
     peer_did: PEER_DID, format: DIDDocVerMaterialFormat
 ) -> DIDDoc:
-    verification_material = _decode_multibase_encnumbasis(peer_did[10:], format)
-    if not isinstance(
-        verification_material.type, VerificationMaterialTypeAuthentication
-    ):
-        raise ValueError("Invalid key type (key agreement instead of authentication)")
-
+    verification_material = __do_decode_multibase_encnumbasis(peer_did[10:], format)
+    _validate_verification_material_auth(verification_material)
     return DIDDoc(
         did=peer_did,
         authentication=[VerificationMethod(verification_material, peer_did)],
@@ -151,30 +148,16 @@ def _build_did_doc_numalgo_2(
         if prefix == Numalgo2Prefix.SERVICE.value:
             service = key[1:]
         elif prefix == Numalgo2Prefix.AUTHENTICATION.value:
-            verification_material = _decode_multibase_encnumbasis(key[1:], format)
-            if not isinstance(
-                verification_material.type, VerificationMaterialTypeAuthentication
-            ):
-                raise ValueError(
-                    "Invalid key type (key agreement instead of authentication) of {}".format(
-                        key
-                    )
-                )
+            verification_material = __do_decode_multibase_encnumbasis(key[1:], format)
+            _validate_verification_material_auth(verification_material)
             authentication.append(VerificationMethod(verification_material, peer_did))
         elif prefix == Numalgo2Prefix.KEY_AGREEMENT.value:
-            verification_material = _decode_multibase_encnumbasis(key[1:], format)
-            if not isinstance(
-                verification_material.type, VerificationMaterialTypeAgreement
-            ):
-                raise ValueError(
-                    "Invalid key type (authentication instead of key agreement) of {}".format(
-                        key
-                    )
-                )
+            verification_material = __do_decode_multibase_encnumbasis(key[1:], format)
+            _validate_verification_material_agreem(verification_material)
             key_agreement.append(VerificationMethod(verification_material, peer_did))
         else:
-            raise ValueError("Unknown prefix: " + prefix)
-    decoded_service = _decode_service(service, peer_did)
+            raise MalformedPeerDIDError("Unknown prefix: {}.".format(prefix))
+    decoded_service = __do_decode_service(service, peer_did)
 
     return DIDDoc(
         did=peer_did,
@@ -182,6 +165,22 @@ def _build_did_doc_numalgo_2(
         key_agreement=key_agreement,
         service=decoded_service,
     )
+
+
+def __do_decode_multibase_encnumbasis(
+    multibase: str, ver_material_format: DIDDocVerMaterialFormat
+):
+    try:
+        return _decode_multibase_encnumbasis(multibase, ver_material_format)
+    except (ValueError, TypeError) as e:
+        raise MalformedPeerDIDError("Invalid key {}".format(multibase)) from e
+
+
+def __do_decode_service(service: str, peer_did: PEER_DID):
+    try:
+        return _decode_service(service, peer_did)
+    except (ValueError, TypeError) as e:
+        raise MalformedPeerDIDError("Invalid service") from e
 
 
 # the method is not needed for the static layer, because did_doc can be obtained from peer_did and vice versa.

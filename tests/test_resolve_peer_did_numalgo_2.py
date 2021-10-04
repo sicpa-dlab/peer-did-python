@@ -2,6 +2,7 @@ import json
 
 import pytest
 
+from peerdid.errors import MalformedPeerDIDError
 from peerdid.peer_did import resolve_peer_did
 from peerdid.types import DIDDocVerMaterialFormat
 from tests.test_vectors import (
@@ -53,7 +54,10 @@ def test_resolve_numalgo_2_positive_no_service():
 
 
 def test_resolve_numalgo_2_unsupported_transform_code():
-    with pytest.raises(ValueError):
+    with pytest.raises(
+        MalformedPeerDIDError,
+        match=r"Invalid peer DID provided.*Does not match peer DID regexp",
+    ):
         resolve_peer_did(
             "did:peer:2.Ea6LSbysY2xFMRpGMhb7tFTLMpeuPRaqaWM1yECx2AtzE3KCc"
             ".Va6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V"
@@ -62,7 +66,10 @@ def test_resolve_numalgo_2_unsupported_transform_code():
 
 
 def test_resolve_numalgo_2_signing_malformed_base58_encoding():
-    with pytest.raises(ValueError):
+    with pytest.raises(
+        MalformedPeerDIDError,
+        match=r"Invalid peer DID provided.*Does not match peer DID regexp",
+    ):
         resolve_peer_did(
             "did:peer:2.Ez6LSbysY2xFMRpGMhb7tFTLMpeuPRaqaWM1yECx2AtzE3KCc"
             ".Vz6MkqRYqQiSgvZQdnBytw86Qbs0ZWUkGv22od935YF4s8M7V"
@@ -71,7 +78,10 @@ def test_resolve_numalgo_2_signing_malformed_base58_encoding():
 
 
 def test_resolve_numalgo_2_encryption_malformed_base58_encoding():
-    with pytest.raises(ValueError):
+    with pytest.raises(
+        MalformedPeerDIDError,
+        match=r"Invalid peer DID provided.*Does not match peer DID regexp",
+    ):
         resolve_peer_did(
             "did:peer:2.Ez6LSbysY2xFMRpG0hb7tFTLMpeuPRaqaWM1yECx2AtzE3KCc"
             ".Vz6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V"
@@ -80,7 +90,9 @@ def test_resolve_numalgo_2_encryption_malformed_base58_encoding():
 
 
 def test_resolve_numalgo_2_signing_malformed_multicodec_encoding():
-    with pytest.raises(ValueError):
+    with pytest.raises(
+        MalformedPeerDIDError, match=r"Invalid peer DID provided.*Invalid key"
+    ):
         resolve_peer_did(
             "did:peer:2.Ez6LSbysY2xFMRpGMhb7tFTLMpeuPRaqaWM1yECx2AtzE3KCc"
             ".Vz6666YqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V"
@@ -89,7 +101,9 @@ def test_resolve_numalgo_2_signing_malformed_multicodec_encoding():
 
 
 def test_resolve_numalgo_2_encryption_malformed_multicodec_encoding():
-    with pytest.raises(ValueError):
+    with pytest.raises(
+        MalformedPeerDIDError, match=r"Invalid peer DID provided.*Invalid key"
+    ):
         resolve_peer_did(
             "did:peer:2.Ez7777sY2xFMRpGMhb7tFTLMpeuPRaqaWM1yECx2AtzE3KCc"
             ".Vz6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V"
@@ -98,7 +112,9 @@ def test_resolve_numalgo_2_encryption_malformed_multicodec_encoding():
 
 
 def test_resolve_numalgo_2_signing_invalid_key_type():
-    with pytest.raises(ValueError):
+    with pytest.raises(
+        MalformedPeerDIDError, match=r"Invalid peer DID provided.*Invalid key type"
+    ):
         resolve_peer_did(
             "did:peer:2.Vz6LSbysY2xFMRpGMhb7tFTLMpeuPRaqaWM1yECx2AtzE3KCc"
             ".Vz6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V"
@@ -107,7 +123,9 @@ def test_resolve_numalgo_2_signing_invalid_key_type():
 
 
 def test_resolve_numalgo_2_encryption_invalid_key_type():
-    with pytest.raises(ValueError):
+    with pytest.raises(
+        MalformedPeerDIDError, match=r"Invalid peer DID provided.*Invalid key type"
+    ):
         resolve_peer_did(
             "did:peer:2.Ez6LSbysY2xFMRpGMhb7tFTLMpeuPRaqaWM1yECx2AtzE3KCc"
             ".Ez6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V"
@@ -116,16 +134,37 @@ def test_resolve_numalgo_2_encryption_invalid_key_type():
 
 
 def test_resolve_numalgo_2_malformed_service_encoding():
-    with pytest.raises(ValueError):
+    with pytest.raises(
+        MalformedPeerDIDError,
+        match=r"Invalid peer DID provided.*Does not match peer DID regexp",
+    ):
         resolve_peer_did(
-            "did:peer:2.Ea6LSbysY2xFMRpGMhb7tFTLMpeuPRaqaWM1yECx2AtzE3KCc"
-            ".Va6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V"
-            ".SeyJ0IjoiZG0iLCJzIjoiaHR0cHM6Ly9\\GxlLmNvbS9lbmRwb2ludCIsInIiOlsiZGlkOmV4YW1wbGU6c29tZW1lZGlhdG9yI3NvbWVrZXkiXX0="
+            "did:peer:2"
+            + ".Ez6LSbysY2xFMRpGMhb7tFTLMpeuPRaqaWM1yECx2AtzE3KCc"
+            + ".Vz6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V"
+            + ".Vz6MkgoLTnTypo3tDRwCkZXSccTPHRLhF4ZnjhueYAFpEX6vg"
+            + ".SeyJ0IjoiZG0iLCJzIjoiaHR0cHM6Ly\\9leGFtcGxlLmNvbS9lbmRwb2ludCIsInIiOlsiZGlkOmV4YW1wbGU6c29tZW1lZGlhdG9yI3NvbWVrZXkiXSwiYSI6WyJkaWRjb21tL3YyIiwiZGlkY29tbS9haXAyO2Vudj1yZmM1ODciXX0"
+        )
+
+
+def test_resolve_numalgo_2_malformed_service():
+    with pytest.raises(
+        MalformedPeerDIDError, match=r"Invalid peer DID provided.*Invalid service"
+    ):
+        resolve_peer_did(
+            "did:peer:2"
+            + ".Ez6LSbysY2xFMRpGMhb7tFTLMpeuPRaqaWM1yECx2AtzE3KCc"
+            + ".Vz6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V"
+            + ".Vz6MkgoLTnTypo3tDRwCkZXSccTPHRLhF4ZnjhueYAFpEX6vg"
+            + ".Sasdf123"
         )
 
 
 def test_resolve_numalgo_2_invalid_prefix():
-    with pytest.raises(ValueError):
+    with pytest.raises(
+        MalformedPeerDIDError,
+        match=r"Invalid peer DID provided.*Does not match peer DID regexp",
+    ):
         resolve_peer_did(
             "did:peer:2"
             ".Cz6LSbysY2xFMRpGMhb7tFTLMpeuPRaqaWM1yECx2AtzE3KCc"
