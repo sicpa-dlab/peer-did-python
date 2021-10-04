@@ -2,11 +2,11 @@ import json
 
 import pytest
 
-from peerdid.did_doc import (
-    DIDDocPeerDID,
+from peerdid.core.did_doc_types import (
     VerificationMethodField,
     DIDCommServicePeerDID,
 )
+from peerdid.did_doc import DIDDocPeerDID
 from peerdid.types import VerificationMaterialFormatPeerDID
 from tests.test_vectors import (
     DID_DOC_NUMALGO_O_BASE58,

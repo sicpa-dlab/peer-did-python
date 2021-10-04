@@ -1,8 +1,8 @@
 from typing import List, Optional
 
 from peerdid.core.peer_did_helper import _check_key_correctly_encoded
-from peerdid.core.utils import _validate_json
-from peerdid.did_doc import (
+from peerdid.core.utils import validate_json
+from peerdid.core.did_doc_types import (
     VerificationMaterialPeerDID,
     VerificationMethodTypeAuthentication,
     VerificationMethodTypeAgreement,
@@ -11,7 +11,7 @@ from peerdid.errors import MalformedPeerDIDError
 from peerdid.types import PublicKeyAuthentication, PublicKeyAgreement, JSON
 
 
-def _validate_create_peer_did_numalgo_0_input(inception_key):
+def validate_create_peer_did_numalgo_0_input(inception_key):
     if not isinstance(inception_key, PublicKeyAuthentication):
         raise TypeError(
             "Wrong type of inception_key: {}. Expected: PublicKeyAuthentication".format(
@@ -24,7 +24,7 @@ def _validate_create_peer_did_numalgo_0_input(inception_key):
         raise ValueError("Inception key is not correctly encoded")
 
 
-def _validate_create_peer_did_numalgo_2_input(
+def validate_create_peer_did_numalgo_2_input(
     encryption_keys: List[PublicKeyAgreement],
     signing_keys: List[PublicKeyAuthentication],
     service: Optional[JSON],
@@ -53,14 +53,14 @@ def _validate_create_peer_did_numalgo_2_input(
             )
     try:
         if service is not None:
-            _validate_json(service)
+            validate_json(service)
     except TypeError as exte:
         raise TypeError("Service is not JSON type") from exte
     except ValueError as exve:
         raise ValueError("Service is not valid JSON") from exve
 
 
-def _validate_verification_material_auth(
+def validate_verification_material_auth(
     verification_material: VerificationMaterialPeerDID,
 ):
     if not isinstance(verification_material.type, VerificationMethodTypeAuthentication):
@@ -69,7 +69,7 @@ def _validate_verification_material_auth(
         )
 
 
-def _validate_verification_material_agreem(
+def validate_verification_material_agreem(
     verification_material: VerificationMaterialPeerDID,
 ):
     if not isinstance(verification_material.type, VerificationMethodTypeAgreement):

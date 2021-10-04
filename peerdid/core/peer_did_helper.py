@@ -7,8 +7,7 @@ from typing import Union, List, Optional
 import base58
 import varint
 
-from peerdid.core.utils import _urlsafe_b64encode, _urlsafe_b64decode
-from peerdid.did_doc import (
+from peerdid.core.did_doc_types import (
     VerificationMaterialPeerDID,
     VerificationMethodField,
     VerificationMethodTypeAgreement,
@@ -22,6 +21,7 @@ from peerdid.did_doc import (
     SERVICE_ACCEPT,
     SERVICE_ID,
 )
+from peerdid.core.utils import urlsafe_b64encode, urlsafe_b64decode
 from peerdid.types import (
     JSON,
     PublicKeyAgreement,
@@ -55,7 +55,7 @@ ServicePrefix = {
 }
 
 
-def _encode_service(service: JSON) -> str:
+def encode_service(service: JSON) -> str:
     """
     Generates encoded service according to the second algorithm
     (https://identity.foundation/peer-did-method-spec/index.html#generation-method)
@@ -75,11 +75,11 @@ def _encode_service(service: JSON) -> str:
     return (
         "."
         + Numalgo2Prefix.SERVICE.value
-        + _urlsafe_b64encode(service_to_encode).decode("utf-8")
+        + urlsafe_b64encode(service_to_encode).decode("utf-8")
     )
 
 
-def _decode_service(service: str, peer_did: PEER_DID) -> Optional[List[ServicePeerDID]]:
+def decode_service(service: str, peer_did: PEER_DID) -> Optional[List[ServicePeerDID]]:
     """
     Decodes service according to Peer DID spec
     (https://identity.foundation/peer-did-method-spec/index.html#example-2-abnf-for-peer-dids)
@@ -90,7 +90,7 @@ def _decode_service(service: str, peer_did: PEER_DID) -> Optional[List[ServicePe
     """
     if not service:
         return None
-    decoded_service = _urlsafe_b64decode(service.encode())
+    decoded_service = urlsafe_b64decode(service.encode())
     list_of_service_dict = json.loads(decoded_service.decode("utf-8"))
     if not isinstance(list_of_service_dict, list):
         list_of_service_dict = [list_of_service_dict]
@@ -115,7 +115,7 @@ def _decode_service(service: str, peer_did: PEER_DID) -> Optional[List[ServicePe
     return list_of_service_dict
 
 
-def _create_multibase_encnumbasis(
+def create_multibase_encnumbasis(
     key: Union[PublicKeyAgreement, PublicKeyAuthentication]
 ) -> str:
     """
@@ -128,7 +128,7 @@ def _create_multibase_encnumbasis(
     return _to_base58_multibase(_add_prefix(key.type, decoded_key))
 
 
-def _decode_multibase_encnumbasis(
+def decode_multibase_encnumbasis(
     multibase: str,
     ver_material_format: VerificationMaterialFormatPeerDID,
 ) -> VerificationMaterialPeerDID:

@@ -1,11 +1,11 @@
 import pytest
 
 from peerdid.core.peer_did_helper import (
-    _encode_service,
-    _decode_service,
-    _decode_multibase_encnumbasis,
+    encode_service,
+    decode_service,
+    decode_multibase_encnumbasis,
 )
-from peerdid.did_doc import (
+from peerdid.core.did_doc_types import (
     VerificationMaterialPeerDID,
     VerificationMethodTypeAgreement,
     VerificationMethodTypeAuthentication,
@@ -25,13 +25,13 @@ def test_encode_service():
         """
 
     assert (
-        _encode_service(service)
+        encode_service(service)
         == ".SeyJ0IjoiZG0iLCJzIjoiaHR0cHM6Ly9leGFtcGxlLmNvbS9lbmRwb2ludCIsInIiOlsiZGlkOmV4YW1wbGU6c29tZW1lZGlhdG9yI3NvbWVrZXkiXSwiYSI6WyJkaWRjb21tL3YyIiwiZGlkY29tbS9haXAyO2Vudj1yZmM1ODciXX0"
     )
 
 
 def test_decode_service():
-    service = _decode_service(
+    service = decode_service(
         service="eyJ0IjoiZG0iLCJzIjoiaHR0cHM6Ly9leGFtcGxlLmNvbS9lbmRwb2ludCIsInIiOlsiZGlkOmV4YW1wbGU6c29tZW1lZGlhdG9yI3NvbWVrZXkiXSwiYSI6WyJkaWRjb21tL3YyIiwiZGlkY29tbS9haXAyO2Vudj1yZmM1ODciXX0",
         peer_did=PEER_DID_NUMALGO_2,
     )
@@ -54,13 +54,13 @@ def test_encode_service_minimal_fields():
         }
         """
     assert (
-        _encode_service(service)
+        encode_service(service)
         == ".SeyJ0IjoiZG0iLCJzIjoiaHR0cHM6Ly9leGFtcGxlLmNvbS9lbmRwb2ludCJ9"
     )
 
 
 def test_decode_service_minimal_fields():
-    service = _decode_service(
+    service = decode_service(
         service="eyJ0IjoiZG0iLCJzIjoiaHR0cHM6Ly9leGFtcGxlLmNvbS9lbmRwb2ludCJ9",
         peer_did=PEER_DID_NUMALGO_2,
     )
@@ -91,7 +91,7 @@ def test_encode_service_with_multiple_entries_list():
             ]
             """
 
-    encoded_services = _encode_service(services)
+    encoded_services = encode_service(services)
     assert (
         encoded_services
         == ".SW3sidCI6ImRtIiwicyI6Imh0dHBzOi8vZXhhbXBsZS5jb20vZW5kcG9pbnQiLCJyIjpbImRpZDpleGFtcGxlOnNvbWVtZWRpYXRvciNzb21la2V5Il0sImEiOlsiZGlkY29tbS92MiIsImRpZGNvbW0vYWlwMjtlbnY9cmZjNTg3Il19LHsidCI6ImRtIiwicyI6Imh0dHBzOi8vZXhhbXBsZS5jb20vZW5kcG9pbnQyIiwiciI6WyJkaWQ6ZXhhbXBsZTpzb21lbWVkaWF0b3Ijc29tZWtleTIiXX1d"
@@ -99,7 +99,7 @@ def test_encode_service_with_multiple_entries_list():
 
 
 def test_decode_service_with_multiple_entries_list():
-    service = _decode_service(
+    service = decode_service(
         service="W3sidCI6ImRtIiwicyI6Imh0dHBzOi8vZXhhbXBsZS5jb20vZW5kcG9pbnQiLCJyIjpbImRpZDpleGFtcGxlOnNvbWVtZWRpYXRvciNzb21la2V5Il0sImEiOlsiZGlkY29tbS92MiIsImRpZGNvbW0vYWlwMjtlbnY9cmZjNTg3Il19LHsidCI6ImRtIiwicyI6Imh0dHBzOi8vZXhhbXBsZS5jb20vZW5kcG9pbnQyIiwiciI6WyJkaWQ6ZXhhbXBsZTpzb21lbWVkaWF0b3Ijc29tZWtleTIiXX1d",
         peer_did=PEER_DID_NUMALGO_2,
     )
@@ -207,5 +207,5 @@ def test_decode_service_with_multiple_entries_list():
     ],
 )
 def test_decode_encumbasis(input_multibase, format, expected):
-    res = _decode_multibase_encnumbasis(input_multibase, format)
+    res = decode_multibase_encnumbasis(input_multibase, format)
     assert res == expected

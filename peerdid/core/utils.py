@@ -2,7 +2,7 @@ import base64
 import json
 
 
-def _validate_json(str_to_check: str):
+def validate_json(str_to_check: str):
     """
     Checks if str is JSON
     :param str_to_check: string to check
@@ -12,7 +12,7 @@ def _validate_json(str_to_check: str):
     json.loads(str_to_check)
 
 
-def _urlsafe_b64encode(s: bytes) -> bytes:
+def urlsafe_b64encode(s: bytes) -> bytes:
     """
     Base 64 URL safe encoding with no padding.
     :param s: input str to be encoded
@@ -21,7 +21,7 @@ def _urlsafe_b64encode(s: bytes) -> bytes:
     return base64.urlsafe_b64encode(s).rstrip(b"=")
 
 
-def _urlsafe_b64decode(s: bytes) -> bytes:
+def urlsafe_b64decode(s: bytes) -> bytes:
     """
     Base 64 URL safe decoding with no padding.
     :param s: input bytes to be decoded
