@@ -23,6 +23,14 @@ class DIDDocPeerDID:
         self.key_agreement = key_agreement
         self.service = service
 
+    @property
+    def auth_kids(self):
+        return [v.id for v in self.authentication]
+
+    @property
+    def agreement_kids(self):
+        return [v.id for v in self.key_agreement]
+
     def to_dict(self) -> dict:
         res = {
             "id": self.did,

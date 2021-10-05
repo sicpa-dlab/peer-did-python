@@ -67,6 +67,9 @@ def test_did_doc_from_json_numalgo_0(did_doc_json, expected_format, expected_fie
     assert auth.ver_material.field == expected_field
     assert auth.ver_material.value == expected_auth[expected_field.value]
 
+    assert did_doc.auth_kids == [expected_auth["id"]]
+    assert did_doc.agreement_kids == []
+
 
 @pytest.mark.parametrize(
     "did_doc_json, expected_format, expected_field",
@@ -109,14 +112,12 @@ def test_did_doc_from_json_numalgo_2(did_doc_json, expected_format, expected_fie
     assert auth.ver_material.value == expected_auth[expected_field.value]
 
     agreement = did_doc.key_agreement[0]
-    assert agreement.id == json.loads(did_doc_json)["keyAgreement"][0]["id"]
+    expected_agreement = json.loads(did_doc_json)["keyAgreement"][0]
+    assert agreement.id == expected_agreement["id"]
     assert agreement.controller == PEER_DID_NUMALGO_2
     assert agreement.ver_material.format == expected_format
     assert agreement.ver_material.field == expected_field
-    assert (
-        agreement.ver_material.value
-        == json.loads(did_doc_json)["keyAgreement"][0][expected_field.value]
-    )
+    assert agreement.ver_material.value == expected_agreement[expected_field.value]
 
     services = did_doc.service
     expected_service = json.loads(did_doc_json)["service"][0]
@@ -128,6 +129,11 @@ def test_did_doc_from_json_numalgo_2(did_doc_json, expected_format, expected_fie
     assert service.service_endpoint == expected_service["serviceEndpoint"]
     assert service.routing_keys == expected_service["routingKeys"]
     assert service.accept == expected_service["accept"]
+
+    assert did_doc.auth_kids == [
+        v["id"] for v in json.loads(did_doc_json)["authentication"]
+    ]
+    assert did_doc.agreement_kids == [expected_agreement["id"]]
 
 
 def test_did_doc_from_json_numalgo_2_service_2_elements():
