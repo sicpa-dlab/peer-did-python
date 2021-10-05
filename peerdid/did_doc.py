@@ -1,7 +1,7 @@
 import json
 from typing import List, Optional
 
-from peerdid.core.did_doc_types import VerificationMethod, Service, DIDCommService
+from peerdid.core.did_doc_types import VerificationMethod, Service, DIDCommServicePeerDID
 from peerdid.errors import MalformedPeerDIDDocError
 from peerdid.types import JSON
 
@@ -63,5 +63,5 @@ class DIDDocPeerDID:
                 VerificationMethod.from_dict(v)
                 for v in did_doc_dict.get("keyAgreement", [])
             ],
-            service=DIDCommService.from_dict(did_doc_dict.get("service", None)),
+            service=DIDCommServicePeerDID.from_dict(did_doc_dict.get("service", None)),
         )

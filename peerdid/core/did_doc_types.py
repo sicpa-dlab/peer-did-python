@@ -156,7 +156,7 @@ class VerificationMethod:
         )
 
 
-class DIDCommService:
+class DIDCommServicePeerDID:
     def __init__(
         self,
         id: str,
@@ -201,4 +201,4 @@ class DIDCommService:
         return res
 
 
-Service = Union[Dict, DIDCommService]
+Service = Union[Dict, DIDCommServicePeerDID]

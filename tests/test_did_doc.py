@@ -4,7 +4,7 @@ import pytest
 
 from peerdid.core.did_doc_types import (
     VerificationMethodField,
-    DIDCommService,
+    DIDCommServicePeerDID,
 )
 from peerdid.did_doc import DIDDocPeerDID
 from peerdid.types import (
@@ -145,7 +145,7 @@ def test_did_doc_from_json_numalgo_2(
     assert services is not None
     assert len(services) == 1
     service = services[0]
-    assert isinstance(service, DIDCommService)
+    assert isinstance(service, DIDCommServicePeerDID)
     assert service.id == expected_service["id"]
     assert service.service_endpoint == expected_service["serviceEndpoint"]
     assert service.routing_keys == expected_service["routingKeys"]
@@ -171,7 +171,7 @@ def test_did_doc_from_json_numalgo_2_service_2_elements():
     expected_service_1 = json.loads(DID_DOC_NUMALGO_2_MULTIBASE_2_SERVICES)["service"][
         0
     ]
-    assert isinstance(service_1, DIDCommService)
+    assert isinstance(service_1, DIDCommServicePeerDID)
     assert service_1.id == expected_service_1["id"]
     assert service_1.service_endpoint == expected_service_1["serviceEndpoint"]
     assert service_1.routing_keys == expected_service_1["routingKeys"]
@@ -211,7 +211,7 @@ def test_did_doc_from_json_numalgo_2_minimal_service():
     expected_service = json.loads(DID_DOC_NUMALGO_2_MULTIBASE_MINIMAL_SERVICES)[
         "service"
     ][0]
-    assert isinstance(service, DIDCommService)
+    assert isinstance(service, DIDCommServicePeerDID)
     assert service.id == expected_service["id"]
     assert service.service_endpoint == expected_service["serviceEndpoint"]
     assert service.routing_keys is None
