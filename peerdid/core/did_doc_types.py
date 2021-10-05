@@ -28,7 +28,7 @@ SERVICE_ROUTING_KEYS = "routingKeys"
 SERVICE_ACCEPT = "accept"
 
 
-class VerificationMethod:
+class VerificationMethodPeerDID:
     def __init__(self, id: str, controller: str, ver_material: VerificationMaterial):
         self.id = id
         self.controller = controller

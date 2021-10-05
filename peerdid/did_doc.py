@@ -1,7 +1,7 @@
 import json
 from typing import List, Optional
 
-from peerdid.core.did_doc_types import VerificationMethod, Service, DIDCommServicePeerDID
+from peerdid.core.did_doc_types import VerificationMethodPeerDID, Service, DIDCommServicePeerDID
 from peerdid.errors import MalformedPeerDIDDocError
 from peerdid.types import JSON
 
@@ -10,8 +10,8 @@ class DIDDocPeerDID:
     def __init__(
         self,
         did: str,
-        authentication: List[VerificationMethod],
-        key_agreement: Optional[List[VerificationMethod]] = None,
+        authentication: List[VerificationMethodPeerDID],
+        key_agreement: Optional[List[VerificationMethodPeerDID]] = None,
         service: Optional[List[Service]] = None,
     ):
         self.authentication = authentication
@@ -57,10 +57,10 @@ class DIDDocPeerDID:
         return cls(
             did=did_doc_dict["id"],
             authentication=[
-                VerificationMethod.from_dict(v) for v in did_doc_dict["authentication"]
+                VerificationMethodPeerDID.from_dict(v) for v in did_doc_dict["authentication"]
             ],
             key_agreement=[
-                VerificationMethod.from_dict(v)
+                VerificationMethodPeerDID.from_dict(v)
                 for v in did_doc_dict.get("keyAgreement", [])
             ],
             service=DIDCommServicePeerDID.from_dict(did_doc_dict.get("service", None)),

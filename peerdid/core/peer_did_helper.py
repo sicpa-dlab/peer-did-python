@@ -12,7 +12,7 @@ from peerdid.core.did_doc_types import (
     SERVICE_ROUTING_KEYS,
     SERVICE_ACCEPT,
     SERVICE_ID,
-    VerificationMethod,
+    VerificationMethodPeerDID,
 )
 from peerdid.core.jwk_okp import jwk_key_to_bytes, public_key_to_jwk_dict
 from peerdid.core.multibase import (
@@ -187,8 +187,8 @@ def decode_multibase_encnumbasis(
 
 def get_verification_method(
     did: PEER_DID, decoded_encnumbasis: DecodedEncnumbasis
-) -> VerificationMethod:
-    return VerificationMethod(
+) -> VerificationMethodPeerDID:
+    return VerificationMethodPeerDID(
         id=did + "#" + decoded_encnumbasis.encnumbasis,
         controller=did,
         ver_material=decoded_encnumbasis.ver_material,
