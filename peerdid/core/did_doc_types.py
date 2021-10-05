@@ -169,6 +169,21 @@ class DIDCommServicePeerDID:
         self.routing_keys = routing_keys
         self.accept = accept
 
+    def to_dict(self):
+        res = {
+            SERVICE_ID: self.id,
+            SERVICE_TYPE: SERVICE_DIDCOMM_MESSAGING,
+            SERVICE_ENDPOINT: self.service_endpoint,
+            SERVICE_ACCEPT: self.accept,
+        }
+        if self.service_endpoint:
+            res[SERVICE_ENDPOINT] = self.service_endpoint
+        if self.routing_keys:
+            res[SERVICE_ROUTING_KEYS] = self.routing_keys
+        if self.accept:
+            res[SERVICE_ACCEPT] = self.accept
+        return res
+
     @classmethod
     def from_dict(cls, values: dict):
         if not values:
