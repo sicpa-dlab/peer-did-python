@@ -5,27 +5,27 @@ from peerdid.peer_did import (
     resolve_peer_did,
 )
 from peerdid.types import (
-    PublicKeyAuthentication,
-    PublicKeyAgreement,
-    PublicKeyTypeAgreement,
-    PublicKeyTypeAuthentication,
-    EncodingType,
+    VerificationMaterialAuthentication,
+    VerificationMaterialAgreement,
+    VerificationMethodTypeAgreement,
+    VerificationMethodTypeAuthentication,
+    VerificationMaterialFormat,
 )
 
 
 def demo():
     encryption_keys = [
-        PublicKeyAgreement(
-            type=PublicKeyTypeAgreement.X25519,
-            encoding_type=EncodingType.BASE58,
-            encoded_value="DmgBSHMqaZiYqwNMEJJuxWzsGGC8jUYADrfSdBrC6L8s",
+        VerificationMaterialAgreement(
+            type=VerificationMethodTypeAgreement.X25519_KEY_AGREEMENT_KEY_2019,
+            format=VerificationMaterialFormat.BASE58,
+            value="DmgBSHMqaZiYqwNMEJJuxWzsGGC8jUYADrfSdBrC6L8s",
         )
     ]
     signing_keys = [
-        PublicKeyAuthentication(
-            type=PublicKeyTypeAuthentication.ED25519,
-            encoding_type=EncodingType.BASE58,
-            encoded_value="ByHnpUCFb1vAfh9CFZ8ZkmUZguURW8nSw889hy6rD8L7",
+        VerificationMaterialAuthentication(
+            type=VerificationMethodTypeAuthentication.ED25519_VERIFICATION_KEY_2018,
+            format=VerificationMaterialFormat.BASE58,
+            value="ByHnpUCFb1vAfh9CFZ8ZkmUZguURW8nSw889hy6rD8L7",
         )
     ]
     service = """

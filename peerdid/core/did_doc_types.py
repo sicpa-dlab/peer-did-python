@@ -1,34 +1,17 @@
 from enum import Enum
-from typing import List, Optional, Dict, Union, NamedTuple
+from typing import List, Optional, Dict, Union, Tuple
 
-from peerdid.core.utils import urlsafe_b64encode
+from peerdid.core.jwk_okp import get_verification_method_type
 from peerdid.errors import MalformedPeerDIDDocError
-from peerdid.types import VerificationMaterialFormatPeerDID
-
-
-class VerificationMethodTypeAgreement(Enum):
-    JSON_WEB_KEY_2020 = "JsonWebKey2020"
-    X25519_KEY_AGREEMENT_KEY_2019 = "X25519KeyAgreementKey2019"
-    X25519_KEY_AGREEMENT_KEY_2020 = "X25519KeyAgreementKey2020"
-
-    @classmethod
-    def values(cls):
-        return [e.value for e in cls]
-
-
-class VerificationMethodTypeAuthentication(Enum):
-    JSON_WEB_KEY_2020 = "JsonWebKey2020"
-    ED25519_VERIFICATION_KEY_2018 = "Ed25519VerificationKey2018"
-    ED25519_VERIFICATION_KEY_2020 = "Ed25519VerificationKey2020"
-
-    @classmethod
-    def values(cls):
-        return [e.value for e in cls]
-
-
-VerificationMethodType = Union[
-    VerificationMethodTypeAgreement, VerificationMethodTypeAuthentication
-]
+from peerdid.types import (
+    VerificationMethodType,
+    VerificationMethodTypeAuthentication,
+    VerificationMethodTypeAgreement,
+    VerificationMaterial,
+    VerificationMaterialFormat,
+    VerificationMaterialAuthentication,
+    VerificationMaterialAgreement,
+)
 
 
 class VerificationMethodField(Enum):
@@ -36,17 +19,6 @@ class VerificationMethodField(Enum):
     MULTIBASE = "publicKeyMultibase"
     JWK = "publicKeyJwk"
 
-
-VerificationMaterialPeerDID = NamedTuple(
-    "VerificationMaterialPeerDID",
-    [
-        ("format", VerificationMaterialFormatPeerDID),
-        ("type", VerificationMethodType),
-        ("field", VerificationMethodField),
-        ("value", Union[str, Dict]),
-        ("encnumbasis", str),
-    ],
-)
 
 SERVICE_ID = "id"
 SERVICE_TYPE = "type"
@@ -56,7 +28,129 @@ SERVICE_ROUTING_KEYS = "routingKeys"
 SERVICE_ACCEPT = "accept"
 
 
-class DIDCommServicePeerDID:
+class VerificationMethod:
+    def __init__(self, id: str, controller: str, ver_material: VerificationMaterial):
+        self.id = id
+        self.controller = controller
+        self.ver_material = ver_material
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "type": self.ver_material.type.value,
+            "controller": self.controller,
+            self.public_key_field.value: self.ver_material.value,
+        }
+
+    @property
+    def public_key_field(self):
+        if self.ver_material.format == VerificationMaterialFormat.BASE58:
+            return VerificationMethodField.BASE58
+        elif self.ver_material.format == VerificationMaterialFormat.MULTIBASE:
+            return VerificationMethodField.MULTIBASE
+        elif self.ver_material.format == VerificationMaterialFormat.JWK:
+            return VerificationMethodField.JWK
+        else:
+            raise ValueError(
+                "Unsupported verification material format "
+                + str(self.ver_material.format)
+            )
+
+    @classmethod
+    def _get_public_key_format(
+        cls, ver_method_type: VerificationMethodType
+    ) -> Tuple[VerificationMaterialFormat, VerificationMethodField]:
+        if (
+            ver_method_type
+            == VerificationMethodTypeAgreement.X25519_KEY_AGREEMENT_KEY_2019
+        ):
+            return VerificationMaterialFormat.BASE58, VerificationMethodField.BASE58
+        if (
+            ver_method_type
+            == VerificationMethodTypeAgreement.X25519_KEY_AGREEMENT_KEY_2020
+        ):
+            return (
+                VerificationMaterialFormat.MULTIBASE,
+                VerificationMethodField.MULTIBASE,
+            )
+        if ver_method_type == VerificationMethodTypeAgreement.JSON_WEB_KEY_2020:
+            return VerificationMaterialFormat.JWK, VerificationMethodField.JWK
+        if (
+            ver_method_type
+            == VerificationMethodTypeAuthentication.ED25519_VERIFICATION_KEY_2018
+        ):
+            return VerificationMaterialFormat.BASE58, VerificationMethodField.BASE58
+        if (
+            ver_method_type
+            == VerificationMethodTypeAuthentication.ED25519_VERIFICATION_KEY_2020
+        ):
+            return (
+                VerificationMaterialFormat.MULTIBASE,
+                VerificationMethodField.MULTIBASE,
+            )
+        if ver_method_type == VerificationMethodTypeAuthentication.JSON_WEB_KEY_2020:
+            return VerificationMaterialFormat.JWK, VerificationMethodField.JWK
+        raise ValueError("Unsupported verification method type " + str(ver_method_type))
+
+    @classmethod
+    def _get_ver_method_type(cls, value: dict) -> VerificationMethodType:
+        ver_method_type_str = value["type"]
+        if (
+            ver_method_type_str
+            == VerificationMethodTypeAgreement.JSON_WEB_KEY_2020.value
+            or ver_method_type_str
+            == VerificationMethodTypeAuthentication.JSON_WEB_KEY_2020.value
+        ):
+            if VerificationMethodField.JWK.value not in value:
+                raise MalformedPeerDIDDocError(
+                    "Invalid verification method: no {} field in {} method type".format(
+                        VerificationMethodField.JWK.value, ver_method_type_str
+                    )
+                )
+            return get_verification_method_type(
+                value[VerificationMethodField.JWK.value]
+            )
+
+        try:
+            return VerificationMethodTypeAgreement(ver_method_type_str)
+        except ValueError:
+            pass
+
+        try:
+            return VerificationMethodTypeAuthentication(ver_method_type_str)
+        except ValueError:
+            pass
+
+        raise MalformedPeerDIDDocError(
+            "Unknown verification method type {}".format(ver_method_type_str)
+        )
+
+    @classmethod
+    def from_dict(cls, value: dict):
+        if "id" not in value:
+            raise MalformedPeerDIDDocError("No 'id' field in method {}".format(value))
+        if "type" not in value:
+            raise MalformedPeerDIDDocError("No 'type' field in method {}".format(value))
+
+        ver_method_type = cls._get_ver_method_type(value)
+        format, field = cls._get_public_key_format(ver_method_type)
+        ver_material_cls = (
+            VerificationMaterialAgreement
+            if isinstance(ver_method_type, VerificationMethodTypeAgreement)
+            else VerificationMaterialAuthentication
+        )
+        ver_material = ver_material_cls(
+            value=value[field.value],
+            format=format,
+            type=ver_method_type,
+        )
+
+        return cls(
+            id=value["id"], controller=value["controller"], ver_material=ver_material
+        )
+
+
+class DIDCommService:
     def __init__(
         self,
         id: str,
@@ -91,7 +185,7 @@ class DIDCommServicePeerDID:
                 continue
 
             res.append(
-                DIDCommServicePeerDID(
+                cls(
                     id=value[SERVICE_ID],
                     service_endpoint=value.get(SERVICE_ENDPOINT, None),
                     routing_keys=value.get(SERVICE_ROUTING_KEYS, None),
@@ -101,178 +195,4 @@ class DIDCommServicePeerDID:
         return res
 
 
-ServicePeerDID = Union[Dict, DIDCommServicePeerDID]
-
-
-class VerificationMethodPeerDID:
-    def __init__(self, did: str, ver_material: VerificationMaterialPeerDID):
-        self.did = did
-        self.ver_material = ver_material
-
-    @property
-    def id(self):
-        return self.did + "#" + self.ver_material.encnumbasis
-
-    @property
-    def controller(self):
-        return self.did
-
-    def to_dict(self):
-        return {
-            "id": self.id,
-            "type": self.ver_material.type.value,
-            "controller": self.controller,
-            self.ver_material.field.value: self.ver_material.value,
-        }
-
-    @classmethod
-    def from_dict(cls, value: dict):
-        if "id" not in value:
-            raise MalformedPeerDIDDocError("No 'id' field in method {}".format(value))
-        if "type" not in value:
-            raise MalformedPeerDIDDocError("No 'type' field in method {}".format(value))
-        ver_method_type = value["type"]
-        encnumbasis = value["id"].split("#")[-1]
-        did = value["id"].split("#")[0]
-
-        if (
-            ver_method_type
-            == VerificationMethodTypeAuthentication.ED25519_VERIFICATION_KEY_2018.value
-        ):
-            ver_material = cls._get_ver_material(
-                value=value,
-                format=VerificationMaterialFormatPeerDID.BASE58,
-                type=VerificationMethodTypeAuthentication.ED25519_VERIFICATION_KEY_2018,
-                field=VerificationMethodField.BASE58,
-                encnumbasis=encnumbasis,
-            )
-
-        elif (
-            ver_method_type
-            == VerificationMethodTypeAuthentication.ED25519_VERIFICATION_KEY_2020.value
-        ):
-            ver_material = cls._get_ver_material(
-                value=value,
-                format=VerificationMaterialFormatPeerDID.MULTIBASE,
-                type=VerificationMethodTypeAuthentication.ED25519_VERIFICATION_KEY_2020,
-                field=VerificationMethodField.MULTIBASE,
-                encnumbasis=encnumbasis,
-            )
-
-        elif (
-            ver_method_type
-            == VerificationMethodTypeAgreement.X25519_KEY_AGREEMENT_KEY_2019.value
-        ):
-            ver_material = cls._get_ver_material(
-                value=value,
-                format=VerificationMaterialFormatPeerDID.BASE58,
-                type=VerificationMethodTypeAgreement.X25519_KEY_AGREEMENT_KEY_2019,
-                field=VerificationMethodField.BASE58,
-                encnumbasis=encnumbasis,
-            )
-
-        elif (
-            ver_method_type
-            == VerificationMethodTypeAgreement.X25519_KEY_AGREEMENT_KEY_2020.value
-        ):
-            ver_material = cls._get_ver_material(
-                value=value,
-                format=VerificationMaterialFormatPeerDID.MULTIBASE,
-                type=VerificationMethodTypeAgreement.X25519_KEY_AGREEMENT_KEY_2020,
-                field=VerificationMethodField.MULTIBASE,
-                encnumbasis=encnumbasis,
-            )
-
-        elif (
-            ver_method_type == VerificationMethodTypeAgreement.JSON_WEB_KEY_2020.value
-            or ver_method_type
-            == VerificationMethodTypeAuthentication.JSON_WEB_KEY_2020.value
-        ):
-            ver_material = cls._get_ver_material_jwk(
-                value=value,
-                format=VerificationMaterialFormatPeerDID.JWK,
-                field=VerificationMethodField.JWK,
-                encnumbasis=encnumbasis,
-            )
-
-        else:
-            raise MalformedPeerDIDDocError("Unknown 'type' in method {}".format(value))
-
-        return cls(did=did, ver_material=ver_material)
-
-    @staticmethod
-    def _get_ver_material(
-        value: dict,
-        field: VerificationMethodField,
-        format: VerificationMaterialFormatPeerDID,
-        type: VerificationMethodType,
-        encnumbasis: str,
-    ) -> VerificationMaterialPeerDID:
-        if field.value not in value:
-            raise MalformedPeerDIDDocError(
-                "{} not found in method {}".format(field.value, value)
-            )
-        return VerificationMaterialPeerDID(
-            format=format,
-            type=type,
-            field=field,
-            value=value[field.value],
-            encnumbasis=encnumbasis,
-        )
-
-    @staticmethod
-    def _get_ver_material_jwk(
-        value: dict,
-        field: VerificationMethodField,
-        format: VerificationMaterialFormatPeerDID,
-        encnumbasis: str,
-    ) -> VerificationMaterialPeerDID:
-        if field.value not in value:
-            raise MalformedPeerDIDDocError(
-                "{} not found in method {}".format(field.value, value)
-            )
-        material_type = JWK_OKP.from_dict(value[field.value]).ver_method_type
-        return VerificationMaterialPeerDID(
-            format=format,
-            type=material_type,
-            field=field,
-            value=value[field.value],
-            encnumbasis=encnumbasis,
-        )
-
-
-class JWK_OKP:
-    def __init__(self, ver_method_type: VerificationMethodType, value: bytes):
-        self.ver_method_type = ver_method_type
-        self.value = value
-
-    def to_dict(self):
-        x = urlsafe_b64encode(self.value).decode("utf-8")
-        if self.ver_method_type == VerificationMethodTypeAgreement.JSON_WEB_KEY_2020:
-            crv = "X25519"
-        elif (
-            self.ver_method_type
-            == VerificationMethodTypeAuthentication.JSON_WEB_KEY_2020
-        ):
-            crv = "Ed25519"
-        else:
-            raise ValueError("Unsupported JWK type: " + self.ver_method_type.value)
-        return {
-            "kty": "OKP",
-            "crv": crv,
-            "x": x,
-        }
-
-    @classmethod
-    def from_dict(cls, value: dict):
-        if "crv" not in value:
-            raise MalformedPeerDIDDocError("No 'crv' field in JWK {}".format(value))
-        if "x" not in value:
-            raise MalformedPeerDIDDocError("No 'x' field in JWK {}".format(value))
-        crv = value["crv"]
-        ver_method_type = (
-            VerificationMethodTypeAgreement.JSON_WEB_KEY_2020
-            if crv == "X25519"
-            else VerificationMethodTypeAuthentication.JSON_WEB_KEY_2020
-        )
-        return JWK_OKP(ver_method_type, value["x"])
+Service = Union[Dict, DIDCommService]

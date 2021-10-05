@@ -1,42 +1,59 @@
 from enum import Enum
-from typing import NamedTuple
+from typing import NamedTuple, Union
 
 
-class PublicKeyTypeAgreement(Enum):
-    X25519 = 0xEC
-
-
-class PublicKeyTypeAuthentication(Enum):
-    ED25519 = 0xED
-
-
-class EncodingType(Enum):
-    BASE58 = 0
-
-
-class VerificationMaterialFormatPeerDID(Enum):
+class VerificationMaterialFormat(Enum):
     JWK = 1
     BASE58 = 2
     MULTIBASE = 3
 
 
-PublicKeyAgreement = NamedTuple(
-    "PublicKeyAgreement",
+class VerificationMethodTypeAgreement(Enum):
+    JSON_WEB_KEY_2020 = "JsonWebKey2020"
+    X25519_KEY_AGREEMENT_KEY_2019 = "X25519KeyAgreementKey2019"
+    X25519_KEY_AGREEMENT_KEY_2020 = "X25519KeyAgreementKey2020"
+
+    @classmethod
+    def values(cls):
+        return [e.value for e in cls]
+
+
+class VerificationMethodTypeAuthentication(Enum):
+    JSON_WEB_KEY_2020 = "JsonWebKey2020"
+    ED25519_VERIFICATION_KEY_2018 = "Ed25519VerificationKey2018"
+    ED25519_VERIFICATION_KEY_2020 = "Ed25519VerificationKey2020"
+
+    @classmethod
+    def values(cls):
+        return [e.value for e in cls]
+
+
+VerificationMethodType = Union[
+    VerificationMethodTypeAgreement, VerificationMethodTypeAuthentication
+]
+
+VerificationMaterialAuthentication = NamedTuple(
+    "VerificationMaterialAuthentication",
     [
-        ("encoding_type", EncodingType),
-        ("encoded_value", str),
-        ("type", PublicKeyTypeAgreement),
+        ("format", VerificationMaterialFormat),
+        ("type", VerificationMethodTypeAuthentication),
+        ("value", Union[str, dict]),
     ],
 )
 
-PublicKeyAuthentication = NamedTuple(
-    "PublicKeyAuthentication",
+VerificationMaterialAgreement = NamedTuple(
+    "VerificationMaterialAgreement",
     [
-        ("encoding_type", EncodingType),
-        ("encoded_value", str),
-        ("type", PublicKeyTypeAuthentication),
+        ("format", VerificationMaterialFormat),
+        ("type", VerificationMethodTypeAgreement),
+        ("value", Union[str, dict]),
     ],
 )
+
+
+VerificationMaterial = Union[
+    VerificationMaterialAuthentication, VerificationMaterialAgreement
+]
 
 JSON = str
 PEER_DID = str

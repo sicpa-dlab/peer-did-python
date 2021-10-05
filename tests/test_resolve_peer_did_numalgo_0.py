@@ -4,7 +4,7 @@ import pytest
 
 from peerdid.errors import MalformedPeerDIDError
 from peerdid.peer_did import resolve_peer_did
-from peerdid.types import VerificationMaterialFormatPeerDID
+from peerdid.types import VerificationMaterialFormat
 from tests.test_vectors import (
     PEER_DID_NUMALGO_0,
     DID_DOC_NUMALGO_O_BASE58,
@@ -20,21 +20,21 @@ def test_resolve_positive_default():
 
 def test_resolve_positive_base58():
     did_doc = resolve_peer_did(
-        peer_did=PEER_DID_NUMALGO_0, format=VerificationMaterialFormatPeerDID.BASE58
+        peer_did=PEER_DID_NUMALGO_0, format=VerificationMaterialFormat.BASE58
     )
     assert json.loads(did_doc) == json.loads(DID_DOC_NUMALGO_O_BASE58)
 
 
 def test_resolve_positive_multibase():
     did_doc = resolve_peer_did(
-        peer_did=PEER_DID_NUMALGO_0, format=VerificationMaterialFormatPeerDID.MULTIBASE
+        peer_did=PEER_DID_NUMALGO_0, format=VerificationMaterialFormat.MULTIBASE
     )
     assert json.loads(did_doc) == json.loads(DID_DOC_NUMALGO_O_MULTIBASE)
 
 
 def test_resolve_positive_jwk():
     did_doc = resolve_peer_did(
-        peer_did=PEER_DID_NUMALGO_0, format=VerificationMaterialFormatPeerDID.JWK
+        peer_did=PEER_DID_NUMALGO_0, format=VerificationMaterialFormat.JWK
     )
     assert json.loads(did_doc) == json.loads(DID_DOC_NUMALGO_O_JWK)
 
@@ -100,8 +100,26 @@ def test_resolve_numalgo_0_malformed_multicodec_encoding():
 
 def test_resolve_numalgo_0_invalid_key_type():
     with pytest.raises(
-        MalformedPeerDIDError, match=r"Invalid peer DID provided.*Invalid key type"
+        MalformedPeerDIDError, match=r"Invalid peer DID provided.*Invalid key"
     ):
         resolve_peer_did(
             peer_did="did:peer:0z6LSbysY2xFMRpGMhb7tFTLMpeuPRaqaWM1yECx2AtzE3KCc"
+        )
+
+
+def test_resolve_numalgo_0_short_key():
+    with pytest.raises(
+        MalformedPeerDIDError,
+        match=r"Invalid peer DID provided.*Does not match peer DID regexp",
+    ):
+        resolve_peer_did(peer_did="did:peer:0z6LSbysY2xc")
+
+
+def test_resolve_numalgo_0_long_key():
+    with pytest.raises(
+        MalformedPeerDIDError,
+        match=r"Invalid peer DID provided.*Does not match peer DID regexp",
+    ):
+        resolve_peer_did(
+            peer_did="did:peer:0z6LSbysY2xcccccccccccccccccccccccccccccccccccccccccccccccccccccc"
         )

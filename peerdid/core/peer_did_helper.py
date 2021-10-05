@@ -1,36 +1,36 @@
-import hashlib
 import json
 import re
 from enum import Enum
-from typing import Union, List, Optional
-
-import base58
-import varint
+from typing import List, Optional, NamedTuple
 
 from peerdid.core.did_doc_types import (
-    VerificationMaterialPeerDID,
-    VerificationMethodField,
     VerificationMethodTypeAgreement,
     VerificationMethodTypeAuthentication,
-    JWK_OKP,
-    ServicePeerDID,
     SERVICE_DIDCOMM_MESSAGING,
     SERVICE_ENDPOINT,
     SERVICE_TYPE,
     SERVICE_ROUTING_KEYS,
     SERVICE_ACCEPT,
     SERVICE_ID,
+    VerificationMethod,
 )
+from peerdid.core.jwk_okp import jwk_key_to_bytes, public_key_to_jwk_dict
+from peerdid.core.multibase import (
+    from_base58_multibase,
+    from_base58,
+    to_base58_multibase,
+    to_base58,
+)
+from peerdid.core.multicodec import to_multicodec, from_multicodec, Codec
 from peerdid.core.utils import urlsafe_b64encode, urlsafe_b64decode
+from peerdid.core.validation import validate_raw_key_length
 from peerdid.types import (
     JSON,
-    PublicKeyAgreement,
-    PublicKeyAuthentication,
-    PublicKeyTypeAgreement,
-    PublicKeyTypeAuthentication,
     PEER_DID,
-    EncodingType,
-    VerificationMaterialFormatPeerDID,
+    VerificationMaterial,
+    VerificationMaterialFormat,
+    VerificationMaterialAgreement,
+    VerificationMaterialAuthentication,
 )
 
 
@@ -39,12 +39,6 @@ class Numalgo2Prefix(Enum):
     KEY_AGREEMENT = "E"
     SERVICE = "S"
 
-
-class MultibasePrefix(Enum):
-    BASE58 = "z"
-
-
-PublicKeyType = Union[PublicKeyTypeAgreement, PublicKeyTypeAuthentication]
 
 ServicePrefix = {
     SERVICE_TYPE: "t",
@@ -79,21 +73,23 @@ def encode_service(service: JSON) -> str:
     )
 
 
-def decode_service(service: str, peer_did: PEER_DID) -> Optional[List[ServicePeerDID]]:
+def decode_service(service: str, peer_did: PEER_DID) -> Optional[List[dict]]:
     """
     Decodes service according to Peer DID spec
     (https://identity.foundation/peer-did-method-spec/index.html#example-2-abnf-for-peer-dids)
     :param service: service to decode
     :param peer_did: peer_did which will be used as an ID
     :raises ValueError: if peer_did parameter is not valid
-    :return: decoded service (either dict or DIDCommServicePeerDID instance)
+    :return: decoded service (list of dict)
     """
     if not service:
         return None
     decoded_service = urlsafe_b64decode(service.encode())
     list_of_service_dict = json.loads(decoded_service.decode("utf-8"))
+
     if not isinstance(list_of_service_dict, list):
         list_of_service_dict = [list_of_service_dict]
+
     for i in range(len(list_of_service_dict)):
         service = list_of_service_dict[i]
         if ServicePrefix[SERVICE_TYPE] not in service:
@@ -115,170 +111,109 @@ def decode_service(service: str, peer_did: PEER_DID) -> Optional[List[ServicePee
     return list_of_service_dict
 
 
-def create_multibase_encnumbasis(
-    key: Union[PublicKeyAgreement, PublicKeyAuthentication]
-) -> str:
+def create_multibase_encnumbasis(key: VerificationMaterial) -> str:
     """
     Creates multibased encnumbasis according to Peer DID spec
     (https://identity.foundation/peer-did-method-spec/index.html#method-specific-identifier)
     :param key: public key
     :return: transform+encnumbasis
     """
-    decoded_key = base58.b58decode(key.encoded_value)
-    return _to_base58_multibase(_add_prefix(key.type, decoded_key))
+    if key.format == VerificationMaterialFormat.BASE58:
+        decoded_key = from_base58(key.value)
+    elif key.format == VerificationMaterialFormat.MULTIBASE:
+        decoded_key = from_base58_multibase(key.value)[1]
+    elif key.format == VerificationMaterialFormat.JWK:
+        decoded_key = jwk_key_to_bytes(key)
+    else:
+        raise ValueError("Unknown key format " + key.format)
+    validate_raw_key_length(decoded_key)
+    return to_base58_multibase(to_multicodec(decoded_key, key.type))
+
+
+DecodedEncnumbasis = NamedTuple(
+    "DecodedEncnumbasis",
+    [
+        ("encnumbasis", str),
+        ("ver_material", VerificationMaterial),
+    ],
+)
 
 
 def decode_multibase_encnumbasis(
     multibase: str,
-    ver_material_format: VerificationMaterialFormatPeerDID,
-) -> VerificationMaterialPeerDID:
+    ver_material_format: VerificationMaterialFormat,
+) -> DecodedEncnumbasis:
     """
     Decodes multibased encnumbasis to a verification material for DID DOC
     :param multibase: transform+encnumbasis to decode
     :param ver_material_format: the format of public keys in the DID DOC
-    :return: decoded encnumbasis as verification material for DID DOC
+    :return: decoded encnumbasis as verification method for DID DOC
     """
-    transform = multibase[0]
-    if not transform == MultibasePrefix.BASE58.value:
-        raise ValueError("Unsupported transform part of peer_did: " + transform)
-    encnumbasis = multibase[1:]
-    decoded_encnumbasis = base58.b58decode(encnumbasis)
-    decoded_encnumbasis_without_prefix = _remove_prefix(decoded_encnumbasis)
+    encnumbasis, decoded_encnumbasis = from_base58_multibase(multibase)
+    decoded_encnumbasis_without_prefix, codec = from_multicodec(decoded_encnumbasis)
+    validate_raw_key_length(decoded_encnumbasis_without_prefix)
 
-    if ver_material_format == VerificationMaterialFormatPeerDID.BASE58:
-        return VerificationMaterialPeerDID(
-            field=VerificationMethodField.BASE58,
-            type=__get_2018_2019_ver_material_type(decoded_encnumbasis),
-            value=base58.b58encode(decoded_encnumbasis_without_prefix).decode("utf-8"),
-            format=VerificationMaterialFormatPeerDID.BASE58,
-            encnumbasis=encnumbasis,
+    ver_material_cls = (
+        VerificationMaterialAgreement
+        if codec == Codec.X25519
+        else VerificationMaterialAuthentication
+    )
+    if ver_material_format == VerificationMaterialFormat.BASE58:
+        ver_material = ver_material_cls(
+            format=ver_material_format,
+            type=__get_2018_2019_ver_material_type(codec),
+            value=to_base58(decoded_encnumbasis_without_prefix),
         )
-
-    if ver_material_format == VerificationMaterialFormatPeerDID.MULTIBASE:
-        return VerificationMaterialPeerDID(
-            field=VerificationMethodField.MULTIBASE,
-            type=__get_2020_ver_material_type(decoded_encnumbasis),
-            value=_to_base58_multibase(decoded_encnumbasis_without_prefix),
-            format=VerificationMaterialFormatPeerDID.MULTIBASE,
-            encnumbasis=encnumbasis,
+    elif ver_material_format == VerificationMaterialFormat.MULTIBASE:
+        ver_material = ver_material_cls(
+            format=ver_material_format,
+            type=__get_2020_ver_material_type(codec),
+            value=to_base58_multibase(decoded_encnumbasis_without_prefix),
         )
-
-    if ver_material_format == VerificationMaterialFormatPeerDID.JWK:
-        ver_material_type = __get_jwk_ver_material_type(decoded_encnumbasis)
-        return VerificationMaterialPeerDID(
-            field=VerificationMethodField.JWK,
+    elif ver_material_format == VerificationMaterialFormat.JWK:
+        ver_material_type = __get_jwk_ver_material_type(codec)
+        ver_material = ver_material_cls(
+            format=ver_material_format,
             type=ver_material_type,
-            value=JWK_OKP(
-                ver_material_type, decoded_encnumbasis_without_prefix
-            ).to_dict(),
-            format=VerificationMaterialFormatPeerDID.JWK,
-            encnumbasis=encnumbasis,
+            value=public_key_to_jwk_dict(
+                decoded_encnumbasis_without_prefix, ver_material_type
+            ),
         )
-    raise ValueError("Unknown format {}".format(ver_material_format))
-
-
-def __get_2018_2019_ver_material_type(decoded_encnumbasis):
-    public_key_type = __get_public_key_type(decoded_encnumbasis)
-    if public_key_type == PublicKeyTypeAgreement.X25519:
-        return VerificationMethodTypeAgreement.X25519_KEY_AGREEMENT_KEY_2019
-    elif public_key_type == PublicKeyTypeAuthentication.ED25519:
-        return VerificationMethodTypeAuthentication.ED25519_VERIFICATION_KEY_2018
-    raise ValueError("Unknown public key type {}".format(public_key_type))
-
-
-def __get_2020_ver_material_type(decoded_encnumbasis):
-    public_key_type = __get_public_key_type(decoded_encnumbasis)
-    if public_key_type == PublicKeyTypeAgreement.X25519:
-        return VerificationMethodTypeAgreement.X25519_KEY_AGREEMENT_KEY_2020
-    elif public_key_type == PublicKeyTypeAuthentication.ED25519:
-        return VerificationMethodTypeAuthentication.ED25519_VERIFICATION_KEY_2020
-    raise ValueError("Unknown public key type {}".format(public_key_type))
-
-
-def __get_jwk_ver_material_type(decoded_encnumbasis):
-    public_key_type = __get_public_key_type(decoded_encnumbasis)
-    if public_key_type == PublicKeyTypeAgreement.X25519:
-        return VerificationMethodTypeAgreement.JSON_WEB_KEY_2020
-    elif public_key_type == PublicKeyTypeAuthentication.ED25519:
-        return VerificationMethodTypeAuthentication.JSON_WEB_KEY_2020
-    raise ValueError("Unknown public key type {}".format(type))
-
-
-def __get_public_key_type(data: bytes) -> PublicKeyType:
-    prefix = _extract_prefix(data)
-    if prefix in set(item.value for item in PublicKeyTypeAuthentication):
-        return PublicKeyTypeAuthentication(prefix)
-    elif prefix in set(item.value for item in PublicKeyTypeAgreement):
-        return PublicKeyTypeAgreement(prefix)
     else:
-        raise ValueError("Prefix {} not present in the lookup table".format(prefix))
+        raise ValueError("Unknown format {}".format(ver_material_format))
+
+    return DecodedEncnumbasis(encnumbasis=encnumbasis, ver_material=ver_material)
 
 
-def _remove_prefix(data: bytes) -> bytes:
-    """
-    Removes prefix from data
-    :param data: prefixed data
-    :return: data without prefix
-    """
-    prefix_int = _extract_prefix(data)
-    prefix = varint.encode(prefix_int)
-    return data[len(prefix) :]
+def get_verification_method(
+    did: PEER_DID, decoded_encnumbasis: DecodedEncnumbasis
+) -> VerificationMethod:
+    return VerificationMethod(
+        id=did + "#" + decoded_encnumbasis.encnumbasis,
+        controller=did,
+        ver_material=decoded_encnumbasis.ver_material,
+    )
 
 
-def _extract_prefix(data: bytes) -> int:
-    """
-    Extracts prefix from data
-    :param data: prefixed data
-    :raises ValueError: if invalid varint provided
-    :return: prefix
-    """
-    try:
-        return varint.decode_bytes(data)
-    except TypeError:
-        raise ValueError("incorrect varint provided")
+def __get_2018_2019_ver_material_type(codec: Codec):
+    if codec == Codec.X25519:
+        return VerificationMethodTypeAgreement.X25519_KEY_AGREEMENT_KEY_2019
+    elif codec == Codec.ED25519:
+        return VerificationMethodTypeAuthentication.ED25519_VERIFICATION_KEY_2018
+    raise ValueError("Unknown multicodec {}".format(codec.value))
 
 
-def _add_prefix(
-    key_type: Union[PublicKeyTypeAgreement, PublicKeyTypeAuthentication], data: bytes
-) -> bytes:
-    """
-    Adds prefix to a data
-    :param key_type: type of key
-    :param data: data to be prefixed
-    :return: prefixed data
-    """
-    prefix = varint.encode(key_type.value)
-    return b"".join([prefix, data])
+def __get_2020_ver_material_type(codec: Codec):
+    if codec == Codec.X25519:
+        return VerificationMethodTypeAgreement.X25519_KEY_AGREEMENT_KEY_2020
+    elif codec == Codec.ED25519:
+        return VerificationMethodTypeAuthentication.ED25519_VERIFICATION_KEY_2020
+    raise ValueError("Unknown multicodec {}".format(codec.value))
 
 
-def _to_base58_multibase(value: bytes) -> str:
-    return MultibasePrefix.BASE58.value + base58.b58encode(value).decode("utf-8")
-
-
-def _encode_filename(filename: str) -> str:
-    """
-    Encodes filename to SHA256 string
-    :param filename: name of file
-    :return: encoded filename as SHA256 string
-    """
-    return hashlib.sha256(filename.encode()).hexdigest()
-
-
-def _check_key_correctly_encoded(key: str, encoding_type: EncodingType) -> bool:
-    """
-    Checks if key correctly encoded
-    :param key: any string
-    :param encoding_type: encoding type
-    :return: true if key correctly encoded, otherwise false
-    """
-    if not encoding_type == EncodingType.BASE58:
-        return False
-    alphabet = set("123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz")
-    byte_lengths = (32,)
-    invalid_chars = set(key) - alphabet
-    if invalid_chars:
-        return False
-    b58len = len(base58.b58decode(key))
-    if b58len not in byte_lengths:
-        return False
-    return True
+def __get_jwk_ver_material_type(codec: Codec):
+    if codec == Codec.X25519:
+        return VerificationMethodTypeAgreement.JSON_WEB_KEY_2020
+    elif codec == Codec.ED25519:
+        return VerificationMethodTypeAuthentication.JSON_WEB_KEY_2020
+    raise ValueError("Unknown multicodec {}".format(codec.value))

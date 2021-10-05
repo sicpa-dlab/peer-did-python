@@ -4,10 +4,14 @@ import pytest
 
 from peerdid.core.did_doc_types import (
     VerificationMethodField,
-    DIDCommServicePeerDID,
+    DIDCommService,
 )
 from peerdid.did_doc import DIDDocPeerDID
-from peerdid.types import VerificationMaterialFormatPeerDID
+from peerdid.types import (
+    VerificationMaterialFormat,
+    VerificationMethodTypeAuthentication,
+    VerificationMethodTypeAgreement,
+)
 from tests.test_vectors import (
     DID_DOC_NUMALGO_O_BASE58,
     DID_DOC_NUMALGO_O_MULTIBASE,
@@ -27,29 +31,34 @@ from tests.test_vectors import (
 
 
 @pytest.mark.parametrize(
-    "did_doc_json, expected_format, expected_field",
+    "did_doc_json, expected_format, expected_field, expected_type",
     [
         pytest.param(
             DID_DOC_NUMALGO_O_BASE58,
-            VerificationMaterialFormatPeerDID.BASE58,
+            VerificationMaterialFormat.BASE58,
             VerificationMethodField.BASE58,
+            VerificationMethodTypeAuthentication.ED25519_VERIFICATION_KEY_2018,
             id="numalgo_0_base58",
         ),
         pytest.param(
             DID_DOC_NUMALGO_O_MULTIBASE,
-            VerificationMaterialFormatPeerDID.MULTIBASE,
+            VerificationMaterialFormat.MULTIBASE,
             VerificationMethodField.MULTIBASE,
+            VerificationMethodTypeAuthentication.ED25519_VERIFICATION_KEY_2020,
             id="numalgo_0_multibase",
         ),
         pytest.param(
             DID_DOC_NUMALGO_O_JWK,
-            VerificationMaterialFormatPeerDID.JWK,
+            VerificationMaterialFormat.JWK,
             VerificationMethodField.JWK,
+            VerificationMethodTypeAuthentication.JSON_WEB_KEY_2020,
             id="numalgo_0_jwk",
         ),
     ],
 )
-def test_did_doc_from_json_numalgo_0(did_doc_json, expected_format, expected_field):
+def test_did_doc_from_json_numalgo_0(
+    did_doc_json, expected_format, expected_field, expected_type
+):
     did_doc = DIDDocPeerDID.from_json(did_doc_json)
 
     assert isinstance(did_doc, DIDDocPeerDID)
@@ -64,7 +73,7 @@ def test_did_doc_from_json_numalgo_0(did_doc_json, expected_format, expected_fie
     assert auth.id == expected_auth["id"]
     assert auth.controller == PEER_DID_NUMALGO_0
     assert auth.ver_material.format == expected_format
-    assert auth.ver_material.field == expected_field
+    assert auth.ver_material.type == expected_type
     assert auth.ver_material.value == expected_auth[expected_field.value]
 
     assert did_doc.auth_kids == [expected_auth["id"]]
@@ -72,29 +81,41 @@ def test_did_doc_from_json_numalgo_0(did_doc_json, expected_format, expected_fie
 
 
 @pytest.mark.parametrize(
-    "did_doc_json, expected_format, expected_field",
+    "did_doc_json, expected_format, expected_field, expected_auth_type, expected_agreem_type",
     [
         pytest.param(
             DID_DOC_NUMALGO_2_BASE58,
-            VerificationMaterialFormatPeerDID.BASE58,
+            VerificationMaterialFormat.BASE58,
             VerificationMethodField.BASE58,
+            VerificationMethodTypeAuthentication.ED25519_VERIFICATION_KEY_2018,
+            VerificationMethodTypeAgreement.X25519_KEY_AGREEMENT_KEY_2019,
             id="numalgo_2_base58",
         ),
         pytest.param(
             DID_DOC_NUMALGO_2_MULTIBASE,
-            VerificationMaterialFormatPeerDID.MULTIBASE,
+            VerificationMaterialFormat.MULTIBASE,
             VerificationMethodField.MULTIBASE,
+            VerificationMethodTypeAuthentication.ED25519_VERIFICATION_KEY_2020,
+            VerificationMethodTypeAgreement.X25519_KEY_AGREEMENT_KEY_2020,
             id="numalgo_2_multibase",
         ),
         pytest.param(
             DID_DOC_NUMALGO_2_JWK,
-            VerificationMaterialFormatPeerDID.JWK,
+            VerificationMaterialFormat.JWK,
             VerificationMethodField.JWK,
+            VerificationMethodTypeAuthentication.JSON_WEB_KEY_2020,
+            VerificationMethodTypeAgreement.JSON_WEB_KEY_2020,
             id="numalgo_2_jwk",
         ),
     ],
 )
-def test_did_doc_from_json_numalgo_2(did_doc_json, expected_format, expected_field):
+def test_did_doc_from_json_numalgo_2(
+    did_doc_json,
+    expected_format,
+    expected_field,
+    expected_auth_type,
+    expected_agreem_type,
+):
     did_doc = DIDDocPeerDID.from_json(did_doc_json)
 
     assert isinstance(did_doc, DIDDocPeerDID)
@@ -108,7 +129,7 @@ def test_did_doc_from_json_numalgo_2(did_doc_json, expected_format, expected_fie
     assert auth.id == expected_auth["id"]
     assert auth.controller == PEER_DID_NUMALGO_2
     assert auth.ver_material.format == expected_format
-    assert auth.ver_material.field == expected_field
+    assert auth.ver_material.type == expected_auth_type
     assert auth.ver_material.value == expected_auth[expected_field.value]
 
     agreement = did_doc.key_agreement[0]
@@ -116,7 +137,7 @@ def test_did_doc_from_json_numalgo_2(did_doc_json, expected_format, expected_fie
     assert agreement.id == expected_agreement["id"]
     assert agreement.controller == PEER_DID_NUMALGO_2
     assert agreement.ver_material.format == expected_format
-    assert agreement.ver_material.field == expected_field
+    assert agreement.ver_material.type == expected_agreem_type
     assert agreement.ver_material.value == expected_agreement[expected_field.value]
 
     services = did_doc.service
@@ -124,7 +145,7 @@ def test_did_doc_from_json_numalgo_2(did_doc_json, expected_format, expected_fie
     assert services is not None
     assert len(services) == 1
     service = services[0]
-    assert isinstance(service, DIDCommServicePeerDID)
+    assert isinstance(service, DIDCommService)
     assert service.id == expected_service["id"]
     assert service.service_endpoint == expected_service["serviceEndpoint"]
     assert service.routing_keys == expected_service["routingKeys"]
@@ -150,7 +171,7 @@ def test_did_doc_from_json_numalgo_2_service_2_elements():
     expected_service_1 = json.loads(DID_DOC_NUMALGO_2_MULTIBASE_2_SERVICES)["service"][
         0
     ]
-    assert isinstance(service_1, DIDCommServicePeerDID)
+    assert isinstance(service_1, DIDCommService)
     assert service_1.id == expected_service_1["id"]
     assert service_1.service_endpoint == expected_service_1["serviceEndpoint"]
     assert service_1.routing_keys == expected_service_1["routingKeys"]
@@ -190,7 +211,7 @@ def test_did_doc_from_json_numalgo_2_minimal_service():
     expected_service = json.loads(DID_DOC_NUMALGO_2_MULTIBASE_MINIMAL_SERVICES)[
         "service"
     ][0]
-    assert isinstance(service, DIDCommServicePeerDID)
+    assert isinstance(service, DIDCommService)
     assert service.id == expected_service["id"]
     assert service.service_endpoint == expected_service["serviceEndpoint"]
     assert service.routing_keys is None

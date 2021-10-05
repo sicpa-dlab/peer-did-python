@@ -1,17 +1,19 @@
 import pytest
 
+from peerdid.core.did_doc_types import (
+    VerificationMethodTypeAgreement,
+    VerificationMethodTypeAuthentication,
+)
 from peerdid.core.peer_did_helper import (
     encode_service,
     decode_service,
     decode_multibase_encnumbasis,
 )
-from peerdid.core.did_doc_types import (
-    VerificationMaterialPeerDID,
-    VerificationMethodTypeAgreement,
-    VerificationMethodTypeAuthentication,
-    VerificationMethodField,
+from peerdid.types import (
+    VerificationMaterialFormat,
+    VerificationMaterialAuthentication,
+    VerificationMaterialAgreement,
 )
-from peerdid.types import VerificationMaterialFormatPeerDID
 from tests.test_vectors import PEER_DID_NUMALGO_2
 
 
@@ -126,81 +128,69 @@ def test_decode_service_with_multiple_entries_list():
     [
         pytest.param(
             "z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
-            VerificationMaterialFormatPeerDID.BASE58,
-            VerificationMaterialPeerDID(
-                field=VerificationMethodField.BASE58,
+            VerificationMaterialFormat.BASE58,
+            VerificationMaterialAuthentication(
                 type=VerificationMethodTypeAuthentication.ED25519_VERIFICATION_KEY_2018,
-                format=VerificationMaterialFormatPeerDID.BASE58,
+                format=VerificationMaterialFormat.BASE58,
                 value="ByHnpUCFb1vAfh9CFZ8ZkmUZguURW8nSw889hy6rD8L7",
-                encnumbasis="6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
             ),
             id="base58-ed25519",
         ),
         pytest.param(
             "z6LSbysY2xFMRpGMhb7tFTLMpeuPRaqaWM1yECx2AtzE3KCc",
-            VerificationMaterialFormatPeerDID.BASE58,
-            VerificationMaterialPeerDID(
-                field=VerificationMethodField.BASE58,
+            VerificationMaterialFormat.BASE58,
+            VerificationMaterialAgreement(
                 type=VerificationMethodTypeAgreement.X25519_KEY_AGREEMENT_KEY_2019,
-                format=VerificationMaterialFormatPeerDID.BASE58,
+                format=VerificationMaterialFormat.BASE58,
                 value="JhNWeSVLMYccCk7iopQW4guaSJTojqpMEELgSLhKwRr",
-                encnumbasis="6LSbysY2xFMRpGMhb7tFTLMpeuPRaqaWM1yECx2AtzE3KCc",
             ),
             id="base58-x25519",
         ),
         pytest.param(
             "z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
-            VerificationMaterialFormatPeerDID.MULTIBASE,
-            VerificationMaterialPeerDID(
-                field=VerificationMethodField.MULTIBASE,
+            VerificationMaterialFormat.MULTIBASE,
+            VerificationMaterialAuthentication(
                 type=VerificationMethodTypeAuthentication.ED25519_VERIFICATION_KEY_2020,
-                format=VerificationMaterialFormatPeerDID.MULTIBASE,
+                format=VerificationMaterialFormat.MULTIBASE,
                 value="zByHnpUCFb1vAfh9CFZ8ZkmUZguURW8nSw889hy6rD8L7",
-                encnumbasis="6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
             ),
             id="multibase-ed25519",
         ),
         pytest.param(
             "z6LSbysY2xFMRpGMhb7tFTLMpeuPRaqaWM1yECx2AtzE3KCc",
-            VerificationMaterialFormatPeerDID.MULTIBASE,
-            VerificationMaterialPeerDID(
-                field=VerificationMethodField.MULTIBASE,
+            VerificationMaterialFormat.MULTIBASE,
+            VerificationMaterialAgreement(
                 type=VerificationMethodTypeAgreement.X25519_KEY_AGREEMENT_KEY_2020,
-                format=VerificationMaterialFormatPeerDID.MULTIBASE,
+                format=VerificationMaterialFormat.MULTIBASE,
                 value="zJhNWeSVLMYccCk7iopQW4guaSJTojqpMEELgSLhKwRr",
-                encnumbasis="6LSbysY2xFMRpGMhb7tFTLMpeuPRaqaWM1yECx2AtzE3KCc",
             ),
             id="multibase-x25519",
         ),
         pytest.param(
             "z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
-            VerificationMaterialFormatPeerDID.JWK,
-            VerificationMaterialPeerDID(
-                field=VerificationMethodField.JWK,
+            VerificationMaterialFormat.JWK,
+            VerificationMaterialAuthentication(
                 type=VerificationMethodTypeAuthentication.JSON_WEB_KEY_2020,
-                format=VerificationMaterialFormatPeerDID.JWK,
+                format=VerificationMaterialFormat.JWK,
                 value={
                     "kty": "OKP",
                     "crv": "Ed25519",
                     "x": "owBhCbktDjkfS6PdQddT0D3yjSitaSysP3YimJ_YgmA",
                 },
-                encnumbasis="6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
             ),
             id="jwk-ed25519",
         ),
         pytest.param(
             "z6LSbysY2xFMRpGMhb7tFTLMpeuPRaqaWM1yECx2AtzE3KCc",
-            VerificationMaterialFormatPeerDID.JWK,
-            VerificationMaterialPeerDID(
-                field=VerificationMethodField.JWK,
+            VerificationMaterialFormat.JWK,
+            VerificationMaterialAgreement(
                 type=VerificationMethodTypeAgreement.JSON_WEB_KEY_2020,
-                format=VerificationMaterialFormatPeerDID.JWK,
+                format=VerificationMaterialFormat.JWK,
                 value={
                     "kty": "OKP",
                     "crv": "X25519",
                     "x": "BIiFcQEn3dfvB2pjlhOQQour6jXy9d5s2FKEJNTOJik",
                 },
-                encnumbasis="6LSbysY2xFMRpGMhb7tFTLMpeuPRaqaWM1yECx2AtzE3KCc",
             ),
             id="jwk-x25519",
         ),
@@ -208,4 +198,4 @@ def test_decode_service_with_multiple_entries_list():
 )
 def test_decode_encumbasis(input_multibase, format, expected):
     res = decode_multibase_encnumbasis(input_multibase, format)
-    assert res == expected
+    assert res.ver_material == expected
