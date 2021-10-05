@@ -2,7 +2,7 @@ from enum import Enum
 from typing import NamedTuple, Union
 
 
-class VerificationMaterialFormat(Enum):
+class VerificationMaterialFormatPeerDID(Enum):
     JWK = 1
     BASE58 = 2
     MULTIBASE = 3
@@ -35,7 +35,7 @@ VerificationMethodType = Union[
 VerificationMaterialAuthentication = NamedTuple(
     "VerificationMaterialAuthentication",
     [
-        ("format", VerificationMaterialFormat),
+        ("format", VerificationMaterialFormatPeerDID),
         ("type", VerificationMethodTypeAuthentication),
         ("value", Union[str, dict]),
     ],
@@ -44,7 +44,7 @@ VerificationMaterialAuthentication = NamedTuple(
 VerificationMaterialAgreement = NamedTuple(
     "VerificationMaterialAgreement",
     [
-        ("format", VerificationMaterialFormat),
+        ("format", VerificationMaterialFormatPeerDID),
         ("type", VerificationMethodTypeAgreement),
         ("value", Union[str, dict]),
     ],

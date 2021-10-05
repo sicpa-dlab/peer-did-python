@@ -4,7 +4,7 @@ import pytest
 
 from peerdid.errors import MalformedPeerDIDError
 from peerdid.peer_did import resolve_peer_did
-from peerdid.types import VerificationMaterialFormat
+from peerdid.types import VerificationMaterialFormatPeerDID
 from tests.test_vectors import (
     DID_DOC_NUMALGO_2_BASE58,
     PEER_DID_NUMALGO_2,
@@ -26,21 +26,21 @@ def test_resolve_numalgo_2_positive_default():
 
 def test_resolve_numalgo_2_positive_base58():
     did_doc = resolve_peer_did(
-        peer_did=PEER_DID_NUMALGO_2, format=VerificationMaterialFormat.BASE58
+        peer_did=PEER_DID_NUMALGO_2, format=VerificationMaterialFormatPeerDID.BASE58
     )
     assert json.loads(did_doc) == json.loads(DID_DOC_NUMALGO_2_BASE58)
 
 
 def test_resolve_numalgo_2_positive_multibase():
     did_doc = resolve_peer_did(
-        peer_did=PEER_DID_NUMALGO_2, format=VerificationMaterialFormat.MULTIBASE
+        peer_did=PEER_DID_NUMALGO_2, format=VerificationMaterialFormatPeerDID.MULTIBASE
     )
     assert json.loads(did_doc) == json.loads(DID_DOC_NUMALGO_2_MULTIBASE)
 
 
 def test_resolve_numalgo_2_positive_jwk():
     did_doc = resolve_peer_did(
-        peer_did=PEER_DID_NUMALGO_2, format=VerificationMaterialFormat.JWK
+        peer_did=PEER_DID_NUMALGO_2, format=VerificationMaterialFormatPeerDID.JWK
     )
     assert json.loads(did_doc) == json.loads(DID_DOC_NUMALGO_2_JWK)
 

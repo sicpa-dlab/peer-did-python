@@ -6,7 +6,7 @@ from peerdid.peer_did import create_peer_did_numalgo_0, is_peer_did
 from peerdid.types import (
     VerificationMaterialAuthentication,
     VerificationMethodTypeAuthentication,
-    VerificationMaterialFormat,
+    VerificationMaterialFormatPeerDID,
     VerificationMaterialAgreement,
     VerificationMethodTypeAgreement,
 )
@@ -19,7 +19,7 @@ from peerdid.types import (
             VerificationMaterialAuthentication(
                 value="ByHnpUCFb1vAfh9CFZ8ZkmUZguURW8nSw889hy6rD8L7",
                 type=VerificationMethodTypeAuthentication.ED25519_VERIFICATION_KEY_2018,
-                format=VerificationMaterialFormat.BASE58,
+                format=VerificationMaterialFormatPeerDID.BASE58,
             ),
             id="ED25519_VERIFICATION_KEY_2018_BASE58",
         ),
@@ -27,7 +27,7 @@ from peerdid.types import (
             VerificationMaterialAuthentication(
                 value="zByHnpUCFb1vAfh9CFZ8ZkmUZguURW8nSw889hy6rD8L7",
                 type=VerificationMethodTypeAuthentication.ED25519_VERIFICATION_KEY_2020,
-                format=VerificationMaterialFormat.MULTIBASE,
+                format=VerificationMaterialFormatPeerDID.MULTIBASE,
             ),
             id="ED25519_VERIFICATION_KEY_2020_MULTIBASE",
         ),
@@ -39,7 +39,7 @@ from peerdid.types import (
                     "x": "owBhCbktDjkfS6PdQddT0D3yjSitaSysP3YimJ_YgmA",
                 },
                 type=VerificationMethodTypeAuthentication.JSON_WEB_KEY_2020,
-                format=VerificationMaterialFormat.JWK,
+                format=VerificationMaterialFormatPeerDID.JWK,
             ),
             id="JSON_WEB_KEY_2020_JWK_DICT",
         ),
@@ -53,7 +53,7 @@ from peerdid.types import (
                     }
                 ),
                 type=VerificationMethodTypeAuthentication.JSON_WEB_KEY_2020,
-                format=VerificationMaterialFormat.JWK,
+                format=VerificationMaterialFormatPeerDID.JWK,
             ),
             id="JSON_WEB_KEY_2020_JWK_JSON",
         ),
@@ -74,7 +74,7 @@ def test_create_numalgo_0_positive(ver_material):
             VerificationMaterialAuthentication(
                 value="x8xB2pv7cw8q1Pd0DacS",
                 type=VerificationMethodTypeAuthentication.ED25519_VERIFICATION_KEY_2018,
-                format=VerificationMaterialFormat.BASE58,
+                format=VerificationMaterialFormatPeerDID.BASE58,
             ),
             id="ED25519_VERIFICATION_KEY_2018_BASE58",
         ),
@@ -82,7 +82,7 @@ def test_create_numalgo_0_positive(ver_material):
             VerificationMaterialAuthentication(
                 value="zx8xB2pv7cw8q1Pd0DacS",
                 type=VerificationMethodTypeAuthentication.ED25519_VERIFICATION_KEY_2020,
-                format=VerificationMaterialFormat.MULTIBASE,
+                format=VerificationMaterialFormatPeerDID.MULTIBASE,
             ),
             id="ED25519_VERIFICATION_KEY_2020_MULTIBASE",
         ),
@@ -100,7 +100,7 @@ def test_create_numalgo_0_malformed_inception_key_not_base58_encoded(ver_materia
             VerificationMaterialAuthentication(
                 value="ByHnp",
                 type=VerificationMethodTypeAuthentication.ED25519_VERIFICATION_KEY_2018,
-                format=VerificationMaterialFormat.BASE58,
+                format=VerificationMaterialFormatPeerDID.BASE58,
             ),
             id="ED25519_VERIFICATION_KEY_2018_BASE58",
         ),
@@ -108,7 +108,7 @@ def test_create_numalgo_0_malformed_inception_key_not_base58_encoded(ver_materia
             VerificationMaterialAuthentication(
                 value="zByHnp",
                 type=VerificationMethodTypeAuthentication.ED25519_VERIFICATION_KEY_2020,
-                format=VerificationMaterialFormat.MULTIBASE,
+                format=VerificationMaterialFormatPeerDID.MULTIBASE,
             ),
             id="ED25519_VERIFICATION_KEY_2020_MULTIBASE",
         ),
@@ -116,7 +116,7 @@ def test_create_numalgo_0_malformed_inception_key_not_base58_encoded(ver_materia
             VerificationMaterialAuthentication(
                 value={"kty": "OKP", "crv": "Ed25519", "x": "owBhCbktDjkfS6"},
                 type=VerificationMethodTypeAuthentication.JSON_WEB_KEY_2020,
-                format=VerificationMaterialFormat.JWK,
+                format=VerificationMaterialFormatPeerDID.JWK,
             ),
             id="JSON_WEB_KEY_2020_JWK_DICT",
         ),
@@ -124,7 +124,7 @@ def test_create_numalgo_0_malformed_inception_key_not_base58_encoded(ver_materia
             VerificationMaterialAuthentication(
                 value=json.dumps({"kty": "OKP", "crv": "Ed25519", "x": "owBhCbktDjkf"}),
                 type=VerificationMethodTypeAuthentication.JSON_WEB_KEY_2020,
-                format=VerificationMaterialFormat.JWK,
+                format=VerificationMaterialFormatPeerDID.JWK,
             ),
             id="JSON_WEB_KEY_2020_JWK_JSON",
         ),
@@ -142,7 +142,7 @@ def test_create_numalgo_0_malformed_short_inception_key(ver_material):
             VerificationMaterialAuthentication(
                 value="ByHnpUCFb1vAfh9CFZ8ByHnpUCFbZkmUZguURW8HnpUCFbZkmUnByHnpUCFbSHnpUCFbZkmUw889hByHnpUCFby6rD8L7",
                 type=VerificationMethodTypeAuthentication.ED25519_VERIFICATION_KEY_2018,
-                format=VerificationMaterialFormat.BASE58,
+                format=VerificationMaterialFormatPeerDID.BASE58,
             ),
             id="ED25519_VERIFICATION_KEY_2018_BASE58",
         ),
@@ -150,7 +150,7 @@ def test_create_numalgo_0_malformed_short_inception_key(ver_material):
             VerificationMaterialAuthentication(
                 value="zByHnpUCFb1vAfh9CFZ8ByHnpUCFbZkmUZguURW8HnpUCFbZkmUnByHnpUCFbSHnpUCFbZkmUw889hByHnpUCFby6rD8L7",
                 type=VerificationMethodTypeAuthentication.ED25519_VERIFICATION_KEY_2020,
-                format=VerificationMaterialFormat.MULTIBASE,
+                format=VerificationMaterialFormatPeerDID.MULTIBASE,
             ),
             id="ED25519_VERIFICATION_KEY_2020_MULTIBASE",
         ),
@@ -162,7 +162,7 @@ def test_create_numalgo_0_malformed_short_inception_key(ver_material):
                     "x": "owBhCbktDjkfS6owBhCbktDjkfS6owBhCbktDjkfS6owBhCbktDjkfS6owBhCbktDjkfS6owBhCbktDjkfS6owBhCbktDjkfS6",
                 },
                 type=VerificationMethodTypeAuthentication.JSON_WEB_KEY_2020,
-                format=VerificationMaterialFormat.JWK,
+                format=VerificationMaterialFormatPeerDID.JWK,
             ),
             id="JSON_WEB_KEY_2020_JWK_DICT",
         ),
@@ -176,7 +176,7 @@ def test_create_numalgo_0_malformed_short_inception_key(ver_material):
                     }
                 ),
                 type=VerificationMethodTypeAuthentication.JSON_WEB_KEY_2020,
-                format=VerificationMaterialFormat.JWK,
+                format=VerificationMaterialFormatPeerDID.JWK,
             ),
             id="JSON_WEB_KEY_2020_JWK_JSON",
         ),
@@ -194,7 +194,7 @@ def test_create_numalgo_0_malformed_long_inception_key(ver_material):
             VerificationMaterialAuthentication(
                 value="",
                 type=VerificationMethodTypeAuthentication.ED25519_VERIFICATION_KEY_2018,
-                format=VerificationMaterialFormat.BASE58,
+                format=VerificationMaterialFormatPeerDID.BASE58,
             ),
             id="ED25519_VERIFICATION_KEY_2018_BASE58",
         ),
@@ -202,7 +202,7 @@ def test_create_numalgo_0_malformed_long_inception_key(ver_material):
             VerificationMaterialAuthentication(
                 value={"kty": "OKP", "crv": "Ed25519", "x": ""},
                 type=VerificationMethodTypeAuthentication.JSON_WEB_KEY_2020,
-                format=VerificationMaterialFormat.JWK,
+                format=VerificationMaterialFormatPeerDID.JWK,
             ),
             id="JSON_WEB_KEY_2020_JWK",
         ),
@@ -217,7 +217,7 @@ def test_create_numalgo_0_malformed_empty_inception_key_multibase():
     ver_material = VerificationMaterialAuthentication(
         value="",
         type=VerificationMethodTypeAuthentication.ED25519_VERIFICATION_KEY_2020,
-        format=VerificationMaterialFormat.MULTIBASE,
+        format=VerificationMaterialFormatPeerDID.MULTIBASE,
     )
     with pytest.raises(ValueError, match=r"No transform part in multibase encoding"):
         create_peer_did_numalgo_0(inception_key=ver_material)
@@ -230,7 +230,7 @@ def test_create_numalgo_0_malformed_empty_inception_key_multibase():
             VerificationMaterialAgreement(
                 value="ByHnpUCFb1vAfh9CFZ8ZkmUZguURW8nSw889hy6rD8L7",
                 type=VerificationMethodTypeAgreement.X25519_KEY_AGREEMENT_KEY_2019,
-                format=VerificationMaterialFormat.BASE58,
+                format=VerificationMaterialFormatPeerDID.BASE58,
             ),
             id="X25519_KEY_AGREEMENT_KEY_2019_BASE58",
         ),
@@ -238,7 +238,7 @@ def test_create_numalgo_0_malformed_empty_inception_key_multibase():
             VerificationMaterialAgreement(
                 value="zByHnpUCFb1vAfh9CFZ8ZkmUZguURW8nSw889hy6rD8L7",
                 type=VerificationMethodTypeAgreement.X25519_KEY_AGREEMENT_KEY_2020,
-                format=VerificationMaterialFormat.MULTIBASE,
+                format=VerificationMaterialFormatPeerDID.MULTIBASE,
             ),
             id="X25519_KEY_AGREEMENT_KEY_2019_MILTIBASE",
         ),
@@ -250,7 +250,7 @@ def test_create_numalgo_0_malformed_empty_inception_key_multibase():
                     "x": "owBhCbktDjkfS6PdQddT0D3yjSitaSysP3YimJ_YgmA",
                 },
                 type=VerificationMethodTypeAgreement.JSON_WEB_KEY_2020,
-                format=VerificationMaterialFormat.JWK,
+                format=VerificationMaterialFormatPeerDID.JWK,
             ),
             id="JSON_WEB_KEY_2020_JWK",
         ),

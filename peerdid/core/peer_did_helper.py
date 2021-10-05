@@ -28,7 +28,7 @@ from peerdid.types import (
     JSON,
     PEER_DID,
     VerificationMaterial,
-    VerificationMaterialFormat,
+    VerificationMaterialFormatPeerDID,
     VerificationMaterialAgreement,
     VerificationMaterialAuthentication,
 )
@@ -118,11 +118,11 @@ def create_multibase_encnumbasis(key: VerificationMaterial) -> str:
     :param key: public key
     :return: transform+encnumbasis
     """
-    if key.format == VerificationMaterialFormat.BASE58:
+    if key.format == VerificationMaterialFormatPeerDID.BASE58:
         decoded_key = from_base58(key.value)
-    elif key.format == VerificationMaterialFormat.MULTIBASE:
+    elif key.format == VerificationMaterialFormatPeerDID.MULTIBASE:
         decoded_key = from_base58_multibase(key.value)[1]
-    elif key.format == VerificationMaterialFormat.JWK:
+    elif key.format == VerificationMaterialFormatPeerDID.JWK:
         decoded_key = jwk_key_to_bytes(key)
     else:
         raise ValueError("Unknown key format " + key.format)
@@ -141,7 +141,7 @@ DecodedEncnumbasis = NamedTuple(
 
 def decode_multibase_encnumbasis(
     multibase: str,
-    ver_material_format: VerificationMaterialFormat,
+    ver_material_format: VerificationMaterialFormatPeerDID,
 ) -> DecodedEncnumbasis:
     """
     Decodes multibased encnumbasis to a verification material for DID DOC
@@ -158,19 +158,19 @@ def decode_multibase_encnumbasis(
         if codec == Codec.X25519
         else VerificationMaterialAuthentication
     )
-    if ver_material_format == VerificationMaterialFormat.BASE58:
+    if ver_material_format == VerificationMaterialFormatPeerDID.BASE58:
         ver_material = ver_material_cls(
             format=ver_material_format,
             type=__get_2018_2019_ver_material_type(codec),
             value=to_base58(decoded_encnumbasis_without_prefix),
         )
-    elif ver_material_format == VerificationMaterialFormat.MULTIBASE:
+    elif ver_material_format == VerificationMaterialFormatPeerDID.MULTIBASE:
         ver_material = ver_material_cls(
             format=ver_material_format,
             type=__get_2020_ver_material_type(codec),
             value=to_base58_multibase(decoded_encnumbasis_without_prefix),
         )
-    elif ver_material_format == VerificationMaterialFormat.JWK:
+    elif ver_material_format == VerificationMaterialFormatPeerDID.JWK:
         ver_material_type = __get_jwk_ver_material_type(codec)
         ver_material = ver_material_cls(
             format=ver_material_format,

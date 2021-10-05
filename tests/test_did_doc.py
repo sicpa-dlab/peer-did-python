@@ -8,7 +8,7 @@ from peerdid.core.did_doc_types import (
 )
 from peerdid.did_doc import DIDDocPeerDID
 from peerdid.types import (
-    VerificationMaterialFormat,
+    VerificationMaterialFormatPeerDID,
     VerificationMethodTypeAuthentication,
     VerificationMethodTypeAgreement,
 )
@@ -35,21 +35,21 @@ from tests.test_vectors import (
     [
         pytest.param(
             DID_DOC_NUMALGO_O_BASE58,
-            VerificationMaterialFormat.BASE58,
+            VerificationMaterialFormatPeerDID.BASE58,
             VerificationMethodField.BASE58,
             VerificationMethodTypeAuthentication.ED25519_VERIFICATION_KEY_2018,
             id="numalgo_0_base58",
         ),
         pytest.param(
             DID_DOC_NUMALGO_O_MULTIBASE,
-            VerificationMaterialFormat.MULTIBASE,
+            VerificationMaterialFormatPeerDID.MULTIBASE,
             VerificationMethodField.MULTIBASE,
             VerificationMethodTypeAuthentication.ED25519_VERIFICATION_KEY_2020,
             id="numalgo_0_multibase",
         ),
         pytest.param(
             DID_DOC_NUMALGO_O_JWK,
-            VerificationMaterialFormat.JWK,
+            VerificationMaterialFormatPeerDID.JWK,
             VerificationMethodField.JWK,
             VerificationMethodTypeAuthentication.JSON_WEB_KEY_2020,
             id="numalgo_0_jwk",
@@ -85,7 +85,7 @@ def test_did_doc_from_json_numalgo_0(
     [
         pytest.param(
             DID_DOC_NUMALGO_2_BASE58,
-            VerificationMaterialFormat.BASE58,
+            VerificationMaterialFormatPeerDID.BASE58,
             VerificationMethodField.BASE58,
             VerificationMethodTypeAuthentication.ED25519_VERIFICATION_KEY_2018,
             VerificationMethodTypeAgreement.X25519_KEY_AGREEMENT_KEY_2019,
@@ -93,7 +93,7 @@ def test_did_doc_from_json_numalgo_0(
         ),
         pytest.param(
             DID_DOC_NUMALGO_2_MULTIBASE,
-            VerificationMaterialFormat.MULTIBASE,
+            VerificationMaterialFormatPeerDID.MULTIBASE,
             VerificationMethodField.MULTIBASE,
             VerificationMethodTypeAuthentication.ED25519_VERIFICATION_KEY_2020,
             VerificationMethodTypeAgreement.X25519_KEY_AGREEMENT_KEY_2020,
@@ -101,7 +101,7 @@ def test_did_doc_from_json_numalgo_0(
         ),
         pytest.param(
             DID_DOC_NUMALGO_2_JWK,
-            VerificationMaterialFormat.JWK,
+            VerificationMaterialFormatPeerDID.JWK,
             VerificationMethodField.JWK,
             VerificationMethodTypeAuthentication.JSON_WEB_KEY_2020,
             VerificationMethodTypeAgreement.JSON_WEB_KEY_2020,

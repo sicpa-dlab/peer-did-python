@@ -7,19 +7,19 @@ from peerdid.types import (
     VerificationMaterialAgreement,
     VerificationMethodTypeAgreement,
     VerificationMaterialAuthentication,
-    VerificationMaterialFormat,
+    VerificationMaterialFormatPeerDID,
     VerificationMethodTypeAuthentication,
 )
 
 VALID_X25519_KEY_AGREEMENT_KEY_2019 = VerificationMaterialAgreement(
     value="JhNWeSVLMYccCk7iopQW4guaSJTojqpMEELgSLhKwRr",
     type=VerificationMethodTypeAgreement.X25519_KEY_AGREEMENT_KEY_2019,
-    format=VerificationMaterialFormat.BASE58,
+    format=VerificationMaterialFormatPeerDID.BASE58,
 )
 VALID_X25519_KEY_AGREEMENT_KEY_2020 = VerificationMaterialAgreement(
     value="zJhNWeSVLMYccCk7iopQW4guaSJTojqpMEELgSLhKwRr",
     type=VerificationMethodTypeAgreement.X25519_KEY_AGREEMENT_KEY_2020,
-    format=VerificationMaterialFormat.MULTIBASE,
+    format=VerificationMaterialFormatPeerDID.MULTIBASE,
 )
 VALID_AGREEM_JSON_WEB_KEY_2020_DICT = VerificationMaterialAgreement(
     value={
@@ -28,7 +28,7 @@ VALID_AGREEM_JSON_WEB_KEY_2020_DICT = VerificationMaterialAgreement(
         "x": "BIiFcQEn3dfvB2pjlhOQQour6jXy9d5s2FKEJNTOJik",
     },
     type=VerificationMethodTypeAgreement.JSON_WEB_KEY_2020,
-    format=VerificationMaterialFormat.JWK,
+    format=VerificationMaterialFormatPeerDID.JWK,
 )
 VALID_AGREEM_JSON_WEB_KEY_2020_JSON = VerificationMaterialAgreement(
     value=json.dumps(
@@ -39,18 +39,18 @@ VALID_AGREEM_JSON_WEB_KEY_2020_JSON = VerificationMaterialAgreement(
         }
     ),
     type=VerificationMethodTypeAgreement.JSON_WEB_KEY_2020,
-    format=VerificationMaterialFormat.JWK,
+    format=VerificationMaterialFormatPeerDID.JWK,
 )
 
 VALID_ED25519_VERIFICATION_KEY_2018_1 = VerificationMaterialAuthentication(
     value="ByHnpUCFb1vAfh9CFZ8ZkmUZguURW8nSw889hy6rD8L7",
     type=VerificationMethodTypeAuthentication.ED25519_VERIFICATION_KEY_2018,
-    format=VerificationMaterialFormat.BASE58,
+    format=VerificationMaterialFormatPeerDID.BASE58,
 )
 VALID_ED25519_VERIFICATION_KEY_2020_1 = VerificationMaterialAuthentication(
     value="zByHnpUCFb1vAfh9CFZ8ZkmUZguURW8nSw889hy6rD8L7",
     type=VerificationMethodTypeAuthentication.ED25519_VERIFICATION_KEY_2020,
-    format=VerificationMaterialFormat.MULTIBASE,
+    format=VerificationMaterialFormatPeerDID.MULTIBASE,
 )
 VALID_AUTH_JSON_WEB_KEY_2020_1 = VerificationMaterialAuthentication(
     value={
@@ -59,18 +59,18 @@ VALID_AUTH_JSON_WEB_KEY_2020_1 = VerificationMaterialAuthentication(
         "x": "owBhCbktDjkfS6PdQddT0D3yjSitaSysP3YimJ_YgmA",
     },
     type=VerificationMethodTypeAuthentication.JSON_WEB_KEY_2020,
-    format=VerificationMaterialFormat.JWK,
+    format=VerificationMaterialFormatPeerDID.JWK,
 )
 
 VALID_ED25519_VERIFICATION_KEY_2018_2 = VerificationMaterialAuthentication(
     value="3M5RCDjPTWPkKSN3sxUmmMqHbmRPegYP1tjcKyrDbt9J",
     type=VerificationMethodTypeAuthentication.ED25519_VERIFICATION_KEY_2018,
-    format=VerificationMaterialFormat.BASE58,
+    format=VerificationMaterialFormatPeerDID.BASE58,
 )
 VALID_ED25519_VERIFICATION_KEY_2020_2 = VerificationMaterialAuthentication(
     value="z3M5RCDjPTWPkKSN3sxUmmMqHbmRPegYP1tjcKyrDbt9J",
     type=VerificationMethodTypeAuthentication.ED25519_VERIFICATION_KEY_2020,
-    format=VerificationMaterialFormat.MULTIBASE,
+    format=VerificationMaterialFormatPeerDID.MULTIBASE,
 )
 VALID_AUTH_JSON_WEB_KEY_2020_2 = VerificationMaterialAuthentication(
     value=json.dumps(
@@ -81,7 +81,7 @@ VALID_AUTH_JSON_WEB_KEY_2020_2 = VerificationMaterialAuthentication(
         }
     ),
     type=VerificationMethodTypeAuthentication.JSON_WEB_KEY_2020,
-    format=VerificationMaterialFormat.JWK,
+    format=VerificationMaterialFormatPeerDID.JWK,
 )
 
 VALID_SERVICE = """
@@ -286,7 +286,7 @@ def test_create_numalgo_2_without_signing_keys(encryption_keys, signing_keys):
                 VerificationMaterialAgreement(
                     value="....",
                     type=VerificationMethodTypeAgreement.X25519_KEY_AGREEMENT_KEY_2019,
-                    format=VerificationMaterialFormat.BASE58,
+                    format=VerificationMaterialFormatPeerDID.BASE58,
                 )
             ],
             [
@@ -300,7 +300,7 @@ def test_create_numalgo_2_without_signing_keys(encryption_keys, signing_keys):
                 VerificationMaterialAgreement(
                     value="z....",
                     type=VerificationMethodTypeAgreement.X25519_KEY_AGREEMENT_KEY_2020,
-                    format=VerificationMaterialFormat.MULTIBASE,
+                    format=VerificationMaterialFormatPeerDID.MULTIBASE,
                 )
             ],
             [
@@ -325,7 +325,7 @@ def test_create_numalgo_2_wrong_jwk():
         VerificationMaterialAgreement(
             value={"kty": "OKP", "crv": "X25519", "x": "..."},
             type=VerificationMethodTypeAgreement.JSON_WEB_KEY_2020,
-            format=VerificationMaterialFormat.JWK,
+            format=VerificationMaterialFormatPeerDID.JWK,
         )
     ]
     signing_keys = [VALID_AUTH_JSON_WEB_KEY_2020_1, VALID_AUTH_JSON_WEB_KEY_2020_2]
@@ -341,19 +341,19 @@ def test_create_numalgo_2_wrong_signing_key():
         VerificationMaterialAgreement(
             value="6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH",
             type=VerificationMethodTypeAgreement.X25519_KEY_AGREEMENT_KEY_2019,
-            format=VerificationMaterialFormat.BASE58,
+            format=VerificationMaterialFormatPeerDID.BASE58,
         )
     ]
     signing_keys = [
         VerificationMaterialAuthentication(
             value=".......",
             type=VerificationMethodTypeAuthentication.ED25519_VERIFICATION_KEY_2018,
-            format=VerificationMaterialFormat.BASE58,
+            format=VerificationMaterialFormatPeerDID.BASE58,
         ),
         VerificationMaterialAuthentication(
             value="zx8xB2pv7cw8q1PdDacSrdWE3dtB9f7Nxk886mdzNFoPtY",
             type=VerificationMethodTypeAuthentication.ED25519_VERIFICATION_KEY_2018,
-            format=VerificationMaterialFormat.BASE58,
+            format=VerificationMaterialFormatPeerDID.BASE58,
         ),
     ]
     service = VALID_SERVICE
@@ -550,7 +550,7 @@ def test_create_numalgo_2_malformed_encryption_key_not_base58_encoded():
         VerificationMaterialAgreement(
             value="JhNWeSVLMYcc0k7iopQW4guaSJTojqpMEELgSLhKwRr",
             type=VerificationMethodTypeAgreement.X25519_KEY_AGREEMENT_KEY_2019,
-            format=VerificationMaterialFormat.BASE58,
+            format=VerificationMaterialFormatPeerDID.BASE58,
         )
     ]
     signing_keys = [
@@ -574,7 +574,7 @@ def test_create_numalgo_2_malformed_short_encryption_key():
         VerificationMaterialAgreement(
             value="JhNWeSV",
             type=VerificationMethodTypeAgreement.X25519_KEY_AGREEMENT_KEY_2019,
-            format=VerificationMaterialFormat.BASE58,
+            format=VerificationMaterialFormatPeerDID.BASE58,
         )
     ]
     signing_keys = [
@@ -598,7 +598,7 @@ def test_create_numalgo_2_malformed_long_encryption_key():
         VerificationMaterialAgreement(
             value="JhNWeSVJhNWeSVJhNWeSVJhNWeSVJhNWeSVJhNWeSVJhNWeSVJhNWeSVJhNWe",
             type=VerificationMethodTypeAgreement.X25519_KEY_AGREEMENT_KEY_2019,
-            format=VerificationMaterialFormat.BASE58,
+            format=VerificationMaterialFormatPeerDID.BASE58,
         )
     ]
     signing_keys = [
@@ -622,7 +622,7 @@ def test_create_numalgo_2_malformed_encryption_key_empty():
         VerificationMaterialAgreement(
             value="",
             type=VerificationMethodTypeAgreement.X25519_KEY_AGREEMENT_KEY_2019,
-            format=VerificationMaterialFormat.BASE58,
+            format=VerificationMaterialFormatPeerDID.BASE58,
         )
     ]
     signing_keys = [
@@ -661,7 +661,7 @@ def test_create_numalgo_2_malformed_signing_key_not_base58_encoded():
         VerificationMaterialAuthentication(
             value="3M5RCDjPTWPkKSN3sxU0mMqHbmRPegYP1tjcKyrDbt9J",
             type=VerificationMethodTypeAuthentication.ED25519_VERIFICATION_KEY_2018,
-            format=VerificationMaterialFormat.BASE58,
+            format=VerificationMaterialFormatPeerDID.BASE58,
         )
     ]
     service = VALID_SERVICE
@@ -678,7 +678,7 @@ def test_create_numalgo_2_malformed_short_signing_key():
         VerificationMaterialAuthentication(
             value="ByHnpUCF",
             type=VerificationMethodTypeAuthentication.ED25519_VERIFICATION_KEY_2018,
-            format=VerificationMaterialFormat.BASE58,
+            format=VerificationMaterialFormatPeerDID.BASE58,
         )
     ]
     service = VALID_SERVICE
@@ -695,7 +695,7 @@ def test_create_numalgo_2_malformed_long_signing_key():
         VerificationMaterialAuthentication(
             value="3M5RCDjxUmmMqHbmRPegYPPTWPkKSN3sxUmmMqHbmRPegYPxUmmMqHbmRPegYP1tjcKxUmmMqHbmRPegYPyrDbt9J",
             type=VerificationMethodTypeAuthentication.ED25519_VERIFICATION_KEY_2018,
-            format=VerificationMaterialFormat.BASE58,
+            format=VerificationMaterialFormatPeerDID.BASE58,
         )
     ]
     service = VALID_SERVICE
@@ -712,7 +712,7 @@ def test_create_numalgo_2_malformed_empty_signing_key():
         VerificationMaterialAuthentication(
             value="",
             type=VerificationMethodTypeAuthentication.ED25519_VERIFICATION_KEY_2018,
-            format=VerificationMaterialFormat.BASE58,
+            format=VerificationMaterialFormatPeerDID.BASE58,
         )
     ]
     service = VALID_SERVICE
@@ -729,7 +729,7 @@ def test_create_numalgo_2_invalid_inception_key_type():
         VerificationMaterialAgreement(
             value="ByHnpUCFb1vAfh9CFZ8ZkmUZguURW8nSw889hy6rD8L7",
             type=VerificationMethodTypeAgreement.X25519_KEY_AGREEMENT_KEY_2019,
-            format=VerificationMaterialFormat.BASE58,
+            format=VerificationMaterialFormatPeerDID.BASE58,
         )
     ]
     service = VALID_SERVICE

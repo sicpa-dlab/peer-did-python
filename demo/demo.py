@@ -9,7 +9,7 @@ from peerdid.types import (
     VerificationMaterialAgreement,
     VerificationMethodTypeAgreement,
     VerificationMethodTypeAuthentication,
-    VerificationMaterialFormat,
+    VerificationMaterialFormatPeerDID,
 )
 
 
@@ -17,14 +17,14 @@ def demo():
     encryption_keys = [
         VerificationMaterialAgreement(
             type=VerificationMethodTypeAgreement.X25519_KEY_AGREEMENT_KEY_2019,
-            format=VerificationMaterialFormat.BASE58,
+            format=VerificationMaterialFormatPeerDID.BASE58,
             value="DmgBSHMqaZiYqwNMEJJuxWzsGGC8jUYADrfSdBrC6L8s",
         )
     ]
     signing_keys = [
         VerificationMaterialAuthentication(
             type=VerificationMethodTypeAuthentication.ED25519_VERIFICATION_KEY_2018,
-            format=VerificationMaterialFormat.BASE58,
+            format=VerificationMaterialFormatPeerDID.BASE58,
             value="ByHnpUCFb1vAfh9CFZ8ZkmUZguURW8nSw889hy6rD8L7",
         )
     ]

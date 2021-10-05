@@ -10,7 +10,7 @@ from peerdid.core.peer_did_helper import (
     decode_multibase_encnumbasis,
 )
 from peerdid.types import (
-    VerificationMaterialFormat,
+    VerificationMaterialFormatPeerDID,
     VerificationMaterialAuthentication,
     VerificationMaterialAgreement,
 )
@@ -128,50 +128,50 @@ def test_decode_service_with_multiple_entries_list():
     [
         pytest.param(
             "z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
-            VerificationMaterialFormat.BASE58,
+            VerificationMaterialFormatPeerDID.BASE58,
             VerificationMaterialAuthentication(
                 type=VerificationMethodTypeAuthentication.ED25519_VERIFICATION_KEY_2018,
-                format=VerificationMaterialFormat.BASE58,
+                format=VerificationMaterialFormatPeerDID.BASE58,
                 value="ByHnpUCFb1vAfh9CFZ8ZkmUZguURW8nSw889hy6rD8L7",
             ),
             id="base58-ed25519",
         ),
         pytest.param(
             "z6LSbysY2xFMRpGMhb7tFTLMpeuPRaqaWM1yECx2AtzE3KCc",
-            VerificationMaterialFormat.BASE58,
+            VerificationMaterialFormatPeerDID.BASE58,
             VerificationMaterialAgreement(
                 type=VerificationMethodTypeAgreement.X25519_KEY_AGREEMENT_KEY_2019,
-                format=VerificationMaterialFormat.BASE58,
+                format=VerificationMaterialFormatPeerDID.BASE58,
                 value="JhNWeSVLMYccCk7iopQW4guaSJTojqpMEELgSLhKwRr",
             ),
             id="base58-x25519",
         ),
         pytest.param(
             "z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
-            VerificationMaterialFormat.MULTIBASE,
+            VerificationMaterialFormatPeerDID.MULTIBASE,
             VerificationMaterialAuthentication(
                 type=VerificationMethodTypeAuthentication.ED25519_VERIFICATION_KEY_2020,
-                format=VerificationMaterialFormat.MULTIBASE,
+                format=VerificationMaterialFormatPeerDID.MULTIBASE,
                 value="zByHnpUCFb1vAfh9CFZ8ZkmUZguURW8nSw889hy6rD8L7",
             ),
             id="multibase-ed25519",
         ),
         pytest.param(
             "z6LSbysY2xFMRpGMhb7tFTLMpeuPRaqaWM1yECx2AtzE3KCc",
-            VerificationMaterialFormat.MULTIBASE,
+            VerificationMaterialFormatPeerDID.MULTIBASE,
             VerificationMaterialAgreement(
                 type=VerificationMethodTypeAgreement.X25519_KEY_AGREEMENT_KEY_2020,
-                format=VerificationMaterialFormat.MULTIBASE,
+                format=VerificationMaterialFormatPeerDID.MULTIBASE,
                 value="zJhNWeSVLMYccCk7iopQW4guaSJTojqpMEELgSLhKwRr",
             ),
             id="multibase-x25519",
         ),
         pytest.param(
             "z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
-            VerificationMaterialFormat.JWK,
+            VerificationMaterialFormatPeerDID.JWK,
             VerificationMaterialAuthentication(
                 type=VerificationMethodTypeAuthentication.JSON_WEB_KEY_2020,
-                format=VerificationMaterialFormat.JWK,
+                format=VerificationMaterialFormatPeerDID.JWK,
                 value={
                     "kty": "OKP",
                     "crv": "Ed25519",
@@ -182,10 +182,10 @@ def test_decode_service_with_multiple_entries_list():
         ),
         pytest.param(
             "z6LSbysY2xFMRpGMhb7tFTLMpeuPRaqaWM1yECx2AtzE3KCc",
-            VerificationMaterialFormat.JWK,
+            VerificationMaterialFormatPeerDID.JWK,
             VerificationMaterialAgreement(
                 type=VerificationMethodTypeAgreement.JSON_WEB_KEY_2020,
-                format=VerificationMaterialFormat.JWK,
+                format=VerificationMaterialFormatPeerDID.JWK,
                 value={
                     "kty": "OKP",
                     "crv": "X25519",

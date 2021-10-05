@@ -21,7 +21,7 @@ from peerdid.types import (
     JSON,
     VerificationMaterialAuthentication,
     VerificationMaterialAgreement,
-    VerificationMaterialFormat,
+    VerificationMaterialFormatPeerDID,
 )
 
 
@@ -109,7 +109,7 @@ def create_peer_did_numalgo_2(
 
 def resolve_peer_did(
     peer_did: PEER_DID,
-    format: VerificationMaterialFormat = VerificationMaterialFormat.MULTIBASE,
+    format: VerificationMaterialFormatPeerDID = VerificationMaterialFormatPeerDID.MULTIBASE,
 ) -> JSON:
     """
     Resolves did_doc from peer_did.
@@ -129,7 +129,7 @@ def resolve_peer_did(
 
 
 def _build_did_doc_numalgo_0(
-    peer_did: PEER_DID, format: VerificationMaterialFormat
+    peer_did: PEER_DID, format: VerificationMaterialFormatPeerDID
 ) -> DIDDocPeerDID:
     decoded_encnumbasis = __do_decode_multibase_encnumbasis_auth(peer_did[10:], format)
     return DIDDocPeerDID(
@@ -139,7 +139,7 @@ def _build_did_doc_numalgo_0(
 
 
 def _build_did_doc_numalgo_2(
-    peer_did: PEER_DID, format: VerificationMaterialFormat
+    peer_did: PEER_DID, format: VerificationMaterialFormatPeerDID
 ) -> DIDDocPeerDID:
     keys = peer_did[11:]
     keys = keys.split(".")
@@ -176,7 +176,7 @@ def _build_did_doc_numalgo_2(
 
 
 def __do_decode_multibase_encnumbasis_auth(
-    multibase: str, ver_material_format: VerificationMaterialFormat
+    multibase: str, ver_material_format: VerificationMaterialFormatPeerDID
 ):
     try:
         decoded_encnumbasis = decode_multibase_encnumbasis(
@@ -189,7 +189,7 @@ def __do_decode_multibase_encnumbasis_auth(
 
 
 def __do_decode_multibase_encnumbasis_agreement(
-    multibase: str, ver_material_format: VerificationMaterialFormat
+    multibase: str, ver_material_format: VerificationMaterialFormatPeerDID
 ):
     try:
         decoded_encnumbasis = decode_multibase_encnumbasis(

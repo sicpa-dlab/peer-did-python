@@ -8,7 +8,7 @@ from peerdid.types import (
     VerificationMethodTypeAuthentication,
     VerificationMethodTypeAgreement,
     VerificationMaterial,
-    VerificationMaterialFormat,
+    VerificationMaterialFormatPeerDID,
     VerificationMaterialAuthentication,
     VerificationMaterialAgreement,
 )
@@ -44,11 +44,11 @@ class VerificationMethod:
 
     @property
     def public_key_field(self):
-        if self.ver_material.format == VerificationMaterialFormat.BASE58:
+        if self.ver_material.format == VerificationMaterialFormatPeerDID.BASE58:
             return VerificationMethodField.BASE58
-        elif self.ver_material.format == VerificationMaterialFormat.MULTIBASE:
+        elif self.ver_material.format == VerificationMaterialFormatPeerDID.MULTIBASE:
             return VerificationMethodField.MULTIBASE
-        elif self.ver_material.format == VerificationMaterialFormat.JWK:
+        elif self.ver_material.format == VerificationMaterialFormatPeerDID.JWK:
             return VerificationMethodField.JWK
         else:
             raise ValueError(
@@ -59,37 +59,43 @@ class VerificationMethod:
     @classmethod
     def _get_public_key_format(
         cls, ver_method_type: VerificationMethodType
-    ) -> Tuple[VerificationMaterialFormat, VerificationMethodField]:
+    ) -> Tuple[VerificationMaterialFormatPeerDID, VerificationMethodField]:
         if (
             ver_method_type
             == VerificationMethodTypeAgreement.X25519_KEY_AGREEMENT_KEY_2019
         ):
-            return VerificationMaterialFormat.BASE58, VerificationMethodField.BASE58
+            return (
+                VerificationMaterialFormatPeerDID.BASE58,
+                VerificationMethodField.BASE58,
+            )
         if (
             ver_method_type
             == VerificationMethodTypeAgreement.X25519_KEY_AGREEMENT_KEY_2020
         ):
             return (
-                VerificationMaterialFormat.MULTIBASE,
+                VerificationMaterialFormatPeerDID.MULTIBASE,
                 VerificationMethodField.MULTIBASE,
             )
         if ver_method_type == VerificationMethodTypeAgreement.JSON_WEB_KEY_2020:
-            return VerificationMaterialFormat.JWK, VerificationMethodField.JWK
+            return VerificationMaterialFormatPeerDID.JWK, VerificationMethodField.JWK
         if (
             ver_method_type
             == VerificationMethodTypeAuthentication.ED25519_VERIFICATION_KEY_2018
         ):
-            return VerificationMaterialFormat.BASE58, VerificationMethodField.BASE58
+            return (
+                VerificationMaterialFormatPeerDID.BASE58,
+                VerificationMethodField.BASE58,
+            )
         if (
             ver_method_type
             == VerificationMethodTypeAuthentication.ED25519_VERIFICATION_KEY_2020
         ):
             return (
-                VerificationMaterialFormat.MULTIBASE,
+                VerificationMaterialFormatPeerDID.MULTIBASE,
                 VerificationMethodField.MULTIBASE,
             )
         if ver_method_type == VerificationMethodTypeAuthentication.JSON_WEB_KEY_2020:
-            return VerificationMaterialFormat.JWK, VerificationMethodField.JWK
+            return VerificationMaterialFormatPeerDID.JWK, VerificationMethodField.JWK
         raise ValueError("Unsupported verification method type " + str(ver_method_type))
 
     @classmethod
