@@ -56,9 +56,9 @@ class VerificationMethodPeerDID:
                 + str(self.ver_material.format)
             )
 
-    @classmethod
+    @staticmethod
     def _get_public_key_format(
-        cls, ver_method_type: VerificationMethodType
+        ver_method_type: VerificationMethodType,
     ) -> Tuple[VerificationMaterialFormatPeerDID, VerificationMethodField]:
         if (
             ver_method_type
@@ -98,8 +98,8 @@ class VerificationMethodPeerDID:
             return VerificationMaterialFormatPeerDID.JWK, VerificationMethodField.JWK
         raise ValueError("Unsupported verification method type " + str(ver_method_type))
 
-    @classmethod
-    def _get_ver_method_type(cls, value: dict) -> VerificationMethodType:
+    @staticmethod
+    def _get_ver_method_type(value: dict) -> VerificationMethodType:
         ver_method_type_str = value["type"]
         if (
             ver_method_type_str
@@ -185,35 +185,26 @@ class DIDCommServicePeerDID:
         return res
 
     @classmethod
-    def from_dict(cls, values: dict):
-        if not values:
-            return values
-        if not isinstance(values, list):
-            return values
+    def from_dict(cls, value: dict):
+        if not value:
+            return value
 
-        res = []
-        for value in values:
-            if SERVICE_ID not in value:
-                res.append(value)
-                continue
-            if SERVICE_TYPE not in value:
-                res.append(value)
-                continue
+        if SERVICE_ID not in value:
+            return value
 
-            service_type = value[SERVICE_TYPE]
-            if service_type != SERVICE_DIDCOMM_MESSAGING:
-                res.append(value)
-                continue
+        if SERVICE_TYPE not in value:
+            return value
 
-            res.append(
-                cls(
-                    id=value[SERVICE_ID],
-                    service_endpoint=value.get(SERVICE_ENDPOINT, None),
-                    routing_keys=value.get(SERVICE_ROUTING_KEYS, None),
-                    accept=value.get(SERVICE_ACCEPT, None),
-                )
-            )
-        return res
+        service_type = value[SERVICE_TYPE]
+        if service_type != SERVICE_DIDCOMM_MESSAGING:
+            return value
+
+        return cls(
+            id=value[SERVICE_ID],
+            service_endpoint=value.get(SERVICE_ENDPOINT, None),
+            routing_keys=value.get(SERVICE_ROUTING_KEYS, None),
+            accept=value.get(SERVICE_ACCEPT, None),
+        )
 
 
 Service = Union[Dict, DIDCommServicePeerDID]

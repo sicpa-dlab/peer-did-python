@@ -68,5 +68,12 @@ class DIDDocPeerDID:
                 VerificationMethodPeerDID.from_dict(v)
                 for v in did_doc_dict.get("keyAgreement", [])
             ],
-            service=DIDCommServicePeerDID.from_dict(did_doc_dict.get("service", None)),
+            service=(
+                [
+                    DIDCommServicePeerDID.from_dict(v)
+                    for v in did_doc_dict.get("service")
+                ]
+                if isinstance(did_doc_dict.get("service"), list)
+                else did_doc_dict.get("service")
+            ),
         )
