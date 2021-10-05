@@ -10,17 +10,17 @@ only [static layers of support (1, 2a, 2b)](https://identity.foundation/peer-did
 Example code:
 ```
     encryption_keys = [
-        PublicKeyAgreement(
-            type=PublicKeyTypeAgreement.X25519,
-            encoding_type=EncodingType.BASE58,
-            encoded_value="DmgBSHMqaZiYqwNMEJJuxWzsGGC8jUYADrfSdBrC6L8s",
+        VerificationMaterialAgreement(
+            type=VerificationMethodTypeAgreement.X25519_KEY_AGREEMENT_KEY_2019,
+            format=VerificationMaterialFormat.BASE58,
+            value="DmgBSHMqaZiYqwNMEJJuxWzsGGC8jUYADrfSdBrC6L8s",
         )
     ]
     signing_keys = [
-        PublicKeyAuthentication(
-            type=PublicKeyTypeAuthentication.ED25519,
-            encoding_type=EncodingType.BASE58,
-            encoded_value="ByHnpUCFb1vAfh9CFZ8ZkmUZguURW8nSw889hy6rD8L7",
+        VerificationMaterialAuthentication(
+            type=VerificationMethodTypeAuthentication.ED25519_VERIFICATION_KEY_2018,
+            format=VerificationMaterialFormat.BASE58,
+            value="ByHnpUCFb1vAfh9CFZ8ZkmUZguURW8nSw889hy6rD8L7",
         )
     ]
     service = """
@@ -37,8 +37,11 @@ Example code:
         encryption_keys=encryption_keys, signing_keys=signing_keys, service=service
     )
 
-    did_doc_algo_0 = resolve_peer_did(peer_did=peer_did_algo_0)
-    did_doc_algo_2 = resolve_peer_did(peer_did=peer_did_algo_2)
+    did_doc_algo_0_json = resolve_peer_did(peer_did=peer_did_algo_0)
+    did_doc_algo_2_json = resolve_peer_did(peer_did=peer_did_algo_2)
+
+    did_doc_algo_0 = DIDDocPeerDID.from_json(did_doc_algo_0_json)
+    did_doc_algo_2 = DIDDocPeerDID.from_json(did_doc_algo_2_json)
 ```
 
 Example of DID documents:
@@ -97,7 +100,6 @@ Example of DID documents:
        }
 
 ## Assumptions and limitations
-- Input keys are expected in `base58` format only
 - Only `X25519` keys are support for key agreement
 - Only `Ed25519` keys are support for authentication
 - Supported verification materials in the resolved DID DOC:

@@ -1,30 +1,87 @@
+import json
+
 import pytest
 
 from peerdid.peer_did import create_peer_did_numalgo_2, is_peer_did
 from peerdid.types import (
-    PublicKeyAgreement,
-    PublicKeyTypeAgreement,
-    PublicKeyAuthentication,
-    PublicKeyTypeAuthentication,
-    EncodingType,
+    VerificationMaterialAgreement,
+    VerificationMethodTypeAgreement,
+    VerificationMaterialAuthentication,
+    VerificationMaterialFormatPeerDID,
+    VerificationMethodTypeAuthentication,
 )
 
-VALID_X25519_KEY = PublicKeyAgreement(
-    encoded_value="JhNWeSVLMYccCk7iopQW4guaSJTojqpMEELgSLhKwRr",
-    type=PublicKeyTypeAgreement.X25519,
-    encoding_type=EncodingType.BASE58,
+VALID_X25519_KEY_AGREEMENT_KEY_2019 = VerificationMaterialAgreement(
+    value="JhNWeSVLMYccCk7iopQW4guaSJTojqpMEELgSLhKwRr",
+    type=VerificationMethodTypeAgreement.X25519_KEY_AGREEMENT_KEY_2019,
+    format=VerificationMaterialFormatPeerDID.BASE58,
+)
+VALID_X25519_KEY_AGREEMENT_KEY_2020 = VerificationMaterialAgreement(
+    value="zJhNWeSVLMYccCk7iopQW4guaSJTojqpMEELgSLhKwRr",
+    type=VerificationMethodTypeAgreement.X25519_KEY_AGREEMENT_KEY_2020,
+    format=VerificationMaterialFormatPeerDID.MULTIBASE,
+)
+VALID_AGREEM_JSON_WEB_KEY_2020_DICT = VerificationMaterialAgreement(
+    value={
+        "kty": "OKP",
+        "crv": "X25519",
+        "x": "BIiFcQEn3dfvB2pjlhOQQour6jXy9d5s2FKEJNTOJik",
+    },
+    type=VerificationMethodTypeAgreement.JSON_WEB_KEY_2020,
+    format=VerificationMaterialFormatPeerDID.JWK,
+)
+VALID_AGREEM_JSON_WEB_KEY_2020_JSON = VerificationMaterialAgreement(
+    value=json.dumps(
+        {
+            "kty": "OKP",
+            "crv": "X25519",
+            "x": "BIiFcQEn3dfvB2pjlhOQQour6jXy9d5s2FKEJNTOJik",
+        }
+    ),
+    type=VerificationMethodTypeAgreement.JSON_WEB_KEY_2020,
+    format=VerificationMaterialFormatPeerDID.JWK,
 )
 
-VALID_ED25519_KEY_1 = PublicKeyAuthentication(
-    encoded_value="ByHnpUCFb1vAfh9CFZ8ZkmUZguURW8nSw889hy6rD8L7",
-    type=PublicKeyTypeAuthentication.ED25519,
-    encoding_type=EncodingType.BASE58,
+VALID_ED25519_VERIFICATION_KEY_2018_1 = VerificationMaterialAuthentication(
+    value="ByHnpUCFb1vAfh9CFZ8ZkmUZguURW8nSw889hy6rD8L7",
+    type=VerificationMethodTypeAuthentication.ED25519_VERIFICATION_KEY_2018,
+    format=VerificationMaterialFormatPeerDID.BASE58,
+)
+VALID_ED25519_VERIFICATION_KEY_2020_1 = VerificationMaterialAuthentication(
+    value="zByHnpUCFb1vAfh9CFZ8ZkmUZguURW8nSw889hy6rD8L7",
+    type=VerificationMethodTypeAuthentication.ED25519_VERIFICATION_KEY_2020,
+    format=VerificationMaterialFormatPeerDID.MULTIBASE,
+)
+VALID_AUTH_JSON_WEB_KEY_2020_1 = VerificationMaterialAuthentication(
+    value={
+        "kty": "OKP",
+        "crv": "Ed25519",
+        "x": "owBhCbktDjkfS6PdQddT0D3yjSitaSysP3YimJ_YgmA",
+    },
+    type=VerificationMethodTypeAuthentication.JSON_WEB_KEY_2020,
+    format=VerificationMaterialFormatPeerDID.JWK,
 )
 
-VALID_ED25519_KEY_2 = PublicKeyAuthentication(
-    encoded_value="3M5RCDjPTWPkKSN3sxUmmMqHbmRPegYP1tjcKyrDbt9J",
-    type=PublicKeyTypeAuthentication.ED25519,
-    encoding_type=EncodingType.BASE58,
+VALID_ED25519_VERIFICATION_KEY_2018_2 = VerificationMaterialAuthentication(
+    value="3M5RCDjPTWPkKSN3sxUmmMqHbmRPegYP1tjcKyrDbt9J",
+    type=VerificationMethodTypeAuthentication.ED25519_VERIFICATION_KEY_2018,
+    format=VerificationMaterialFormatPeerDID.BASE58,
+)
+VALID_ED25519_VERIFICATION_KEY_2020_2 = VerificationMaterialAuthentication(
+    value="z3M5RCDjPTWPkKSN3sxUmmMqHbmRPegYP1tjcKyrDbt9J",
+    type=VerificationMethodTypeAuthentication.ED25519_VERIFICATION_KEY_2020,
+    format=VerificationMaterialFormatPeerDID.MULTIBASE,
+)
+VALID_AUTH_JSON_WEB_KEY_2020_2 = VerificationMaterialAuthentication(
+    value=json.dumps(
+        {
+            "kty": "OKP",
+            "crv": "Ed25519",
+            "x": "Itv8B__b1-Jos3LCpUe8EdTFGTCa_Dza6_3848P3R70",
+        }
+    ),
+    type=VerificationMethodTypeAuthentication.JSON_WEB_KEY_2020,
+    format=VerificationMaterialFormatPeerDID.JWK,
 )
 
 VALID_SERVICE = """
@@ -37,12 +94,38 @@ VALID_SERVICE = """
     """
 
 
-def test_create_numalgo_2_positive():
-    encryption_keys = [VALID_X25519_KEY]
-    signing_keys = [
-        VALID_ED25519_KEY_1,
-        VALID_ED25519_KEY_2,
-    ]
+@pytest.mark.parametrize(
+    "encryption_keys, signing_keys",
+    [
+        pytest.param(
+            [VALID_X25519_KEY_AGREEMENT_KEY_2019],
+            [
+                VALID_ED25519_VERIFICATION_KEY_2018_1,
+                VALID_ED25519_VERIFICATION_KEY_2018_2,
+            ],
+            id="BASE58",
+        ),
+        pytest.param(
+            [VALID_X25519_KEY_AGREEMENT_KEY_2020],
+            [
+                VALID_ED25519_VERIFICATION_KEY_2020_1,
+                VALID_ED25519_VERIFICATION_KEY_2020_2,
+            ],
+            id="MULTIBASE",
+        ),
+        pytest.param(
+            [VALID_AGREEM_JSON_WEB_KEY_2020_JSON],
+            [VALID_AUTH_JSON_WEB_KEY_2020_1, VALID_AUTH_JSON_WEB_KEY_2020_2],
+            id="JWK_JSON",
+        ),
+        pytest.param(
+            [VALID_AGREEM_JSON_WEB_KEY_2020_DICT],
+            [VALID_AUTH_JSON_WEB_KEY_2020_1, VALID_AUTH_JSON_WEB_KEY_2020_2],
+            id="JWK_DICT",
+        ),
+    ],
+)
+def test_create_numalgo_2_positive(encryption_keys, signing_keys):
     service = """[
             {
                 "type": "DIDCommMessaging",
@@ -72,10 +155,10 @@ def test_create_numalgo_2_positive():
 
 
 def test_create_numalgo_2_service_not_array():
-    encryption_keys = [VALID_X25519_KEY]
+    encryption_keys = [VALID_X25519_KEY_AGREEMENT_KEY_2019]
     signing_keys = [
-        VALID_ED25519_KEY_1,
-        VALID_ED25519_KEY_2,
+        VALID_ED25519_VERIFICATION_KEY_2018_1,
+        VALID_ED25519_VERIFICATION_KEY_2018_2,
     ]
     service = """
             {
@@ -92,10 +175,10 @@ def test_create_numalgo_2_service_not_array():
 
 
 def test_create_numalgo_2_service_minimal_fields():
-    encryption_keys = [VALID_X25519_KEY]
+    encryption_keys = [VALID_X25519_KEY_AGREEMENT_KEY_2019]
     signing_keys = [
-        VALID_ED25519_KEY_1,
-        VALID_ED25519_KEY_2,
+        VALID_ED25519_VERIFICATION_KEY_2018_1,
+        VALID_ED25519_VERIFICATION_KEY_2018_2,
     ]
     service = """
             {
@@ -111,10 +194,10 @@ def test_create_numalgo_2_service_minimal_fields():
 
 
 def test_create_numalgo_2_service_1_element_array():
-    encryption_keys = [VALID_X25519_KEY]
+    encryption_keys = [VALID_X25519_KEY_AGREEMENT_KEY_2019]
     signing_keys = [
-        VALID_ED25519_KEY_1,
-        VALID_ED25519_KEY_2,
+        VALID_ED25519_VERIFICATION_KEY_2018_1,
+        VALID_ED25519_VERIFICATION_KEY_2018_2,
     ]
     service = """
         [
@@ -132,12 +215,33 @@ def test_create_numalgo_2_service_1_element_array():
     assert is_peer_did(peer_did_algo_2)
 
 
-def test_create_numalgo_2_without_encryption_keys():
-    encryption_keys = []
-    signing_keys = [
-        VALID_ED25519_KEY_1,
-        VALID_ED25519_KEY_2,
-    ]
+@pytest.mark.parametrize(
+    "encryption_keys, signing_keys",
+    [
+        pytest.param(
+            [],
+            [
+                VALID_ED25519_VERIFICATION_KEY_2018_1,
+                VALID_ED25519_VERIFICATION_KEY_2018_2,
+            ],
+            id="BASE58",
+        ),
+        pytest.param(
+            [],
+            [
+                VALID_ED25519_VERIFICATION_KEY_2020_1,
+                VALID_ED25519_VERIFICATION_KEY_2020_2,
+            ],
+            id="MULTIBASE",
+        ),
+        pytest.param(
+            [],
+            [VALID_AUTH_JSON_WEB_KEY_2020_1, VALID_AUTH_JSON_WEB_KEY_2020_2],
+            id="JWK",
+        ),
+    ],
+)
+def test_create_numalgo_2_without_encryption_keys(encryption_keys, signing_keys):
     service = VALID_SERVICE
 
     peer_did_algo_2 = create_peer_did_numalgo_2(
@@ -152,9 +256,15 @@ def test_create_numalgo_2_without_encryption_keys():
     assert is_peer_did(peer_did_algo_2)
 
 
-def test_create_numalgo_2_without_signing_keys():
-    encryption_keys = [VALID_X25519_KEY]
-    signing_keys = []
+@pytest.mark.parametrize(
+    "encryption_keys, signing_keys",
+    [
+        pytest.param([VALID_X25519_KEY_AGREEMENT_KEY_2019], [], id="BASE58"),
+        pytest.param([VALID_X25519_KEY_AGREEMENT_KEY_2020], [], id="MULTIBASE"),
+        pytest.param([VALID_AGREEM_JSON_WEB_KEY_2020_JSON], [], id="JWK"),
+    ],
+)
+def test_create_numalgo_2_without_signing_keys(encryption_keys, signing_keys):
     service = VALID_SERVICE
 
     peer_did_algo_2 = create_peer_did_numalgo_2(
@@ -168,101 +278,111 @@ def test_create_numalgo_2_without_signing_keys():
     assert is_peer_did(peer_did_algo_2)
 
 
-def test_create_numalgo_2_wrong_encryption_key():
-    encryption_keys = [
-        PublicKeyAgreement(
-            encoded_value="....",
-            type=PublicKeyTypeAgreement.X25519,
-            encoding_type=EncodingType.BASE58,
-        )
-    ]
-    signing_keys = [
-        PublicKeyAuthentication(
-            encoded_value="zXwpBnMdCm1cLmKuzgESn29nqnonp1ioqrQMRHNsmjMypp",
-            type=PublicKeyTypeAuthentication.ED25519,
-            encoding_type=EncodingType.BASE58,
+@pytest.mark.parametrize(
+    "encryption_keys, signing_keys",
+    [
+        pytest.param(
+            [
+                VerificationMaterialAgreement(
+                    value="....",
+                    type=VerificationMethodTypeAgreement.X25519_KEY_AGREEMENT_KEY_2019,
+                    format=VerificationMaterialFormatPeerDID.BASE58,
+                )
+            ],
+            [
+                VALID_ED25519_VERIFICATION_KEY_2018_1,
+                VALID_ED25519_VERIFICATION_KEY_2018_2,
+            ],
+            id="BASE58",
         ),
-        PublicKeyAuthentication(
-            encoded_value="zx8xB2pv7cw8q1PdDacSrdWE3dtB9f7Nxk886mdzNFoPtY",
-            type=PublicKeyTypeAuthentication.ED25519,
-            encoding_type=EncodingType.BASE58,
+        pytest.param(
+            [
+                VerificationMaterialAgreement(
+                    value="z....",
+                    type=VerificationMethodTypeAgreement.X25519_KEY_AGREEMENT_KEY_2020,
+                    format=VerificationMaterialFormatPeerDID.MULTIBASE,
+                )
+            ],
+            [
+                VALID_ED25519_VERIFICATION_KEY_2020_1,
+                VALID_ED25519_VERIFICATION_KEY_2020_2,
+            ],
+            id="MULTIBASE",
         ),
-    ]
+    ],
+)
+def test_create_numalgo_2_wrong_encryption_key_base58(encryption_keys, signing_keys):
     service = VALID_SERVICE
 
-    with pytest.raises(ValueError):
-        peer_did_algo_2 = create_peer_did_numalgo_2(
+    with pytest.raises(ValueError, match=r"Invalid base58 encoding"):
+        create_peer_did_numalgo_2(
+            encryption_keys=encryption_keys, signing_keys=signing_keys, service=service
+        )
+
+
+def test_create_numalgo_2_wrong_jwk():
+    encryption_keys = [
+        VerificationMaterialAgreement(
+            value={"kty": "OKP", "crv": "X25519", "x": "..."},
+            type=VerificationMethodTypeAgreement.JSON_WEB_KEY_2020,
+            format=VerificationMaterialFormatPeerDID.JWK,
+        )
+    ]
+    signing_keys = [VALID_AUTH_JSON_WEB_KEY_2020_1, VALID_AUTH_JSON_WEB_KEY_2020_2]
+    service = VALID_SERVICE
+    with pytest.raises(ValueError, match=r"Invalid key"):
+        create_peer_did_numalgo_2(
             encryption_keys=encryption_keys, signing_keys=signing_keys, service=service
         )
 
 
 def test_create_numalgo_2_wrong_signing_key():
     encryption_keys = [
-        PublicKeyAgreement(
-            encoded_value="6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH",
-            type=PublicKeyTypeAgreement.X25519,
-            encoding_type=EncodingType.BASE58,
+        VerificationMaterialAgreement(
+            value="6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH",
+            type=VerificationMethodTypeAgreement.X25519_KEY_AGREEMENT_KEY_2019,
+            format=VerificationMaterialFormatPeerDID.BASE58,
         )
     ]
     signing_keys = [
-        PublicKeyAuthentication(
-            encoded_value=".......",
-            type=PublicKeyTypeAuthentication.ED25519,
-            encoding_type=EncodingType.BASE58,
+        VerificationMaterialAuthentication(
+            value=".......",
+            type=VerificationMethodTypeAuthentication.ED25519_VERIFICATION_KEY_2018,
+            format=VerificationMaterialFormatPeerDID.BASE58,
         ),
-        PublicKeyAuthentication(
-            encoded_value="zx8xB2pv7cw8q1PdDacSrdWE3dtB9f7Nxk886mdzNFoPtY",
-            type=PublicKeyTypeAuthentication.ED25519,
-            encoding_type=EncodingType.BASE58,
+        VerificationMaterialAuthentication(
+            value="zx8xB2pv7cw8q1PdDacSrdWE3dtB9f7Nxk886mdzNFoPtY",
+            type=VerificationMethodTypeAuthentication.ED25519_VERIFICATION_KEY_2018,
+            format=VerificationMaterialFormatPeerDID.BASE58,
         ),
     ]
     service = VALID_SERVICE
 
-    with pytest.raises(ValueError):
-        peer_did_algo_2 = create_peer_did_numalgo_2(
+    with pytest.raises(ValueError, match=r"Invalid key"):
+        create_peer_did_numalgo_2(
             encryption_keys=encryption_keys, signing_keys=signing_keys, service=service
         )
 
 
 def test_create_numalgo_2_wrong_service():
-    encryption_keys = [
-        PublicKeyAgreement(
-            encoded_value="6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH",
-            type=PublicKeyTypeAgreement.X25519,
-            encoding_type=EncodingType.BASE58,
-        )
-    ]
+    encryption_keys = [VALID_X25519_KEY_AGREEMENT_KEY_2019]
     signing_keys = [
-        PublicKeyAuthentication(
-            encoded_value=".......",
-            type=PublicKeyTypeAuthentication.ED25519,
-            encoding_type=EncodingType.BASE58,
-        ),
-        PublicKeyAuthentication(
-            encoded_value="zx8xB2pv7cw8q1PdDacSrdWE3dtB9f7Nxk886mdzNFoPtY",
-            type=PublicKeyTypeAuthentication.ED25519,
-            encoding_type=EncodingType.BASE58,
-        ),
+        VALID_ED25519_VERIFICATION_KEY_2018_1,
+        VALID_ED25519_VERIFICATION_KEY_2018_2,
     ]
     service = "......."
 
-    with pytest.raises(ValueError):
-        peer_did_algo_2 = create_peer_did_numalgo_2(
+    with pytest.raises(ValueError, match=r"Service is not a valid JSON"):
+        create_peer_did_numalgo_2(
             encryption_keys=encryption_keys, signing_keys=signing_keys, service=service
         )
 
 
 def test_create_numalgo_2_encryption_key_as_signing():
-    encryption_keys = [
-        PublicKeyAgreement(
-            encoded_value="6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH",
-            type=PublicKeyTypeAgreement.X25519,
-            encoding_type=EncodingType.BASE58,
-        )
-    ]
+    encryption_keys = [VALID_X25519_KEY_AGREEMENT_KEY_2019]
     service = VALID_SERVICE
-    with pytest.raises(ValueError):
-        peer_did_algo_2 = create_peer_did_numalgo_2(
+    with pytest.raises(TypeError, match=r"Invalid verification material type"):
+        create_peer_did_numalgo_2(
             encryption_keys=encryption_keys,
             signing_keys=encryption_keys,
             service=service,
@@ -271,29 +391,21 @@ def test_create_numalgo_2_encryption_key_as_signing():
 
 def test_create_numalgo_2_signing_key_as_encryption():
     signing_keys = [
-        PublicKeyAuthentication(
-            encoded_value="zXwpBnMdCm1cLmKuzgESn29nqnonp1ioqrQMRHNsmjMypp",
-            type=PublicKeyTypeAuthentication.ED25519,
-            encoding_type=EncodingType.BASE58,
-        ),
-        PublicKeyAuthentication(
-            encoded_value="zx8xB2pv7cw8q1PdDacSrdWE3dtB9f7Nxk886mdzNFoPtY",
-            type=PublicKeyTypeAuthentication.ED25519,
-            encoding_type=EncodingType.BASE58,
-        ),
+        VALID_ED25519_VERIFICATION_KEY_2018_1,
+        VALID_ED25519_VERIFICATION_KEY_2018_2,
     ]
     service = VALID_SERVICE
-    with pytest.raises(TypeError):
-        peer_did_algo_2 = create_peer_did_numalgo_2(
+    with pytest.raises(TypeError, match=r"Invalid verification material type"):
+        create_peer_did_numalgo_2(
             encryption_keys=signing_keys, signing_keys=signing_keys, service=service
         )
 
 
 def test_create_numalgo_2_service_is_None():
-    encryption_keys = [VALID_X25519_KEY]
+    encryption_keys = [VALID_X25519_KEY_AGREEMENT_KEY_2019]
     signing_keys = [
-        VALID_ED25519_KEY_1,
-        VALID_ED25519_KEY_2,
+        VALID_ED25519_VERIFICATION_KEY_2018_1,
+        VALID_ED25519_VERIFICATION_KEY_2018_2,
     ]
     service = None
 
@@ -310,8 +422,8 @@ def test_create_numalgo_2_service_is_None():
 
 
 def test_create_numalgo_2_encryption_and_signing_keys_are_1_element_array():
-    encryption_keys = [VALID_X25519_KEY]
-    signing_keys = [VALID_ED25519_KEY_2]
+    encryption_keys = [VALID_X25519_KEY_AGREEMENT_KEY_2019]
+    signing_keys = [VALID_ED25519_VERIFICATION_KEY_2018_1]
     service = VALID_SERVICE
 
     peer_did_algo_2 = create_peer_did_numalgo_2(
@@ -322,16 +434,13 @@ def test_create_numalgo_2_encryption_and_signing_keys_are_1_element_array():
 
 def test_create_numalgo_2_encryption_and_signing_keys_are_more_than_1_element_array():
     encryption_keys = [
-        VALID_X25519_KEY,
-        PublicKeyAgreement(
-            encoded_value="ByHnpUCFb1vAfh9CFZ8ZkmUZguURW8nSw889hy6rD8L7",
-            type=PublicKeyTypeAgreement.X25519,
-            encoding_type=EncodingType.BASE58,
-        ),
+        VALID_X25519_KEY_AGREEMENT_KEY_2019,
+        VALID_X25519_KEY_AGREEMENT_KEY_2020,
+        VALID_AGREEM_JSON_WEB_KEY_2020_DICT,
     ]
     signing_keys = [
-        VALID_ED25519_KEY_1,
-        VALID_ED25519_KEY_2,
+        VALID_ED25519_VERIFICATION_KEY_2018_1,
+        VALID_ED25519_VERIFICATION_KEY_2020_2,
     ]
     service = VALID_SERVICE
 
@@ -342,10 +451,10 @@ def test_create_numalgo_2_encryption_and_signing_keys_are_more_than_1_element_ar
 
 
 def test_create_numalgo_2_service_has_more_fields_than_in_conversion_table():
-    encryption_keys = [VALID_X25519_KEY]
+    encryption_keys = [VALID_X25519_KEY_AGREEMENT_KEY_2019]
     signing_keys = [
-        VALID_ED25519_KEY_1,
-        VALID_ED25519_KEY_2,
+        VALID_ED25519_VERIFICATION_KEY_2018_1,
+        VALID_ED25519_VERIFICATION_KEY_2018_2,
     ]
     service = """{
         "type": "DIDCommMessaging",
@@ -363,10 +472,10 @@ def test_create_numalgo_2_service_has_more_fields_than_in_conversion_table():
 
 
 def test_create_numalgo_2_service_is_not_didcommmessaging():
-    encryption_keys = [VALID_X25519_KEY]
+    encryption_keys = [VALID_X25519_KEY_AGREEMENT_KEY_2019]
     signing_keys = [
-        VALID_ED25519_KEY_1,
-        VALID_ED25519_KEY_2,
+        VALID_ED25519_VERIFICATION_KEY_2018_1,
+        VALID_ED25519_VERIFICATION_KEY_2018_2,
     ]
     service = """{
         "type": "example1",
@@ -382,38 +491,38 @@ def test_create_numalgo_2_service_is_not_didcommmessaging():
 
 
 def test_create_numalgo_2_service_is_empty_string():
-    encryption_keys = [VALID_X25519_KEY]
+    encryption_keys = [VALID_X25519_KEY_AGREEMENT_KEY_2019]
     signing_keys = [
-        VALID_ED25519_KEY_1,
-        VALID_ED25519_KEY_2,
+        VALID_ED25519_VERIFICATION_KEY_2018_1,
+        VALID_ED25519_VERIFICATION_KEY_2018_2,
     ]
     service = ""
 
-    with pytest.raises(ValueError):
-        peer_did_algo_2 = create_peer_did_numalgo_2(
+    with pytest.raises(ValueError, match=r"Service is not a valid JSON"):
+        create_peer_did_numalgo_2(
             encryption_keys=encryption_keys, signing_keys=signing_keys, service=service
         )
 
 
 def test_create_numalgo_2_service_is_empty_array():
-    encryption_keys = [VALID_X25519_KEY]
+    encryption_keys = [VALID_X25519_KEY_AGREEMENT_KEY_2019]
     signing_keys = [
-        VALID_ED25519_KEY_1,
-        VALID_ED25519_KEY_2,
+        VALID_ED25519_VERIFICATION_KEY_2018_1,
+        VALID_ED25519_VERIFICATION_KEY_2018_2,
     ]
     service = []
 
-    with pytest.raises(TypeError):
-        peer_did_algo_2 = create_peer_did_numalgo_2(
+    with pytest.raises(ValueError, match=r"Service is not a valid JSON"):
+        create_peer_did_numalgo_2(
             encryption_keys=encryption_keys, signing_keys=signing_keys, service=service
         )
 
 
 def test_create_numalgo_2_different_types_of_service():
-    encryption_keys = [VALID_X25519_KEY]
+    encryption_keys = [VALID_X25519_KEY_AGREEMENT_KEY_2019]
     signing_keys = [
-        VALID_ED25519_KEY_1,
-        VALID_ED25519_KEY_2,
+        VALID_ED25519_VERIFICATION_KEY_2018_1,
+        VALID_ED25519_VERIFICATION_KEY_2018_2,
     ]
     service = """
         [
@@ -438,15 +547,15 @@ def test_create_numalgo_2_different_types_of_service():
 
 def test_create_numalgo_2_malformed_encryption_key_not_base58_encoded():
     encryption_keys = [
-        PublicKeyAgreement(
-            encoded_value="JhNWeSVLMYcc0k7iopQW4guaSJTojqpMEELgSLhKwRr",
-            type=PublicKeyTypeAgreement.X25519,
-            encoding_type=EncodingType.BASE58,
+        VerificationMaterialAgreement(
+            value="JhNWeSVLMYcc0k7iopQW4guaSJTojqpMEELgSLhKwRr",
+            type=VerificationMethodTypeAgreement.X25519_KEY_AGREEMENT_KEY_2019,
+            format=VerificationMaterialFormatPeerDID.BASE58,
         )
     ]
     signing_keys = [
-        VALID_ED25519_KEY_1,
-        VALID_ED25519_KEY_2,
+        VALID_ED25519_VERIFICATION_KEY_2018_1,
+        VALID_ED25519_VERIFICATION_KEY_2018_2,
     ]
     service = """{
             "type": "DIDCommMessaging",
@@ -454,23 +563,23 @@ def test_create_numalgo_2_malformed_encryption_key_not_base58_encoded():
             "routingKeys": ["did:example:somemediator#somekey"]
             }
             """
-    with pytest.raises(ValueError):
-        peer_did_algo_2 = create_peer_did_numalgo_2(
+    with pytest.raises(ValueError, match=r"Invalid base58 encoding"):
+        create_peer_did_numalgo_2(
             encryption_keys=encryption_keys, signing_keys=signing_keys, service=service
         )
 
 
 def test_create_numalgo_2_malformed_short_encryption_key():
     encryption_keys = [
-        PublicKeyAgreement(
-            encoded_value="JhNWeSV",
-            type=PublicKeyTypeAgreement.X25519,
-            encoding_type=EncodingType.BASE58,
+        VerificationMaterialAgreement(
+            value="JhNWeSV",
+            type=VerificationMethodTypeAgreement.X25519_KEY_AGREEMENT_KEY_2019,
+            format=VerificationMaterialFormatPeerDID.BASE58,
         )
     ]
     signing_keys = [
-        VALID_ED25519_KEY_1,
-        VALID_ED25519_KEY_2,
+        VALID_ED25519_VERIFICATION_KEY_2018_1,
+        VALID_ED25519_VERIFICATION_KEY_2018_2,
     ]
     service = """{
             "type": "DIDCommMessaging",
@@ -478,23 +587,23 @@ def test_create_numalgo_2_malformed_short_encryption_key():
             "routingKeys": ["did:example:somemediator#somekey"]
             }
             """
-    with pytest.raises(ValueError):
-        peer_did_algo_2 = create_peer_did_numalgo_2(
+    with pytest.raises(ValueError, match=r"Invalid key"):
+        create_peer_did_numalgo_2(
             encryption_keys=encryption_keys, signing_keys=signing_keys, service=service
         )
 
 
 def test_create_numalgo_2_malformed_long_encryption_key():
     encryption_keys = [
-        PublicKeyAgreement(
-            encoded_value="JhNWeSVJhNWeSVJhNWeSVJhNWeSVJhNWeSVJhNWeSVJhNWeSVJhNWeSVJhNWe",
-            type=PublicKeyTypeAgreement.X25519,
-            encoding_type=EncodingType.BASE58,
+        VerificationMaterialAgreement(
+            value="JhNWeSVJhNWeSVJhNWeSVJhNWeSVJhNWeSVJhNWeSVJhNWeSVJhNWeSVJhNWe",
+            type=VerificationMethodTypeAgreement.X25519_KEY_AGREEMENT_KEY_2019,
+            format=VerificationMaterialFormatPeerDID.BASE58,
         )
     ]
     signing_keys = [
-        VALID_ED25519_KEY_1,
-        VALID_ED25519_KEY_2,
+        VALID_ED25519_VERIFICATION_KEY_2018_1,
+        VALID_ED25519_VERIFICATION_KEY_2018_2,
     ]
     service = """{
             "type": "DIDCommMessaging",
@@ -502,23 +611,23 @@ def test_create_numalgo_2_malformed_long_encryption_key():
             "routingKeys": ["did:example:somemediator#somekey"]
             }
             """
-    with pytest.raises(ValueError):
-        peer_did_algo_2 = create_peer_did_numalgo_2(
+    with pytest.raises(ValueError, match=r"Invalid key"):
+        create_peer_did_numalgo_2(
             encryption_keys=encryption_keys, signing_keys=signing_keys, service=service
         )
 
 
 def test_create_numalgo_2_malformed_encryption_key_empty():
     encryption_keys = [
-        PublicKeyAgreement(
-            encoded_value="",
-            type=PublicKeyTypeAgreement.X25519,
-            encoding_type=EncodingType.BASE58,
+        VerificationMaterialAgreement(
+            value="",
+            type=VerificationMethodTypeAgreement.X25519_KEY_AGREEMENT_KEY_2019,
+            format=VerificationMaterialFormatPeerDID.BASE58,
         )
     ]
     signing_keys = [
-        VALID_ED25519_KEY_1,
-        VALID_ED25519_KEY_2,
+        VALID_ED25519_VERIFICATION_KEY_2018_1,
+        VALID_ED25519_VERIFICATION_KEY_2018_2,
     ]
     service = """{
             "type": "DIDCommMessaging",
@@ -526,106 +635,106 @@ def test_create_numalgo_2_malformed_encryption_key_empty():
             "routingKeys": ["did:example:somemediator#somekey"]
             }
             """
-    with pytest.raises(ValueError):
-        peer_did_algo_2 = create_peer_did_numalgo_2(
+    with pytest.raises(ValueError, match=r"Invalid key"):
+        create_peer_did_numalgo_2(
             encryption_keys=encryption_keys, signing_keys=signing_keys, service=service
         )
 
 
 def test_create_numalgo_2_invalid_encryption_key_type():
-    encryption_keys = [VALID_ED25519_KEY_1]
+    encryption_keys = [VALID_ED25519_VERIFICATION_KEY_2018_1]
     signing_keys = [
-        VALID_ED25519_KEY_1,
-        VALID_ED25519_KEY_2,
+        VALID_ED25519_VERIFICATION_KEY_2018_1,
+        VALID_ED25519_VERIFICATION_KEY_2018_2,
     ]
     service = VALID_SERVICE
 
-    with pytest.raises(TypeError):
-        peer_did_algo_2 = create_peer_did_numalgo_2(
+    with pytest.raises(TypeError, match=r"Invalid verification material type"):
+        create_peer_did_numalgo_2(
             encryption_keys=encryption_keys, signing_keys=signing_keys, service=service
         )
 
 
 def test_create_numalgo_2_malformed_signing_key_not_base58_encoded():
-    encryption_keys = [VALID_X25519_KEY]
+    encryption_keys = [VALID_X25519_KEY_AGREEMENT_KEY_2019]
     signing_keys = [
-        PublicKeyAuthentication(
-            encoded_value="3M5RCDjPTWPkKSN3sxU0mMqHbmRPegYP1tjcKyrDbt9J",
-            type=PublicKeyTypeAuthentication.ED25519,
-            encoding_type=EncodingType.BASE58,
+        VerificationMaterialAuthentication(
+            value="3M5RCDjPTWPkKSN3sxU0mMqHbmRPegYP1tjcKyrDbt9J",
+            type=VerificationMethodTypeAuthentication.ED25519_VERIFICATION_KEY_2018,
+            format=VerificationMaterialFormatPeerDID.BASE58,
         )
     ]
     service = VALID_SERVICE
 
-    with pytest.raises(ValueError):
-        peer_did_algo_2 = create_peer_did_numalgo_2(
+    with pytest.raises(ValueError, match=r"Invalid base58 encoding"):
+        create_peer_did_numalgo_2(
             encryption_keys=encryption_keys, signing_keys=signing_keys, service=service
         )
 
 
 def test_create_numalgo_2_malformed_short_signing_key():
-    encryption_keys = [VALID_X25519_KEY]
+    encryption_keys = [VALID_X25519_KEY_AGREEMENT_KEY_2019]
     signing_keys = [
-        PublicKeyAuthentication(
-            encoded_value="ByHnpUCF",
-            type=PublicKeyTypeAuthentication.ED25519,
-            encoding_type=EncodingType.BASE58,
+        VerificationMaterialAuthentication(
+            value="ByHnpUCF",
+            type=VerificationMethodTypeAuthentication.ED25519_VERIFICATION_KEY_2018,
+            format=VerificationMaterialFormatPeerDID.BASE58,
         )
     ]
     service = VALID_SERVICE
 
-    with pytest.raises(ValueError):
-        peer_did_algo_2 = create_peer_did_numalgo_2(
+    with pytest.raises(ValueError, match=r"Invalid key"):
+        create_peer_did_numalgo_2(
             encryption_keys=encryption_keys, signing_keys=signing_keys, service=service
         )
 
 
 def test_create_numalgo_2_malformed_long_signing_key():
-    encryption_keys = [VALID_X25519_KEY]
+    encryption_keys = [VALID_X25519_KEY_AGREEMENT_KEY_2019]
     signing_keys = [
-        PublicKeyAuthentication(
-            encoded_value="3M5RCDjxUmmMqHbmRPegYPPTWPkKSN3sxUmmMqHbmRPegYPxUmmMqHbmRPegYP1tjcKxUmmMqHbmRPegYPyrDbt9J",
-            type=PublicKeyTypeAuthentication.ED25519,
-            encoding_type=EncodingType.BASE58,
+        VerificationMaterialAuthentication(
+            value="3M5RCDjxUmmMqHbmRPegYPPTWPkKSN3sxUmmMqHbmRPegYPxUmmMqHbmRPegYP1tjcKxUmmMqHbmRPegYPyrDbt9J",
+            type=VerificationMethodTypeAuthentication.ED25519_VERIFICATION_KEY_2018,
+            format=VerificationMaterialFormatPeerDID.BASE58,
         )
     ]
     service = VALID_SERVICE
 
-    with pytest.raises(ValueError):
-        peer_did_algo_2 = create_peer_did_numalgo_2(
+    with pytest.raises(ValueError, match=r"Invalid key"):
+        create_peer_did_numalgo_2(
             encryption_keys=encryption_keys, signing_keys=signing_keys, service=service
         )
 
 
 def test_create_numalgo_2_malformed_empty_signing_key():
-    encryption_keys = [VALID_X25519_KEY]
+    encryption_keys = [VALID_X25519_KEY_AGREEMENT_KEY_2019]
     signing_keys = [
-        PublicKeyAuthentication(
-            encoded_value="",
-            type=PublicKeyTypeAuthentication.ED25519,
-            encoding_type=EncodingType.BASE58,
+        VerificationMaterialAuthentication(
+            value="",
+            type=VerificationMethodTypeAuthentication.ED25519_VERIFICATION_KEY_2018,
+            format=VerificationMaterialFormatPeerDID.BASE58,
         )
     ]
     service = VALID_SERVICE
 
-    with pytest.raises(ValueError):
-        peer_did_algo_2 = create_peer_did_numalgo_2(
+    with pytest.raises(ValueError, match=r"Invalid key"):
+        create_peer_did_numalgo_2(
             encryption_keys=encryption_keys, signing_keys=signing_keys, service=service
         )
 
 
 def test_create_numalgo_2_invalid_inception_key_type():
-    encryption_keys = [VALID_X25519_KEY]
+    encryption_keys = [VALID_X25519_KEY_AGREEMENT_KEY_2019]
     signing_keys = [
-        PublicKeyAgreement(
-            encoded_value="ByHnpUCFb1vAfh9CFZ8ZkmUZguURW8nSw889hy6rD8L7",
-            type=PublicKeyTypeAgreement.X25519,
-            encoding_type=EncodingType.BASE58,
+        VerificationMaterialAgreement(
+            value="ByHnpUCFb1vAfh9CFZ8ZkmUZguURW8nSw889hy6rD8L7",
+            type=VerificationMethodTypeAgreement.X25519_KEY_AGREEMENT_KEY_2019,
+            format=VerificationMaterialFormatPeerDID.BASE58,
         )
     ]
     service = VALID_SERVICE
 
-    with pytest.raises(TypeError):
-        peer_did_algo_2 = create_peer_did_numalgo_2(
+    with pytest.raises(TypeError, match=r"Invalid verification material type"):
+        create_peer_did_numalgo_2(
             encryption_keys=encryption_keys, signing_keys=signing_keys, service=service
         )
