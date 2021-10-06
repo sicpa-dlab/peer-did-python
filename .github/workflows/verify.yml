@@ -82,7 +82,7 @@ jobs:
   unit:
     strategy:
       matrix:
-        python-version: [ '3.5', '3.6', '3.7', '3.8', '3.9', '3.10' ]
+        python-version: [ '3.6', '3.7', '3.8', '3.9', '3.10' ]
         os: [ ubuntu-latest, windows-latest, macos-latest ]
         include:
           - {python-version: '3.10', toxenv: py310}
@@ -90,7 +90,6 @@ jobs:
           - {python-version: '3.8', toxenv: py38}
           - {python-version: '3.7', toxenv: py37}
           - {python-version: '3.6', toxenv: py36}
-          - {python-version: '3.5', toxenv: py35}
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
