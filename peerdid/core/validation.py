@@ -24,7 +24,7 @@ def validate_verification_material_agreement(ver_material):
         )
 
 
-def validate_json(str_to_check: str):
+def validate_service_json(str_to_check: str):
     """
     Checks if str is JSON
     :param str_to_check: string to check

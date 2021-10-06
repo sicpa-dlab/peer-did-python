@@ -7,6 +7,7 @@ from peerdid.core.did_doc_types import (
     DIDCommServicePeerDID,
 )
 from peerdid.did_doc import DIDDocPeerDID
+from peerdid.errors import MalformedPeerDIDDocError
 from peerdid.types import (
     VerificationMaterialFormatPeerDID,
     VerificationMethodTypeAuthentication,
@@ -216,3 +217,175 @@ def test_did_doc_from_json_numalgo_2_minimal_service():
     assert service.service_endpoint == expected_service["serviceEndpoint"]
     assert service.routing_keys is None
     assert service.accept is None
+
+
+def test_did_doc_id_only():
+    didDoc = DIDDocPeerDID.from_json(
+        """
+   {
+       "id": "did:peer:0z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V"
+   }
+            """
+    )
+    assert didDoc.did == "did:peer:0z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V"
+
+
+def test_did_doc_invalid_json():
+    with pytest.raises(
+        MalformedPeerDIDDocError,
+        match=r"Invalid peer DID Doc.*Invalid JSON",
+    ):
+        DIDDocPeerDID.from_json(
+            """
+            sdfasdfsf{sdfsdfasdf...
+            """
+        )
+
+
+def test_did_doc_from_invalid_json_no_id():
+    with pytest.raises(
+        MalformedPeerDIDDocError,
+        match=r"Invalid peer DID Doc.*No 'id' field",
+    ):
+        DIDDocPeerDID.from_json(
+            """
+                   {
+                       "authentication": [
+                           {
+                               "id": "did:peer:0z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V#6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
+                               "type": "Ed25519VerificationKey2020",
+                               "controller": "did:peer:0z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
+                               "publicKeyMultibase": "zByHnpUCFb1vAfh9CFZ8ZkmUZguURW8nSw889hy6rD8L7"
+                           }
+                       ]
+                   }
+                """
+        )
+
+
+def test_did_doc_from_invalid_ver_method_no_id():
+    with pytest.raises(
+        MalformedPeerDIDDocError,
+        match=r"Invalid peer DID Doc.*No 'id' field in method",
+    ):
+        DIDDocPeerDID.from_json(
+            """
+                   {
+                   "id": "did:peer:0z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
+                       "authentication": [
+                           {
+                               "type": "Ed25519VerificationKey2020",
+                               "controller": "did:peer:0z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
+                               "publicKeyMultibase": "zByHnpUCFb1vAfh9CFZ8ZkmUZguURW8nSw889hy6rD8L7"
+                           }
+                       ]
+                   }
+                """
+        )
+
+
+def test_did_doc_from_invalid_ver_method_no_id():
+    with pytest.raises(
+        MalformedPeerDIDDocError,
+        match=r"Invalid peer DID Doc.*No 'type' field in method",
+    ):
+        DIDDocPeerDID.from_json(
+            """
+                   {
+                   "id": "did:peer:0z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
+                       "authentication": [
+                           {
+                               "id": "did:peer:0z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V#6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
+                               "controller": "did:peer:0z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
+                               "publicKeyMultibase": "zByHnpUCFb1vAfh9CFZ8ZkmUZguURW8nSw889hy6rD8L7"
+                           }
+                       ]
+                   }
+                """
+        )
+
+
+def test_did_doc_from_invalid_ver_method_no_controller():
+    with pytest.raises(
+        MalformedPeerDIDDocError,
+        match=r"Invalid peer DID Doc.*No 'controller' field in method",
+    ):
+        DIDDocPeerDID.from_json(
+            """
+                   {
+                   "id": "did:peer:0z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
+                       "authentication": [
+                           {
+                               "id": "did:peer:0z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V#6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
+                               "type": "Ed25519VerificationKey2020",
+                               "publicKeyMultibase": "zByHnpUCFb1vAfh9CFZ8ZkmUZguURW8nSw889hy6rD8L7"
+                           }
+                       ]
+                   }
+                """
+        )
+
+
+def test_did_doc_from_invalid_ver_method_no_value():
+    with pytest.raises(
+        MalformedPeerDIDDocError,
+        match=r"Invalid peer DID Doc.*No public key field",
+    ):
+        DIDDocPeerDID.from_json(
+            """
+                   {
+                   "id": "did:peer:0z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
+                       "authentication": [
+                           {
+                               "id": "did:peer:0z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V#6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
+                               "type": "Ed25519VerificationKey2020",
+                               "controller": "did:peer:0z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V"
+                           }
+                       ]
+                   }
+                """
+        )
+
+
+def test_did_doc_from_invalid_ver_method_invalid_type():
+    with pytest.raises(
+        MalformedPeerDIDDocError,
+        match=r"Invalid peer DID Doc.*Unknown verification method type",
+    ):
+        DIDDocPeerDID.from_json(
+            """
+                   {
+                   "id": "did:peer:0z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
+                       "authentication": [
+                           {
+                               "id": "did:peer:0z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V#6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
+                               "type": "Unkknown",
+                               "controller": "did:peer:0z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
+                               "publicKeyMultibase": "zByHnpUCFb1vAfh9CFZ8ZkmUZguURW8nSw889hy6rD8L7"
+                           }
+                       ]
+                   }
+                """
+        )
+
+
+def test_did_doc_from_invalid_ver_method_invalid_field():
+    with pytest.raises(
+        MalformedPeerDIDDocError,
+        match=r"Invalid peer DID Doc.*No public key field",
+    ):
+        DIDDocPeerDID.from_json(
+            """
+                   {
+                   "id": "did:peer:0z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
+                       "authentication": [
+                           {
+                               "id": "did:peer:0z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V#6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
+                               "type": "Ed25519VerificationKey2020",
+                               "controller": "did:peer:0z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
+                               "publicKeyJwk": "zByHnpUCFb1vAfh9CFZ8ZkmUZguURW8nSw889hy6rD8L7"
+                           }
+                       ]
+                   }
+                """
+        )

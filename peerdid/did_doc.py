@@ -53,16 +53,19 @@ class DIDDocPeerDID:
         :raises MalformedPeerDIDDocError: if the JSON can not be converted to a valid DID Doc object
         :return: a new instance of DIDDocPeerDID
         """
-        did_doc_dict = json.loads(value)
-        if "id" not in value:
+        try:
+            did_doc_dict = json.loads(value)
+        except Exception as e:
+            raise MalformedPeerDIDDocError("Invalid JSON") from e
+
+        if "id" not in did_doc_dict:
             raise MalformedPeerDIDDocError("No 'id' field")
-        if "authentication" not in value:
-            raise MalformedPeerDIDDocError("No 'authentication' field")
+
         return cls(
             did=did_doc_dict["id"],
             authentication=[
                 VerificationMethodPeerDID.from_dict(v)
-                for v in did_doc_dict["authentication"]
+                for v in did_doc_dict.get("authentication", [])
             ],
             key_agreement=[
                 VerificationMethodPeerDID.from_dict(v)
