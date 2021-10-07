@@ -271,7 +271,7 @@ def test_did_doc_from_invalid_ver_method_no_id():
         DIDDocPeerDID.from_json(
             """
                    {
-                   "id": "did:peer:0z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
+                       "id": "did:peer:0z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
                        "authentication": [
                            {
                                "type": "Ed25519VerificationKey2020",
@@ -284,7 +284,7 @@ def test_did_doc_from_invalid_ver_method_no_id():
         )
 
 
-def test_did_doc_from_invalid_ver_method_no_id():
+def test_did_doc_from_invalid_ver_method_no_type():
     with pytest.raises(
         MalformedPeerDIDDocError,
         match=r"Invalid peer DID Doc.*No 'type' field in method",
@@ -292,7 +292,7 @@ def test_did_doc_from_invalid_ver_method_no_id():
         DIDDocPeerDID.from_json(
             """
                    {
-                   "id": "did:peer:0z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
+                       "id": "did:peer:0z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
                        "authentication": [
                            {
                                "id": "did:peer:0z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V#6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
@@ -313,7 +313,7 @@ def test_did_doc_from_invalid_ver_method_no_controller():
         DIDDocPeerDID.from_json(
             """
                    {
-                   "id": "did:peer:0z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
+                       "id": "did:peer:0z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
                        "authentication": [
                            {
                                "id": "did:peer:0z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V#6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
@@ -334,7 +334,7 @@ def test_did_doc_from_invalid_ver_method_no_value():
         DIDDocPeerDID.from_json(
             """
                    {
-                   "id": "did:peer:0z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
+                       "id": "did:peer:0z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
                        "authentication": [
                            {
                                "id": "did:peer:0z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V#6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
@@ -355,7 +355,7 @@ def test_did_doc_from_invalid_ver_method_invalid_type():
         DIDDocPeerDID.from_json(
             """
                    {
-                   "id": "did:peer:0z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
+                       "id": "did:peer:0z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
                        "authentication": [
                            {
                                "id": "did:peer:0z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V#6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
@@ -377,13 +377,35 @@ def test_did_doc_from_invalid_ver_method_invalid_field():
         DIDDocPeerDID.from_json(
             """
                    {
-                   "id": "did:peer:0z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
+                       "id": "did:peer:0z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
                        "authentication": [
                            {
                                "id": "did:peer:0z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V#6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
                                "type": "Ed25519VerificationKey2020",
                                "controller": "did:peer:0z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
                                "publicKeyJwk": "zByHnpUCFb1vAfh9CFZ8ZkmUZguURW8nSw889hy6rD8L7"
+                           }
+                       ]
+                   }
+                """
+        )
+
+
+def test_did_doc_from_invalid_ver_method_invalid_value_jwk():
+    with pytest.raises(
+        MalformedPeerDIDDocError,
+        match=r"Invalid peer DID Doc.*No 'crv' field in JWK",
+    ):
+        DIDDocPeerDID.from_json(
+            """
+                   {
+                       "id": "did:peer:0z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
+                       "authentication": [
+                           {
+                               "id": "did:peer:0z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V#6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
+                               "type": "JsonWebKey2020",
+                               "controller": "did:peer:0z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
+                               "publicKeyJwk": "sdfsdf{sfsdfdf"
                            }
                        ]
                    }
