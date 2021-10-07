@@ -12,7 +12,7 @@ from peerdid.core.peer_did_helper import (
 from peerdid.core.validation import (
     validate_verification_material_authentication,
     validate_verification_material_agreement,
-    validate_json,
+    validate_service_json,
 )
 from peerdid.did_doc import DIDDocPeerDID
 from peerdid.errors import MalformedPeerDIDError
@@ -85,7 +85,7 @@ def create_peer_did_numalgo_2(
         validate_verification_material_agreement(k)
     for k in signing_keys:
         validate_verification_material_authentication(k)
-    validate_json(service)
+    validate_service_json(service)
 
     enc_sep = "." + Numalgo2Prefix.KEY_AGREEMENT.value
     auth_sep = "." + Numalgo2Prefix.AUTHENTICATION.value

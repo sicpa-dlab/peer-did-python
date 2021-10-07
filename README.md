@@ -102,7 +102,7 @@ Example of DID documents:
 ## Assumptions and limitations
 - Only `X25519` keys are support for key agreement
 - Only `Ed25519` keys are support for authentication
-- Supported verification materials in the resolved DID DOC:
+- Supported verification materials (input and in the resolved DID DOC):
   - [Default] 2020 verification materials (`Ed25519VerificationKey2020` and `X25519KeyAgreementKey2020`) with multibase base58 (`publicKeyMultibase`) public key encoding.
   - JWK (`JsonWebKey2020`) using JWK (`publicKeyJwk`) public key encoding 
   - 2018/2019 verification materials (`Ed25519VerificationKey2018` and `X25519KeyAgreementKey2019`) using base58 (`publicKeyBase58`) public key encoding. 

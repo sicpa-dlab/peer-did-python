@@ -137,9 +137,19 @@ class VerificationMethodPeerDID:
             raise MalformedPeerDIDDocError("No 'id' field in method {}".format(value))
         if "type" not in value:
             raise MalformedPeerDIDDocError("No 'type' field in method {}".format(value))
+        if "controller" not in value:
+            raise MalformedPeerDIDDocError(
+                "No 'controller' field in method {}".format(value)
+            )
 
         ver_method_type = cls._get_ver_method_type(value)
         format, field = cls._get_public_key_format(ver_method_type)
+
+        if field.value not in value:
+            raise MalformedPeerDIDDocError(
+                "No public key field {} in method {}".format(field.value, value)
+            )
+
         ver_material_cls = (
             VerificationMaterialAgreement
             if isinstance(ver_method_type, VerificationMethodTypeAgreement)
