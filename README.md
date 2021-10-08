@@ -5,6 +5,11 @@ This is an implementation of the [Peer DID method specification](https://identit
 This version of API implements
 only [static layers of support (1, 2a, 2b)](https://identity.foundation/peer-did-method-spec/#layers-of-support).
 
+## Installation
+```
+pip install peerdid
+```
+
 ## Example
 
 Example code:
@@ -100,8 +105,9 @@ Example of DID documents:
        }
 
 ## Assumptions and limitations
-- Only `X25519` keys are support for key agreement
-- Only `Ed25519` keys are support for authentication
+- Only static layers [1, 2a, 2b](https://identity.foundation/peer-did-method-spec/#layers-of-support) are supported
+- Only `X25519` keys are supported for key agreement
+- Only `Ed25519` keys are supported for authentication
 - Supported verification materials (input and in the resolved DID DOC):
   - [Default] 2020 verification materials (`Ed25519VerificationKey2020` and `X25519KeyAgreementKey2020`) with multibase base58 (`publicKeyMultibase`) public key encoding.
   - JWK (`JsonWebKey2020`) using JWK (`publicKeyJwk`) public key encoding 
