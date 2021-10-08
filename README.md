@@ -1,9 +1,20 @@
-# Peer DID python API
+# Peerdid Python
 
-This is an implementation of the [Peer DID method specification](https://identity.foundation/peer-did-method-spec/).
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![Unit Tests](https://github.com/sicpa-dlab/peer-did-python/workflows/verify/badge.svg)](https://github.com/sicpa-dlab/peer-did-python/actions/workflows/verify.yml)
+[![Python Package](https://img.shields.io/pypi/v/peerdid)](https://pypi.org/project/peerdid/)
 
-This version of API implements
-only [static layers of support (1, 2a, 2b)](https://identity.foundation/peer-did-method-spec/#layers-of-support).
+Implementation of the [Peer DID method specification](https://identity.foundation/peer-did-method-spec/) in Python.
+
+Implements [static layers of support (1, 2a, 2b)](https://identity.foundation/peer-did-method-spec/#layers-of-support) only.
+
+## Installation
+```
+pip install peerdid
+```
+
+## DIDComm + peerdid Demo
+See https://github.com/sicpa-dlab/didcomm-demo.
 
 ## Example
 
@@ -100,8 +111,9 @@ Example of DID documents:
        }
 
 ## Assumptions and limitations
-- Only `X25519` keys are support for key agreement
-- Only `Ed25519` keys are support for authentication
+- Only static layers [1, 2a, 2b](https://identity.foundation/peer-did-method-spec/#layers-of-support) are supported
+- Only `X25519` keys are supported for key agreement
+- Only `Ed25519` keys are supported for authentication
 - Supported verification materials (input and in the resolved DID DOC):
   - [Default] 2020 verification materials (`Ed25519VerificationKey2020` and `X25519KeyAgreementKey2020`) with multibase base58 (`publicKeyMultibase`) public key encoding.
   - JWK (`JsonWebKey2020`) using JWK (`publicKeyJwk`) public key encoding 
