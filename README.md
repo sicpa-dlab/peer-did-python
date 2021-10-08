@@ -1,7 +1,7 @@
 # Peer DID python API
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![Unit Tests](https://github.com/sicpa-dlab/peer-did-python/workflows/verify/badge.svg)](https://github.com/sicpa-dlab/peer-did-jvm/actions/workflows/verify.yml)
+[![Unit Tests](https://github.com/sicpa-dlab/peer-did-python/workflows/verify/badge.svg)](https://github.com/sicpa-dlab/peer-did-python/actions/workflows/verify.yml)
 [![Python Package](https://img.shields.io/pypi/v/peerdid)](https://pypi.org/project/peerdid/)
 
 This is an implementation of the [Peer DID method specification](https://identity.foundation/peer-did-method-spec/).
