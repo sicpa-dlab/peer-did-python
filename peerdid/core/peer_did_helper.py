@@ -121,7 +121,7 @@ def create_multibase_encnumbasis(key: VerificationMaterial) -> str:
     if key.format == VerificationMaterialFormatPeerDID.BASE58:
         decoded_key = from_base58(key.value)
     elif key.format == VerificationMaterialFormatPeerDID.MULTIBASE:
-        decoded_key = from_base58_multibase(key.value)[1]
+        decoded_key = from_multicodec(from_base58_multibase(key.value)[1])[0]
     elif key.format == VerificationMaterialFormatPeerDID.JWK:
         decoded_key = jwk_key_to_bytes(key)
     else:
@@ -168,7 +168,12 @@ def decode_multibase_encnumbasis(
         ver_material = ver_material_cls(
             format=ver_material_format,
             type=__get_2020_ver_material_type(codec),
-            value=to_base58_multibase(decoded_encnumbasis_without_prefix),
+            value=to_base58_multibase(
+                to_multicodec(
+                    decoded_encnumbasis_without_prefix,
+                    __get_2020_ver_material_type(codec),
+                ),
+            ),
         )
     elif ver_material_format == VerificationMaterialFormatPeerDID.JWK:
         ver_material_type = __get_jwk_ver_material_type(codec)

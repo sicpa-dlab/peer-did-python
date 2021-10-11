@@ -152,7 +152,7 @@ def test_decode_service_with_multiple_entries_list():
             VerificationMaterialAuthentication(
                 type=VerificationMethodTypeAuthentication.ED25519_VERIFICATION_KEY_2020,
                 format=VerificationMaterialFormatPeerDID.MULTIBASE,
-                value="zByHnpUCFb1vAfh9CFZ8ZkmUZguURW8nSw889hy6rD8L7",
+                value="z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
             ),
             id="multibase-ed25519",
         ),
@@ -162,7 +162,7 @@ def test_decode_service_with_multiple_entries_list():
             VerificationMaterialAgreement(
                 type=VerificationMethodTypeAgreement.X25519_KEY_AGREEMENT_KEY_2020,
                 format=VerificationMaterialFormatPeerDID.MULTIBASE,
-                value="zJhNWeSVLMYccCk7iopQW4guaSJTojqpMEELgSLhKwRr",
+                value="z6LSbysY2xFMRpGMhb7tFTLMpeuPRaqaWM1yECx2AtzE3KCc",
             ),
             id="multibase-x25519",
         ),
