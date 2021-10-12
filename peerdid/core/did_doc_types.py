@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import List, Optional, Dict, Union, Tuple
+from typing import List, Dict, Union, Tuple
 
 from peerdid.core.jwk_okp import get_verification_method_type
 from peerdid.errors import MalformedPeerDIDDocError
