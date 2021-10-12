@@ -20,14 +20,18 @@ def to_multicodec(value: bytes, key_type: VerificationMethodType) -> bytes:
 def from_multicodec(value: bytes) -> Tuple[bytes, Codec]:
     try:
         prefix_int = varint.decode_bytes(value)
-    except TypeError:
-        raise ValueError("Invalid multicodec prefix in {}".format(str(value)))
+    except Exception:
+        raise ValueError(
+            "Invalid key: Invalid multicodec prefix in {}".format(str(value))
+        )
 
     try:
         codec = Codec(prefix_int)
     except ValueError:
         raise ValueError(
-            "Unknown multicodec prefix {} in {}".format(str(prefix_int), str(value))
+            "Invalid key: Unknown multicodec prefix {} in {}".format(
+                str(prefix_int), str(value)
+            )
         )
 
     prefix = varint.encode(prefix_int)

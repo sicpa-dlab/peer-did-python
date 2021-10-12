@@ -17,7 +17,7 @@ VALID_X25519_KEY_AGREEMENT_KEY_2019 = VerificationMaterialAgreement(
     format=VerificationMaterialFormatPeerDID.BASE58,
 )
 VALID_X25519_KEY_AGREEMENT_KEY_2020 = VerificationMaterialAgreement(
-    value="zJhNWeSVLMYccCk7iopQW4guaSJTojqpMEELgSLhKwRr",
+    value="z6LSbysY2xFMRpGMhb7tFTLMpeuPRaqaWM1yECx2AtzE3KCc",
     type=VerificationMethodTypeAgreement.X25519_KEY_AGREEMENT_KEY_2020,
     format=VerificationMaterialFormatPeerDID.MULTIBASE,
 )
@@ -48,7 +48,7 @@ VALID_ED25519_VERIFICATION_KEY_2018_1 = VerificationMaterialAuthentication(
     format=VerificationMaterialFormatPeerDID.BASE58,
 )
 VALID_ED25519_VERIFICATION_KEY_2020_1 = VerificationMaterialAuthentication(
-    value="zByHnpUCFb1vAfh9CFZ8ZkmUZguURW8nSw889hy6rD8L7",
+    value="z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
     type=VerificationMethodTypeAuthentication.ED25519_VERIFICATION_KEY_2020,
     format=VerificationMaterialFormatPeerDID.MULTIBASE,
 )
@@ -68,7 +68,7 @@ VALID_ED25519_VERIFICATION_KEY_2018_2 = VerificationMaterialAuthentication(
     format=VerificationMaterialFormatPeerDID.BASE58,
 )
 VALID_ED25519_VERIFICATION_KEY_2020_2 = VerificationMaterialAuthentication(
-    value="z3M5RCDjPTWPkKSN3sxUmmMqHbmRPegYP1tjcKyrDbt9J",
+    value="z6MkgoLTnTypo3tDRwCkZXSccTPHRLhF4ZnjhueYAFpEX6vg",
     type=VerificationMethodTypeAuthentication.ED25519_VERIFICATION_KEY_2020,
     format=VerificationMaterialFormatPeerDID.MULTIBASE,
 )
@@ -314,7 +314,7 @@ def test_create_numalgo_2_without_signing_keys(encryption_keys, signing_keys):
 def test_create_numalgo_2_wrong_encryption_key_base58(encryption_keys, signing_keys):
     service = VALID_SERVICE
 
-    with pytest.raises(ValueError, match=r"Invalid base58 encoding"):
+    with pytest.raises(ValueError, match=r"Invalid key: Invalid base58 encoding"):
         create_peer_did_numalgo_2(
             encryption_keys=encryption_keys, signing_keys=signing_keys, service=service
         )
@@ -563,7 +563,7 @@ def test_create_numalgo_2_malformed_encryption_key_not_base58_encoded():
             "routingKeys": ["did:example:somemediator#somekey"]
             }
             """
-    with pytest.raises(ValueError, match=r"Invalid base58 encoding"):
+    with pytest.raises(ValueError, match=r"Invalid key: Invalid base58 encoding"):
         create_peer_did_numalgo_2(
             encryption_keys=encryption_keys, signing_keys=signing_keys, service=service
         )
@@ -666,7 +666,7 @@ def test_create_numalgo_2_malformed_signing_key_not_base58_encoded():
     ]
     service = VALID_SERVICE
 
-    with pytest.raises(ValueError, match=r"Invalid base58 encoding"):
+    with pytest.raises(ValueError, match=r"Invalid key: Invalid base58 encoding"):
         create_peer_did_numalgo_2(
             encryption_keys=encryption_keys, signing_keys=signing_keys, service=service
         )
