@@ -3,16 +3,18 @@ import json
 from peerdid.core.utils import urlsafe_b64encode, urlsafe_b64decode
 from peerdid.errors import MalformedPeerDIDDocError
 from peerdid.types import (
-    VerificationMethodType,
+    VerificationMethodTypePeerDID,
     VerificationMethodTypeAgreement,
     VerificationMethodTypeAuthentication,
-    VerificationMaterial,
+    VerificationMaterialPeerDID,
     VerificationMaterialAuthentication,
     VerificationMaterialAgreement,
 )
 
 
-def public_key_to_jwk_dict(public_key: bytes, ver_method_type: VerificationMethodType):
+def public_key_to_jwk_dict(
+    public_key: bytes, ver_method_type: VerificationMethodTypePeerDID
+):
     x = urlsafe_b64encode(public_key).decode("utf-8")
 
     if ver_method_type == VerificationMethodTypeAgreement.JSON_WEB_KEY_2020:
@@ -29,7 +31,7 @@ def public_key_to_jwk_dict(public_key: bytes, ver_method_type: VerificationMetho
     }
 
 
-def jwk_key_to_bytes(ver_material: VerificationMaterial) -> bytes:
+def jwk_key_to_bytes(ver_material: VerificationMaterialPeerDID) -> bytes:
     jwk_dict = (
         json.loads(ver_material.value)
         if isinstance(ver_material.value, str)
@@ -58,7 +60,7 @@ def jwk_key_to_bytes(ver_material: VerificationMaterial) -> bytes:
     return urlsafe_b64decode(value.encode())
 
 
-def get_verification_method_type(jwk_dict: dict) -> VerificationMethodType:
+def get_verification_method_type(jwk_dict: dict) -> VerificationMethodTypePeerDID:
     if "crv" not in jwk_dict:
         raise MalformedPeerDIDDocError("No 'crv' field in JWK {}".format(jwk_dict))
     crv = jwk_dict["crv"]
