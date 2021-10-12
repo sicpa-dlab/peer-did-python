@@ -28,7 +28,7 @@ class VerificationMethodTypeAuthentication(Enum):
         return [e.value for e in cls]
 
 
-VerificationMethodType = Union[
+VerificationMethodTypePeerDID = Union[
     VerificationMethodTypeAgreement, VerificationMethodTypeAuthentication
 ]
 
@@ -51,7 +51,7 @@ VerificationMaterialAgreement = NamedTuple(
 )
 
 
-VerificationMaterial = Union[
+VerificationMaterialPeerDID = Union[
     VerificationMaterialAuthentication, VerificationMaterialAgreement
 ]
 

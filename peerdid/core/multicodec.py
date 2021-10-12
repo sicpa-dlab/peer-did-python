@@ -3,7 +3,7 @@ from typing import Tuple
 
 import varint
 
-from peerdid.types import VerificationMethodType, VerificationMethodTypeAgreement
+from peerdid.types import VerificationMethodTypePeerDID, VerificationMethodTypeAgreement
 
 
 class Codec(Enum):
@@ -11,7 +11,7 @@ class Codec(Enum):
     ED25519 = 0xED
 
 
-def to_multicodec(value: bytes, key_type: VerificationMethodType) -> bytes:
+def to_multicodec(value: bytes, key_type: VerificationMethodTypePeerDID) -> bytes:
     codec = _get_codec(key_type)
     prefix = varint.encode(codec.value)
     return b"".join([prefix, value])
@@ -38,7 +38,7 @@ def from_multicodec(value: bytes) -> Tuple[bytes, Codec]:
     return value[len(prefix) :], codec
 
 
-def _get_codec(key_type: VerificationMethodType) -> Codec:
+def _get_codec(key_type: VerificationMethodTypePeerDID) -> Codec:
     if isinstance(key_type, VerificationMethodTypeAgreement):
         return Codec.X25519
     else:

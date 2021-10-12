@@ -27,7 +27,7 @@ from peerdid.core.validation import validate_raw_key_length
 from peerdid.types import (
     JSON,
     PEER_DID,
-    VerificationMaterial,
+    VerificationMaterialPeerDID,
     VerificationMaterialFormatPeerDID,
     VerificationMaterialAgreement,
     VerificationMaterialAuthentication,
@@ -111,7 +111,7 @@ def decode_service(service: str, peer_did: PEER_DID) -> Optional[List[dict]]:
     return list_of_service_dict
 
 
-def create_multibase_encnumbasis(key: VerificationMaterial) -> str:
+def create_multibase_encnumbasis(key: VerificationMaterialPeerDID) -> str:
     """
     Creates multibased encnumbasis according to Peer DID spec
     (https://identity.foundation/peer-did-method-spec/index.html#method-specific-identifier)
@@ -134,7 +134,7 @@ DecodedEncnumbasis = NamedTuple(
     "DecodedEncnumbasis",
     [
         ("encnumbasis", str),
-        ("ver_material", VerificationMaterial),
+        ("ver_material", VerificationMaterialPeerDID),
     ],
 )
 
