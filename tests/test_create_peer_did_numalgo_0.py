@@ -25,7 +25,7 @@ from peerdid.types import (
         ),
         pytest.param(
             VerificationMaterialAuthentication(
-                value="zByHnpUCFb1vAfh9CFZ8ZkmUZguURW8nSw889hy6rD8L7",
+                value="z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
                 type=VerificationMethodTypeAuthentication.ED25519_VERIFICATION_KEY_2020,
                 format=VerificationMaterialFormatPeerDID.MULTIBASE,
             ),
@@ -89,7 +89,7 @@ def test_create_numalgo_0_positive(ver_material):
     ],
 )
 def test_create_numalgo_0_malformed_inception_key_not_base58_encoded(ver_material):
-    with pytest.raises(ValueError, match=r"Invalid base58 encoding"):
+    with pytest.raises(ValueError, match=r"Invalid key: Invalid base58 encoding"):
         create_peer_did_numalgo_0(inception_key=ver_material)
 
 
@@ -219,7 +219,9 @@ def test_create_numalgo_0_malformed_empty_inception_key_multibase():
         type=VerificationMethodTypeAuthentication.ED25519_VERIFICATION_KEY_2020,
         format=VerificationMaterialFormatPeerDID.MULTIBASE,
     )
-    with pytest.raises(ValueError, match=r"No transform part in multibase encoding"):
+    with pytest.raises(
+        ValueError, match=r"Invalid key: No transform part in multibase encoding"
+    ):
         create_peer_did_numalgo_0(inception_key=ver_material)
 
 
@@ -236,7 +238,7 @@ def test_create_numalgo_0_malformed_empty_inception_key_multibase():
         ),
         pytest.param(
             VerificationMaterialAgreement(
-                value="zByHnpUCFb1vAfh9CFZ8ZkmUZguURW8nSw889hy6rD8L7",
+                value="z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
                 type=VerificationMethodTypeAgreement.X25519_KEY_AGREEMENT_KEY_2020,
                 format=VerificationMaterialFormatPeerDID.MULTIBASE,
             ),

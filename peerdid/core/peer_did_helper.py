@@ -27,7 +27,7 @@ from peerdid.core.validation import validate_raw_key_length
 from peerdid.types import (
     JSON,
     PEER_DID,
-    VerificationMaterial,
+    VerificationMaterialPeerDID,
     VerificationMaterialFormatPeerDID,
     VerificationMaterialAgreement,
     VerificationMaterialAuthentication,
@@ -111,7 +111,7 @@ def decode_service(service: str, peer_did: PEER_DID) -> Optional[List[dict]]:
     return list_of_service_dict
 
 
-def create_multibase_encnumbasis(key: VerificationMaterial) -> str:
+def create_multibase_encnumbasis(key: VerificationMaterialPeerDID) -> str:
     """
     Creates multibased encnumbasis according to Peer DID spec
     (https://identity.foundation/peer-did-method-spec/index.html#method-specific-identifier)
@@ -121,7 +121,7 @@ def create_multibase_encnumbasis(key: VerificationMaterial) -> str:
     if key.format == VerificationMaterialFormatPeerDID.BASE58:
         decoded_key = from_base58(key.value)
     elif key.format == VerificationMaterialFormatPeerDID.MULTIBASE:
-        decoded_key = from_base58_multibase(key.value)[1]
+        decoded_key = from_multicodec(from_base58_multibase(key.value)[1])[0]
     elif key.format == VerificationMaterialFormatPeerDID.JWK:
         decoded_key = jwk_key_to_bytes(key)
     else:
@@ -134,7 +134,7 @@ DecodedEncnumbasis = NamedTuple(
     "DecodedEncnumbasis",
     [
         ("encnumbasis", str),
-        ("ver_material", VerificationMaterial),
+        ("ver_material", VerificationMaterialPeerDID),
     ],
 )
 
@@ -168,7 +168,12 @@ def decode_multibase_encnumbasis(
         ver_material = ver_material_cls(
             format=ver_material_format,
             type=__get_2020_ver_material_type(codec),
-            value=to_base58_multibase(decoded_encnumbasis_without_prefix),
+            value=to_base58_multibase(
+                to_multicodec(
+                    decoded_encnumbasis_without_prefix,
+                    __get_2020_ver_material_type(codec),
+                ),
+            ),
         )
     elif ver_material_format == VerificationMaterialFormatPeerDID.JWK:
         ver_material_type = __get_jwk_ver_material_type(codec)

@@ -2,6 +2,7 @@ name: release
 
 on:
   push:
+    branches: [stable]
   workflow_dispatch:
     inputs:
       devN:

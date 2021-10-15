@@ -1,13 +1,13 @@
 from enum import Enum
-from typing import List, Optional, Dict, Union, Tuple
+from typing import List, Dict, Union, Tuple
 
 from peerdid.core.jwk_okp import get_verification_method_type
 from peerdid.errors import MalformedPeerDIDDocError
 from peerdid.types import (
-    VerificationMethodType,
+    VerificationMethodTypePeerDID,
     VerificationMethodTypeAuthentication,
     VerificationMethodTypeAgreement,
-    VerificationMaterial,
+    VerificationMaterialPeerDID,
     VerificationMaterialFormatPeerDID,
     VerificationMaterialAuthentication,
     VerificationMaterialAgreement,
@@ -29,7 +29,9 @@ SERVICE_ACCEPT = "accept"
 
 
 class VerificationMethodPeerDID:
-    def __init__(self, id: str, controller: str, ver_material: VerificationMaterial):
+    def __init__(
+        self, id: str, controller: str, ver_material: VerificationMaterialPeerDID
+    ):
         self.id = id
         self.controller = controller
         self.ver_material = ver_material
@@ -58,7 +60,7 @@ class VerificationMethodPeerDID:
 
     @staticmethod
     def _get_public_key_format(
-        ver_method_type: VerificationMethodType,
+        ver_method_type: VerificationMethodTypePeerDID,
     ) -> Tuple[VerificationMaterialFormatPeerDID, VerificationMethodField]:
         if (
             ver_method_type
@@ -99,7 +101,7 @@ class VerificationMethodPeerDID:
         raise ValueError("Unsupported verification method type " + str(ver_method_type))
 
     @staticmethod
-    def _get_ver_method_type(value: dict) -> VerificationMethodType:
+    def _get_ver_method_type(value: dict) -> VerificationMethodTypePeerDID:
         ver_method_type_str = value["type"]
         if (
             ver_method_type_str
@@ -170,9 +172,9 @@ class DIDCommServicePeerDID:
     def __init__(
         self,
         id: str,
-        service_endpoint: Optional[str],
-        routing_keys: Optional[List[str]],
-        accept: Optional[List[str]],
+        service_endpoint: str,
+        routing_keys: List[str],
+        accept: List[str],
     ) -> None:
         self.id = id
         self.service_endpoint = service_endpoint
@@ -211,9 +213,9 @@ class DIDCommServicePeerDID:
 
         return cls(
             id=value[SERVICE_ID],
-            service_endpoint=value.get(SERVICE_ENDPOINT, None),
-            routing_keys=value.get(SERVICE_ROUTING_KEYS, None),
-            accept=value.get(SERVICE_ACCEPT, None),
+            service_endpoint=value.get(SERVICE_ENDPOINT, ""),
+            routing_keys=value.get(SERVICE_ROUTING_KEYS, []),
+            accept=value.get(SERVICE_ACCEPT, []),
         )
 
 

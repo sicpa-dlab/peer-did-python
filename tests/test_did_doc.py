@@ -176,7 +176,7 @@ def test_did_doc_from_json_numalgo_2_service_2_elements():
     assert service_1.id == expected_service_1["id"]
     assert service_1.service_endpoint == expected_service_1["serviceEndpoint"]
     assert service_1.routing_keys == expected_service_1["routingKeys"]
-    assert service_1.accept is None
+    assert service_1.accept == []
 
     service_2 = services[1]
     expected_service_2 = json.loads(DID_DOC_NUMALGO_2_MULTIBASE_2_SERVICES)["service"][
@@ -215,8 +215,8 @@ def test_did_doc_from_json_numalgo_2_minimal_service():
     assert isinstance(service, DIDCommServicePeerDID)
     assert service.id == expected_service["id"]
     assert service.service_endpoint == expected_service["serviceEndpoint"]
-    assert service.routing_keys is None
-    assert service.accept is None
+    assert service.routing_keys == []
+    assert service.accept == []
 
 
 def test_did_doc_id_only():
@@ -255,7 +255,7 @@ def test_did_doc_from_invalid_json_no_id():
                                "id": "did:peer:0z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V#6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
                                "type": "Ed25519VerificationKey2020",
                                "controller": "did:peer:0z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
-                               "publicKeyMultibase": "zByHnpUCFb1vAfh9CFZ8ZkmUZguURW8nSw889hy6rD8L7"
+                               "publicKeyMultibase": "z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V"
                            }
                        ]
                    }
@@ -276,7 +276,7 @@ def test_did_doc_from_invalid_ver_method_no_id():
                            {
                                "type": "Ed25519VerificationKey2020",
                                "controller": "did:peer:0z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
-                               "publicKeyMultibase": "zByHnpUCFb1vAfh9CFZ8ZkmUZguURW8nSw889hy6rD8L7"
+                               "publicKeyMultibase": "z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V"
                            }
                        ]
                    }
@@ -297,7 +297,7 @@ def test_did_doc_from_invalid_ver_method_no_type():
                            {
                                "id": "did:peer:0z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V#6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
                                "controller": "did:peer:0z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
-                               "publicKeyMultibase": "zByHnpUCFb1vAfh9CFZ8ZkmUZguURW8nSw889hy6rD8L7"
+                               "publicKeyMultibase": "z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V"
                            }
                        ]
                    }
@@ -318,7 +318,7 @@ def test_did_doc_from_invalid_ver_method_no_controller():
                            {
                                "id": "did:peer:0z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V#6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
                                "type": "Ed25519VerificationKey2020",
-                               "publicKeyMultibase": "zByHnpUCFb1vAfh9CFZ8ZkmUZguURW8nSw889hy6rD8L7"
+                               "publicKeyMultibase": "z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V"
                            }
                        ]
                    }
@@ -361,7 +361,7 @@ def test_did_doc_from_invalid_ver_method_invalid_type():
                                "id": "did:peer:0z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V#6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
                                "type": "Unkknown",
                                "controller": "did:peer:0z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
-                               "publicKeyMultibase": "zByHnpUCFb1vAfh9CFZ8ZkmUZguURW8nSw889hy6rD8L7"
+                               "publicKeyMultibase": "z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V"
                            }
                        ]
                    }
@@ -383,7 +383,7 @@ def test_did_doc_from_invalid_ver_method_invalid_field():
                                "id": "did:peer:0z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V#6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
                                "type": "Ed25519VerificationKey2020",
                                "controller": "did:peer:0z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
-                               "publicKeyJwk": "zByHnpUCFb1vAfh9CFZ8ZkmUZguURW8nSw889hy6rD8L7"
+                               "publicKeyJwk": "z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V"
                            }
                        ]
                    }
