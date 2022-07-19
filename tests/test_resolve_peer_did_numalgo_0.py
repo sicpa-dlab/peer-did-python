@@ -1,10 +1,10 @@
-import json
-
 import pytest
 
+from pydid import DIDDocument
+
 from peerdid.errors import MalformedPeerDIDError
+from peerdid.keys import KeyFormat
 from peerdid.peer_did import resolve_peer_did
-from peerdid.types import VerificationMaterialFormatPeerDID
 from tests.test_vectors import (
     PEER_DID_NUMALGO_0,
     DID_DOC_NUMALGO_O_BASE58,
@@ -15,28 +15,23 @@ from tests.test_vectors import (
 
 def test_resolve_positive_default():
     did_doc = resolve_peer_did(peer_did=PEER_DID_NUMALGO_0)
-    assert json.loads(did_doc) == json.loads(DID_DOC_NUMALGO_O_MULTIBASE)
+    assert did_doc == DIDDocument.from_json(DID_DOC_NUMALGO_O_MULTIBASE)
 
 
 def test_resolve_positive_base58():
-    did_doc = resolve_peer_did(
-        peer_did=PEER_DID_NUMALGO_0, format=VerificationMaterialFormatPeerDID.BASE58
-    )
-    assert json.loads(did_doc) == json.loads(DID_DOC_NUMALGO_O_BASE58)
+    did_doc = resolve_peer_did(peer_did=PEER_DID_NUMALGO_0, format=KeyFormat.BASE58)
+    assert did_doc == DIDDocument.from_json(DID_DOC_NUMALGO_O_BASE58)
 
 
 def test_resolve_positive_multibase():
-    did_doc = resolve_peer_did(
-        peer_did=PEER_DID_NUMALGO_0, format=VerificationMaterialFormatPeerDID.MULTIBASE
-    )
-    assert json.loads(did_doc) == json.loads(DID_DOC_NUMALGO_O_MULTIBASE)
+    did_doc = resolve_peer_did(peer_did=PEER_DID_NUMALGO_0, format=KeyFormat.MULTIBASE)
+    print(did_doc)
+    assert did_doc == DIDDocument.from_json(DID_DOC_NUMALGO_O_MULTIBASE)
 
 
 def test_resolve_positive_jwk():
-    did_doc = resolve_peer_did(
-        peer_did=PEER_DID_NUMALGO_0, format=VerificationMaterialFormatPeerDID.JWK
-    )
-    assert json.loads(did_doc) == json.loads(DID_DOC_NUMALGO_O_JWK)
+    did_doc = resolve_peer_did(peer_did=PEER_DID_NUMALGO_0, format=KeyFormat.JWK)
+    assert did_doc == DIDDocument.from_json(DID_DOC_NUMALGO_O_JWK)
 
 
 def test_resolve_unsupported_did_method():
@@ -55,7 +50,7 @@ def test_resolve_invalid_peer_did():
         match=r"Invalid peer DID provided.*Does not match peer DID regexp",
     ):
         resolve_peer_did(
-            peer_did="did:peer:0z6MkqRYqQiSBytw86Qbs2ZWUkGv22od935YF4s8M7V"
+            peer_did="did:peer:0z6MkqRYqQiSBytw86Qbs2ZWUkGv22od935YF4s8M7V!"
         )
 
 
@@ -103,14 +98,14 @@ def test_resolve_numalgo_0_invalid_key_type():
         MalformedPeerDIDError, match=r"Invalid peer DID provided.*Invalid key"
     ):
         resolve_peer_did(
-            peer_did="did:peer:0z6LSbysY2xFMRpGMhb7tFTLMpeuPRaqaWM1yECx2AtzE3KCc"
+            peer_did="did:peer:0z6QSbysY2xFMRpGMhb7tFTLMpeuPRaqaWM1yECx2AtzE3KCc"
         )
 
 
 def test_resolve_numalgo_0_short_key():
     with pytest.raises(
         MalformedPeerDIDError,
-        match=r"Invalid peer DID provided.*Does not match peer DID regexp",
+        match=r"Invalid peer DID provided.*Invalid key",
     ):
         resolve_peer_did(peer_did="did:peer:0z6LSbysY2xc")
 
@@ -118,7 +113,7 @@ def test_resolve_numalgo_0_short_key():
 def test_resolve_numalgo_0_long_key():
     with pytest.raises(
         MalformedPeerDIDError,
-        match=r"Invalid peer DID provided.*Does not match peer DID regexp",
+        match=r"Invalid peer DID provided.*Invalid key",
     ):
         resolve_peer_did(
             peer_did="did:peer:0z6LSbysY2xcccccccccccccccccccccccccccccccccccccccccccccccccccccc"

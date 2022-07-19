@@ -1,20 +1,17 @@
 import pytest
 
-from peerdid.core.did_doc_types import (
-    VerificationMethodTypeAgreement,
-    VerificationMethodTypeAuthentication,
-)
+from pydid import Service
+
 from peerdid.core.peer_did_helper import (
     encode_service,
     decode_service,
-    decode_multibase_encnumbasis,
+    decode_multibase_numbasis,
 )
-from peerdid.types import (
-    VerificationMaterialFormatPeerDID,
-    VerificationMaterialAuthentication,
-    VerificationMaterialAgreement,
+from peerdid.keys import (
+    Ed25519VerificationKey,
+    X25519KeyAgreementKey,
+    KeyFormat,
 )
-from tests.test_vectors import PEER_DID_NUMALGO_2
 
 
 def test_encode_service():
@@ -35,16 +32,17 @@ def test_encode_service():
 def test_decode_service():
     service = decode_service(
         service="eyJ0IjoiZG0iLCJzIjoiaHR0cHM6Ly9leGFtcGxlLmNvbS9lbmRwb2ludCIsInIiOlsiZGlkOmV4YW1wbGU6c29tZW1lZGlhdG9yI3NvbWVrZXkiXSwiYSI6WyJkaWRjb21tL3YyIiwiZGlkY29tbS9haXAyO2Vudj1yZmM1ODciXX0",
-        peer_did=PEER_DID_NUMALGO_2,
     )
     expected = [
-        {
-            "id": PEER_DID_NUMALGO_2 + "#didcommmessaging-0",
-            "type": "DIDCommMessaging",
-            "serviceEndpoint": "https://example.com/endpoint",
-            "routingKeys": ["did:example:somemediator#somekey"],
-            "accept": ["didcomm/v2", "didcomm/aip2;env=rfc587"],
-        }
+        Service.deserialize(
+            {
+                "id": "#didcommmessaging-0",
+                "type": "DIDCommMessaging",
+                "serviceEndpoint": "https://example.com/endpoint",
+                "routingKeys": ["did:example:somemediator#somekey"],
+                "accept": ["didcomm/v2", "didcomm/aip2;env=rfc587"],
+            }
+        )
     ]
     assert service == expected
 
@@ -64,34 +62,35 @@ def test_encode_service_minimal_fields():
 def test_decode_service_minimal_fields():
     service = decode_service(
         service="eyJ0IjoiZG0iLCJzIjoiaHR0cHM6Ly9leGFtcGxlLmNvbS9lbmRwb2ludCJ9",
-        peer_did=PEER_DID_NUMALGO_2,
     )
     expected = [
-        {
-            "id": PEER_DID_NUMALGO_2 + "#didcommmessaging-0",
-            "type": "DIDCommMessaging",
-            "serviceEndpoint": "https://example.com/endpoint",
-        }
+        Service.deserialize(
+            {
+                "id": "#didcommmessaging-0",
+                "type": "DIDCommMessaging",
+                "serviceEndpoint": "https://example.com/endpoint",
+            }
+        )
     ]
     assert service == expected
 
 
 def test_encode_service_with_multiple_entries_list():
     services = """
-            [
-                {
-                    "type": "DIDCommMessaging",
-                    "serviceEndpoint": "https://example.com/endpoint",
-                    "routingKeys": ["did:example:somemediator#somekey"],
-                    "accept": ["didcomm/v2", "didcomm/aip2;env=rfc587"]
-                },
-                {
-                    "type": "DIDCommMessaging",
-                    "serviceEndpoint": "https://example.com/endpoint2",
-                    "routingKeys": ["did:example:somemediator#somekey2"]
-                }
-            ]
-            """
+        [
+            {
+                "type": "DIDCommMessaging",
+                "serviceEndpoint": "https://example.com/endpoint",
+                "routingKeys": ["did:example:somemediator#somekey"],
+                "accept": ["didcomm/v2", "didcomm/aip2;env=rfc587"]
+            },
+            {
+                "type": "DIDCommMessaging",
+                "serviceEndpoint": "https://example.com/endpoint2",
+                "routingKeys": ["did:example:somemediator#somekey2"]
+            }
+        ]
+        """
 
     encoded_services = encode_service(services)
     assert (
@@ -103,22 +102,25 @@ def test_encode_service_with_multiple_entries_list():
 def test_decode_service_with_multiple_entries_list():
     service = decode_service(
         service="W3sidCI6ImRtIiwicyI6Imh0dHBzOi8vZXhhbXBsZS5jb20vZW5kcG9pbnQiLCJyIjpbImRpZDpleGFtcGxlOnNvbWVtZWRpYXRvciNzb21la2V5Il0sImEiOlsiZGlkY29tbS92MiIsImRpZGNvbW0vYWlwMjtlbnY9cmZjNTg3Il19LHsidCI6ImRtIiwicyI6Imh0dHBzOi8vZXhhbXBsZS5jb20vZW5kcG9pbnQyIiwiciI6WyJkaWQ6ZXhhbXBsZTpzb21lbWVkaWF0b3Ijc29tZWtleTIiXX1d",
-        peer_did=PEER_DID_NUMALGO_2,
     )
     expected = [
-        {
-            "id": PEER_DID_NUMALGO_2 + "#didcommmessaging-0",
-            "type": "DIDCommMessaging",
-            "serviceEndpoint": "https://example.com/endpoint",
-            "routingKeys": ["did:example:somemediator#somekey"],
-            "accept": ["didcomm/v2", "didcomm/aip2;env=rfc587"],
-        },
-        {
-            "id": PEER_DID_NUMALGO_2 + "#didcommmessaging-1",
-            "type": "DIDCommMessaging",
-            "serviceEndpoint": "https://example.com/endpoint2",
-            "routingKeys": ["did:example:somemediator#somekey2"],
-        },
+        Service.deserialize(
+            {
+                "id": "#didcommmessaging-0",
+                "type": "DIDCommMessaging",
+                "serviceEndpoint": "https://example.com/endpoint",
+                "routingKeys": ["did:example:somemediator#somekey"],
+                "accept": ["didcomm/v2", "didcomm/aip2;env=rfc587"],
+            }
+        ),
+        Service.deserialize(
+            {
+                "id": "#didcommmessaging-1",
+                "type": "DIDCommMessaging",
+                "serviceEndpoint": "https://example.com/endpoint2",
+                "routingKeys": ["did:example:somemediator#somekey2"],
+            }
+        ),
     ]
     assert service == expected
 
@@ -128,65 +130,53 @@ def test_decode_service_with_multiple_entries_list():
     [
         pytest.param(
             "z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
-            VerificationMaterialFormatPeerDID.BASE58,
-            VerificationMaterialAuthentication(
-                type=VerificationMethodTypeAuthentication.ED25519_VERIFICATION_KEY_2018,
-                format=VerificationMaterialFormatPeerDID.BASE58,
-                value="ByHnpUCFb1vAfh9CFZ8ZkmUZguURW8nSw889hy6rD8L7",
+            KeyFormat.BASE58,
+            Ed25519VerificationKey.from_base58(
+                "ByHnpUCFb1vAfh9CFZ8ZkmUZguURW8nSw889hy6rD8L7"
             ),
             id="base58-ed25519",
         ),
         pytest.param(
             "z6LSbysY2xFMRpGMhb7tFTLMpeuPRaqaWM1yECx2AtzE3KCc",
-            VerificationMaterialFormatPeerDID.BASE58,
-            VerificationMaterialAgreement(
-                type=VerificationMethodTypeAgreement.X25519_KEY_AGREEMENT_KEY_2019,
-                format=VerificationMaterialFormatPeerDID.BASE58,
-                value="JhNWeSVLMYccCk7iopQW4guaSJTojqpMEELgSLhKwRr",
+            KeyFormat.BASE58,
+            X25519KeyAgreementKey.from_base58(
+                "JhNWeSVLMYccCk7iopQW4guaSJTojqpMEELgSLhKwRr"
             ),
             id="base58-x25519",
         ),
         pytest.param(
             "z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
-            VerificationMaterialFormatPeerDID.MULTIBASE,
-            VerificationMaterialAuthentication(
-                type=VerificationMethodTypeAuthentication.ED25519_VERIFICATION_KEY_2020,
-                format=VerificationMaterialFormatPeerDID.MULTIBASE,
-                value="z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
+            KeyFormat.MULTIBASE,
+            Ed25519VerificationKey.from_multibase(
+                "z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V"
             ),
             id="multibase-ed25519",
         ),
         pytest.param(
             "z6LSbysY2xFMRpGMhb7tFTLMpeuPRaqaWM1yECx2AtzE3KCc",
-            VerificationMaterialFormatPeerDID.MULTIBASE,
-            VerificationMaterialAgreement(
-                type=VerificationMethodTypeAgreement.X25519_KEY_AGREEMENT_KEY_2020,
-                format=VerificationMaterialFormatPeerDID.MULTIBASE,
-                value="z6LSbysY2xFMRpGMhb7tFTLMpeuPRaqaWM1yECx2AtzE3KCc",
+            KeyFormat.MULTIBASE,
+            X25519KeyAgreementKey.from_multibase(
+                "z6LSbysY2xFMRpGMhb7tFTLMpeuPRaqaWM1yECx2AtzE3KCc"
             ),
             id="multibase-x25519",
         ),
         pytest.param(
             "z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
-            VerificationMaterialFormatPeerDID.JWK,
-            VerificationMaterialAuthentication(
-                type=VerificationMethodTypeAuthentication.JSON_WEB_KEY_2020,
-                format=VerificationMaterialFormatPeerDID.JWK,
-                value={
+            KeyFormat.JWK,
+            Ed25519VerificationKey.from_jwk(
+                {
                     "kty": "OKP",
                     "crv": "Ed25519",
                     "x": "owBhCbktDjkfS6PdQddT0D3yjSitaSysP3YimJ_YgmA",
-                },
+                }
             ),
             id="jwk-ed25519",
         ),
         pytest.param(
             "z6LSbysY2xFMRpGMhb7tFTLMpeuPRaqaWM1yECx2AtzE3KCc",
-            VerificationMaterialFormatPeerDID.JWK,
-            VerificationMaterialAgreement(
-                type=VerificationMethodTypeAgreement.JSON_WEB_KEY_2020,
-                format=VerificationMaterialFormatPeerDID.JWK,
-                value={
+            KeyFormat.JWK,
+            X25519KeyAgreementKey.from_jwk(
+                {
                     "kty": "OKP",
                     "crv": "X25519",
                     "x": "BIiFcQEn3dfvB2pjlhOQQour6jXy9d5s2FKEJNTOJik",
@@ -196,6 +186,6 @@ def test_decode_service_with_multiple_entries_list():
         ),
     ],
 )
-def test_decode_encumbasis(input_multibase, format, expected):
-    res = decode_multibase_encnumbasis(input_multibase, format)
-    assert res.ver_material == expected
+def test_decode_numbasis(input_multibase, format, expected):
+    res = decode_multibase_numbasis(input_multibase, format)
+    assert res == expected

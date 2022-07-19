@@ -1,23 +1,27 @@
+"""Multicodec utility methods."""
+
 from enum import Enum
-from typing import Tuple
+from typing import Tuple, Union
 
 import varint
 
-from peerdid.types import VerificationMethodTypePeerDID, VerificationMethodTypeAgreement
-
 
 class Codec(Enum):
+    """Multicodec supported codecs."""
+
     X25519 = 0xEC
     ED25519 = 0xED
 
+    def encode_multicodec(self, value: bytes) -> bytes:
+        """Encode a value with this codec."""
+        prefix = varint.encode(self.value)
+        return prefix + value
 
-def to_multicodec(value: bytes, key_type: VerificationMethodTypePeerDID) -> bytes:
-    codec = _get_codec(key_type)
-    prefix = varint.encode(codec.value)
-    return b"".join([prefix, value])
 
-
-def from_multicodec(value: bytes) -> Tuple[bytes, Codec]:
+def from_multicodec(value: Union[str, bytes]) -> Tuple[bytes, Codec]:
+    """Decode a multicodec value."""
+    if isinstance(value, str):
+        value = value.encode("utf-8")
     try:
         prefix_int = varint.decode_bytes(value)
     except Exception:
@@ -36,10 +40,3 @@ def from_multicodec(value: bytes) -> Tuple[bytes, Codec]:
 
     prefix = varint.encode(prefix_int)
     return value[len(prefix) :], codec
-
-
-def _get_codec(key_type: VerificationMethodTypePeerDID) -> Codec:
-    if isinstance(key_type, VerificationMethodTypeAgreement):
-        return Codec.X25519
-    else:
-        return Codec.ED25519
