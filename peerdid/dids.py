@@ -21,7 +21,7 @@ PEER_DID_PATTERN = re.compile(
 )
 
 
-def is_peer_did(peer_did: str) -> bool:
+def is_peer_did(peer_did: Union[str, DID]) -> bool:
     """
     Check if peer_did parameter matches the Peer DID spec.
 
@@ -59,7 +59,7 @@ def create_peer_did_numalgo_2(
     encryption_keys: Sequence[BaseKey],
     signing_keys: Sequence[BaseKey],
     service: Optional[str],
-) -> str:
+) -> DID:
     """
     Generate a Peer DID according to the second algorithm.
 
@@ -97,12 +97,12 @@ def create_peer_did_numalgo_2(
     )
     service_str = encode_service(service)
 
-    peer_did = "did:peer:2" + encryption_keys_str + auth_keys_str + service_str
+    peer_did = DID("did:peer:2" + encryption_keys_str + auth_keys_str + service_str)
     return peer_did
 
 
 def resolve_peer_did(
-    peer_did: str,
+    peer_did: Union[str, DID],
     format: KeyFormat = KeyFormat.MULTIBASE,
 ) -> DIDDocument:
     """
@@ -119,7 +119,6 @@ def resolve_peer_did(
         did_doc = _build_did_doc_numalgo_0(peer_did, format)
     else:
         did_doc = _build_did_doc_numalgo_2(peer_did, format)
-    print(did_doc.to_json())
     return did_doc
 
 
@@ -148,14 +147,18 @@ def _add_key_to_document(builder: DIDDocumentBuilder, key: BaseKey):
             builder.key_agreement.reference(ver_ident)
 
 
-def _build_did_doc_numalgo_0(peer_did: str, format: KeyFormat) -> DIDDocument:
+def _build_did_doc_numalgo_0(
+    peer_did: Union[str, DID], format: KeyFormat
+) -> DIDDocument:
     decoded_key = decode_multibase_numbasis(peer_did[10:], format)
     builder = _did_document_builder(peer_did)
     _add_key_to_document(builder, decoded_key)
     return builder.build()
 
 
-def _build_did_doc_numalgo_2(peer_did: str, format: KeyFormat) -> DIDDocument:
+def _build_did_doc_numalgo_2(
+    peer_did: Union[str, DID], format: KeyFormat
+) -> DIDDocument:
     keys = peer_did[11:]
     keys = keys.split(".")
     builder = _did_document_builder(peer_did)

@@ -1,6 +1,6 @@
 import pytest
 
-from peerdid.peer_did import create_peer_did_numalgo_2, is_peer_did
+from peerdid.dids import create_peer_did_numalgo_2, is_peer_did
 from peerdid.keys import Ed25519VerificationKey, X25519KeyAgreementKey
 
 VALID_X25519_KEY_AGREEMENT_KEY_2019 = X25519KeyAgreementKey.from_base58(

@@ -1,10 +1,9 @@
 import pytest
 
-from pydid import DIDDocument
-
+from peerdid import DIDDocument
 from peerdid.errors import MalformedPeerDIDError
+from peerdid.dids import resolve_peer_did
 from peerdid.keys import KeyFormat
-from peerdid.peer_did import resolve_peer_did
 from tests.test_vectors import (
     DID_DOC_NUMALGO_2_BASE58,
     PEER_DID_NUMALGO_2,

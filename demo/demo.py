@@ -1,11 +1,11 @@
 """Demo application."""
 
-from peerdid.keys import Ed25519VerificationKey, X25519KeyAgreementKey
-from peerdid.peer_did import (
+from peerdid.dids import (
     create_peer_did_numalgo_0,
     create_peer_did_numalgo_2,
     resolve_peer_did,
 )
+from peerdid.keys import Ed25519VerificationKey, X25519KeyAgreementKey
 
 
 def demo():

@@ -2,7 +2,7 @@ import json
 
 import pytest
 
-from peerdid.peer_did import create_peer_did_numalgo_0, is_peer_did
+from peerdid.dids import create_peer_did_numalgo_0, is_peer_did
 from peerdid.keys import Ed25519VerificationKey, X25519KeyAgreementKey
 
 

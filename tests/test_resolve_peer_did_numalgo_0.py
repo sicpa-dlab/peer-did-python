@@ -1,10 +1,9 @@
 import pytest
 
-from pydid import DIDDocument
-
+from peerdid import DIDDocument
 from peerdid.errors import MalformedPeerDIDError
+from peerdid.dids import resolve_peer_did
 from peerdid.keys import KeyFormat
-from peerdid.peer_did import resolve_peer_did
 from tests.test_vectors import (
     PEER_DID_NUMALGO_0,
     DID_DOC_NUMALGO_O_BASE58,
@@ -25,7 +24,6 @@ def test_resolve_positive_base58():
 
 def test_resolve_positive_multibase():
     did_doc = resolve_peer_did(peer_did=PEER_DID_NUMALGO_0, format=KeyFormat.MULTIBASE)
-    print(did_doc)
     assert did_doc == DIDDocument.from_json(DID_DOC_NUMALGO_O_MULTIBASE)
 
 
