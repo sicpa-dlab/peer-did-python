@@ -18,6 +18,8 @@ SERVICE_DIDCOMM_MESSAGING = "DIDCommMessaging"
 SERVICE_ROUTING_KEYS = "routingKeys"
 SERVICE_ACCEPT = "accept"
 
+ServiceJson = Union[str, dict, list]
+
 
 class Numalgo2Prefix(Enum):
     """Numalgo prefix values."""
@@ -37,7 +39,7 @@ class ServicePrefix(Enum):
     SERVICE_ACCEPT = "a"
 
 
-def encode_service(service: Union[str, dict]) -> str:
+def encode_service(service: ServiceJson) -> str:
     """
     Generate encoded service according to the second algorithm.
 
@@ -47,7 +49,7 @@ def encode_service(service: Union[str, dict]) -> str:
     :param service: JSON conforming to the DID specification (https://www.w3.org/TR/did-core/#services)
     :return: encoded service
     """
-    if service is None or service == "":
+    if service is None or service == "" or service == []:
         return ""
 
     if isinstance(service, str):

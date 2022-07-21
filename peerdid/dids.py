@@ -8,6 +8,7 @@ from pydid import DID, DIDDocument, DIDDocumentBuilder, DIDUrl, InvalidDIDError
 
 from .core.peer_did_helper import (
     Numalgo2Prefix,
+    ServiceJson,
     encode_service,
     decode_multibase_numbasis,
     decode_service,
@@ -58,7 +59,7 @@ def create_peer_did_numalgo_0(
 def create_peer_did_numalgo_2(
     encryption_keys: Sequence[BaseKey],
     signing_keys: Sequence[BaseKey],
-    service: Optional[str],
+    service: Optional[ServiceJson],
 ) -> DID:
     """
     Generate a Peer DID according to the second algorithm.
