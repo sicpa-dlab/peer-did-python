@@ -1,82 +1,102 @@
-import json
-import re
-from enum import Enum
-from typing import List, Optional, NamedTuple
+"""Peer DID helper methods."""
 
-from peerdid.core.did_doc_types import (
-    VerificationMethodTypeAgreement,
-    VerificationMethodTypeAuthentication,
-    SERVICE_DIDCOMM_MESSAGING,
-    SERVICE_ENDPOINT,
-    SERVICE_TYPE,
-    SERVICE_ROUTING_KEYS,
-    SERVICE_ACCEPT,
-    SERVICE_ID,
-    VerificationMethodPeerDID,
-)
-from peerdid.core.jwk_okp import jwk_key_to_bytes, public_key_to_jwk_dict
-from peerdid.core.multibase import (
-    from_base58_multibase,
-    from_base58,
-    to_base58_multibase,
-    to_base58,
-)
-from peerdid.core.multicodec import to_multicodec, from_multicodec, Codec
-from peerdid.core.utils import urlsafe_b64encode, urlsafe_b64decode
-from peerdid.core.validation import validate_raw_key_length
-from peerdid.types import (
-    JSON,
-    PEER_DID,
-    VerificationMaterialPeerDID,
-    VerificationMaterialFormatPeerDID,
-    VerificationMaterialAgreement,
-    VerificationMaterialAuthentication,
-)
+import json
+
+from enum import Enum
+from typing import List, Optional, Union
+
+from pydid import Service
+
+from ..core.utils import urlsafe_b64encode, urlsafe_b64decode
+from ..errors import MalformedPeerDIDError
+from ..keys import KeyFormat, BaseKey
+
+SERVICE_ID = "id"
+SERVICE_TYPE = "type"
+SERVICE_ENDPOINT = "serviceEndpoint"
+SERVICE_DIDCOMM_MESSAGING = "DIDCommMessaging"
+SERVICE_ROUTING_KEYS = "routingKeys"
+SERVICE_ACCEPT = "accept"
+
+ServiceJson = Union[str, dict, list]
 
 
 class Numalgo2Prefix(Enum):
+    """Numalgo prefix values."""
+
     AUTHENTICATION = "V"
     KEY_AGREEMENT = "E"
     SERVICE = "S"
 
 
-ServicePrefix = {
-    SERVICE_TYPE: "t",
-    SERVICE_ENDPOINT: "s",
-    SERVICE_DIDCOMM_MESSAGING: "dm",
-    SERVICE_ROUTING_KEYS: "r",
-    SERVICE_ACCEPT: "a",
-}
+class ServicePrefix(Enum):
+    """Service short forms."""
+
+    SERVICE_TYPE = "t"
+    SERVICE_ENDPOINT = "s"
+    SERVICE_DIDCOMM_MESSAGING = "dm"
+    SERVICE_ROUTING_KEYS = "r"
+    SERVICE_ACCEPT = "a"
 
 
-def encode_service(service: JSON) -> str:
+def encode_service(service: ServiceJson) -> str:
     """
-    Generates encoded service according to the second algorithm
-    (https://identity.foundation/peer-did-method-spec/index.html#generation-method)
-    For this type of algorithm did_doc can be obtained from peer_did
-    :param service: JSON string conforming to the DID specification (https://www.w3.org/TR/did-core/#services)
+    Generate encoded service according to the second algorithm.
+
+    Reference: <https://identity.foundation/peer-did-method-spec/index.html#generation-method>
+    For this type of algorithm the DID Document can be obtained from the Peer DID.
+
+    :param service: JSON conforming to the DID specification (https://www.w3.org/TR/did-core/#services)
     :return: encoded service
     """
-    service_to_encode = (
-        re.sub(r"[\n\t\s]*", "", service)
-        .replace(SERVICE_TYPE, ServicePrefix[SERVICE_TYPE])
-        .replace(SERVICE_ENDPOINT, ServicePrefix[SERVICE_ENDPOINT])
-        .replace(SERVICE_DIDCOMM_MESSAGING, ServicePrefix[SERVICE_DIDCOMM_MESSAGING])
-        .replace(SERVICE_ROUTING_KEYS, ServicePrefix[SERVICE_ROUTING_KEYS])
-        .replace(SERVICE_ACCEPT, ServicePrefix[SERVICE_ACCEPT])
-        .encode("utf-8")
-    )
+    if service is None or service == "" or service == []:
+        return ""
+
+    if isinstance(service, str):
+        try:
+            service = json.loads(service)
+        except json.JSONDecodeError:
+            pass
+
+    if isinstance(service, list):
+        service = list(map(_encode_service_entry, service))
+    elif isinstance(service, dict):
+        service = _encode_service_entry(service)
+    else:
+        raise ValueError("Service is not valid JSON")
+
     return (
         "."
         + Numalgo2Prefix.SERVICE.value
-        + urlsafe_b64encode(service_to_encode).decode("utf-8")
+        + urlsafe_b64encode(json.dumps(service, separators=(",", ":"))).decode("utf-8")
     )
 
 
-def decode_service(service: str, peer_did: PEER_DID) -> Optional[List[dict]]:
+def _encode_service_entry(service: dict) -> dict:
+    result = {}
+    for k, v in service.items():
+        if k == SERVICE_TYPE:
+            k = ServicePrefix.SERVICE_TYPE.value
+        elif k == SERVICE_ENDPOINT:
+            k = ServicePrefix.SERVICE_ENDPOINT.value
+        elif k == SERVICE_ROUTING_KEYS:
+            k = ServicePrefix.SERVICE_ROUTING_KEYS.value
+        elif k == SERVICE_ACCEPT:
+            k = ServicePrefix.SERVICE_ACCEPT.value
+
+        if v == SERVICE_DIDCOMM_MESSAGING:
+            v = ServicePrefix.SERVICE_DIDCOMM_MESSAGING.value
+
+        result[k] = v
+    return result
+
+
+def decode_service(service: str) -> Optional[List[Service]]:
     """
-    Decodes service according to Peer DID spec
-    (https://identity.foundation/peer-did-method-spec/index.html#example-2-abnf-for-peer-dids)
+    Decode service according to Peer DID spec.
+
+    Reference: https://identity.foundation/peer-did-method-spec/index.html#example-2-abnf-for-peer-dids
+
     :param service: service to decode
     :param peer_did: peer_did which will be used as an ID
     :raises ValueError: if peer_did parameter is not valid
@@ -84,141 +104,53 @@ def decode_service(service: str, peer_did: PEER_DID) -> Optional[List[dict]]:
     """
     if not service:
         return None
-    decoded_service = urlsafe_b64decode(service.encode())
-    list_of_service_dict = json.loads(decoded_service.decode("utf-8"))
+    try:
+        decoded_service = urlsafe_b64decode(service.encode())
+        list_of_service_dict = json.loads(decoded_service.decode("utf-8"))
+    except (ValueError, json.JSONDecodeError) as e:
+        raise MalformedPeerDIDError("Invalid service") from e
 
     if not isinstance(list_of_service_dict, list):
         list_of_service_dict = [list_of_service_dict]
+    result = []
 
-    for i in range(len(list_of_service_dict)):
-        service = list_of_service_dict[i]
-        if ServicePrefix[SERVICE_TYPE] not in service:
-            raise ValueError("service doesn't contain a type")
-        service_type = service.pop(ServicePrefix[SERVICE_TYPE]).replace(
-            ServicePrefix[SERVICE_DIDCOMM_MESSAGING], SERVICE_DIDCOMM_MESSAGING
+    for i, svc_def in enumerate(list_of_service_dict):
+        if not isinstance(svc_def, dict):
+            raise MalformedPeerDIDError("Service entry is not an object")
+        service_type = svc_def.pop(ServicePrefix.SERVICE_TYPE.value, "").replace(
+            ServicePrefix.SERVICE_DIDCOMM_MESSAGING.value, SERVICE_DIDCOMM_MESSAGING
         )
-        service[SERVICE_ID] = peer_did + "#" + service_type.lower() + "-" + str(i)
-        service[SERVICE_TYPE] = service_type
-        if ServicePrefix[SERVICE_ENDPOINT] in service:
-            service[SERVICE_ENDPOINT] = service.pop(ServicePrefix[SERVICE_ENDPOINT])
-        if ServicePrefix[SERVICE_ROUTING_KEYS] in service:
-            service[SERVICE_ROUTING_KEYS] = service.pop(
-                ServicePrefix[SERVICE_ROUTING_KEYS]
-            )
-        if ServicePrefix[SERVICE_ACCEPT] in service:
-            service[SERVICE_ACCEPT] = service.pop(ServicePrefix[SERVICE_ACCEPT])
+        if not service_type:
+            raise MalformedPeerDIDError("Service doesn't contain a type")
+        ident = "#" + service_type.lower() + "-" + str(i)
+        endpoint = svc_def.pop(ServicePrefix.SERVICE_ENDPOINT.value, None)
+        extra = {}
+        for k, v in svc_def.items():
+            if k == ServicePrefix.SERVICE_ACCEPT.value:
+                k = SERVICE_ACCEPT
+            elif k == ServicePrefix.SERVICE_ROUTING_KEYS.value:
+                k = SERVICE_ROUTING_KEYS
+            extra[k] = v
+        service = Service.make(
+            id=ident, type=service_type, service_endpoint=endpoint, **extra
+        )
+        result.append(service)
 
-    return list_of_service_dict
-
-
-def create_multibase_encnumbasis(key: VerificationMaterialPeerDID) -> str:
-    """
-    Creates multibased encnumbasis according to Peer DID spec
-    (https://identity.foundation/peer-did-method-spec/index.html#method-specific-identifier)
-    :param key: public key
-    :return: transform+encnumbasis
-    """
-    if key.format == VerificationMaterialFormatPeerDID.BASE58:
-        decoded_key = from_base58(key.value)
-    elif key.format == VerificationMaterialFormatPeerDID.MULTIBASE:
-        decoded_key = from_multicodec(from_base58_multibase(key.value)[1])[0]
-    elif key.format == VerificationMaterialFormatPeerDID.JWK:
-        decoded_key = jwk_key_to_bytes(key)
-    else:
-        raise ValueError("Unknown key format " + key.format)
-    validate_raw_key_length(decoded_key)
-    return to_base58_multibase(to_multicodec(decoded_key, key.type))
+    return result
 
 
-DecodedEncnumbasis = NamedTuple(
-    "DecodedEncnumbasis",
-    [
-        ("encnumbasis", str),
-        ("ver_material", VerificationMaterialPeerDID),
-    ],
-)
-
-
-def decode_multibase_encnumbasis(
+def decode_multibase_numbasis(
     multibase: str,
-    ver_material_format: VerificationMaterialFormatPeerDID,
-) -> DecodedEncnumbasis:
+    key_format: KeyFormat,
+) -> BaseKey:
     """
-    Decodes multibased encnumbasis to a verification material for DID DOC
-    :param multibase: transform+encnumbasis to decode
-    :param ver_material_format: the format of public keys in the DID DOC
-    :return: decoded encnumbasis as verification method for DID DOC
+    Decode multibase-encoded numeric basis to a verification method for DID Document.
+
+    :param multibase: multibase-encoded numeric basis to decode
+    :param key_format: the format of public keys in the DID Document
+    :return: decoded numeric basis as verification method for DID Document
     """
-    encnumbasis, decoded_encnumbasis = from_base58_multibase(multibase)
-    decoded_encnumbasis_without_prefix, codec = from_multicodec(decoded_encnumbasis)
-    validate_raw_key_length(decoded_encnumbasis_without_prefix)
-
-    ver_material_cls = (
-        VerificationMaterialAgreement
-        if codec == Codec.X25519
-        else VerificationMaterialAuthentication
-    )
-    if ver_material_format == VerificationMaterialFormatPeerDID.BASE58:
-        ver_material = ver_material_cls(
-            format=ver_material_format,
-            type=__get_2018_2019_ver_material_type(codec),
-            value=to_base58(decoded_encnumbasis_without_prefix),
-        )
-    elif ver_material_format == VerificationMaterialFormatPeerDID.MULTIBASE:
-        ver_material = ver_material_cls(
-            format=ver_material_format,
-            type=__get_2020_ver_material_type(codec),
-            value=to_base58_multibase(
-                to_multicodec(
-                    decoded_encnumbasis_without_prefix,
-                    __get_2020_ver_material_type(codec),
-                ),
-            ),
-        )
-    elif ver_material_format == VerificationMaterialFormatPeerDID.JWK:
-        ver_material_type = __get_jwk_ver_material_type(codec)
-        ver_material = ver_material_cls(
-            format=ver_material_format,
-            type=ver_material_type,
-            value=public_key_to_jwk_dict(
-                decoded_encnumbasis_without_prefix, ver_material_type
-            ),
-        )
-    else:
-        raise ValueError("Unknown format {}".format(ver_material_format))
-
-    return DecodedEncnumbasis(encnumbasis=encnumbasis, ver_material=ver_material)
-
-
-def get_verification_method(
-    did: PEER_DID, decoded_encnumbasis: DecodedEncnumbasis
-) -> VerificationMethodPeerDID:
-    return VerificationMethodPeerDID(
-        id=did + "#" + decoded_encnumbasis.encnumbasis,
-        controller=did,
-        ver_material=decoded_encnumbasis.ver_material,
-    )
-
-
-def __get_2018_2019_ver_material_type(codec: Codec):
-    if codec == Codec.X25519:
-        return VerificationMethodTypeAgreement.X25519_KEY_AGREEMENT_KEY_2019
-    elif codec == Codec.ED25519:
-        return VerificationMethodTypeAuthentication.ED25519_VERIFICATION_KEY_2018
-    raise ValueError("Unknown multicodec {}".format(codec.value))
-
-
-def __get_2020_ver_material_type(codec: Codec):
-    if codec == Codec.X25519:
-        return VerificationMethodTypeAgreement.X25519_KEY_AGREEMENT_KEY_2020
-    elif codec == Codec.ED25519:
-        return VerificationMethodTypeAuthentication.ED25519_VERIFICATION_KEY_2020
-    raise ValueError("Unknown multicodec {}".format(codec.value))
-
-
-def __get_jwk_ver_material_type(codec: Codec):
-    if codec == Codec.X25519:
-        return VerificationMethodTypeAgreement.JSON_WEB_KEY_2020
-    elif codec == Codec.ED25519:
-        return VerificationMethodTypeAuthentication.JSON_WEB_KEY_2020
-    raise ValueError("Unknown multicodec {}".format(codec.value))
+    try:
+        return BaseKey.from_multibase(multibase, format=key_format)
+    except (ValueError, TypeError) as e:
+        raise MalformedPeerDIDError("Invalid key: {}".format(multibase)) from e
