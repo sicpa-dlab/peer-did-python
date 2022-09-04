@@ -67,6 +67,62 @@ DID_DOC_NUMALGO_O_JWK = """
     }
     """
 
+PEER_DID_NUMALGO_1 = "did:peer:1zQmXv3d2vqC2Q9JrnrFqqj5h8vzcNAumL1UZbb1TGh58j2c"
+
+DID_DOC_NUMALGO_1 = """
+    {
+        "@context": ["https://w3id.org/did/v1"],
+        "id": "did:peer:1zQmXv3d2vqC2Q9JrnrFqqj5h8vzcNAumL1UZbb1TGh58j2c",
+        "authentication": [
+            {
+                "id": "#6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V",
+                "type": "Ed25519VerificationKey2018",
+                "publicKeyBase58": "ByHnpUCFb1vAfh9CFZ8ZkmUZguURW8nSw889hy6rD8L7"
+            },
+            {
+                "id": "#6MkgoLTnTypo3tDRwCkZXSccTPHRLhF4ZnjhueYAFpEX6vg",
+                "type": "Ed25519VerificationKey2018",
+                "publicKeyBase58": "3M5RCDjPTWPkKSN3sxUmmMqHbmRPegYP1tjcKyrDbt9J"
+            }
+        ],
+        "keyAgreement": [
+            {
+                "id": "#6LSbysY2xFMRpGMhb7tFTLMpeuPRaqaWM1yECx2AtzE3KCc",
+                "type": "X25519KeyAgreementKey2019",
+                "publicKeyBase58": "JhNWeSVLMYccCk7iopQW4guaSJTojqpMEELgSLhKwRr"
+            }
+        ],
+        "service": [
+            {
+                "id": "#service-0",
+                "type": "DIDCommMessaging",
+                "serviceEndpoint": "https://example.com/endpoint",
+                "routingKeys": ["did:example:somemediator#somekey"],
+                "accept": ["didcomm/v2", "didcomm/aip2;env=rfc587"]
+            }
+        ]
+    }
+"""
+
+
+DID_DOC_NUMALGO_1_STORED = (
+    b'{"@context":["https://w3id.org/did/v1"],"authentication":[{"id":'
+    b'"#6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V","type":'
+    b'"Ed25519VerificationKey2018","publicKeyBase58":'
+    b'"ByHnpUCFb1vAfh9CFZ8ZkmUZguURW8nSw889hy6rD8L7"},{"id":'
+    b'"#6MkgoLTnTypo3tDRwCkZXSccTPHRLhF4ZnjhueYAFpEX6vg","type":'
+    b'"Ed25519VerificationKey2018","publicKeyBase58":'
+    b'"3M5RCDjPTWPkKSN3sxUmmMqHbmRPegYP1tjcKyrDbt9J"}],"keyAgreement":'
+    b'[{"id":"#6LSbysY2xFMRpGMhb7tFTLMpeuPRaqaWM1yECx2AtzE3KCc","type":'
+    b'"X25519KeyAgreementKey2019","publicKeyBase58":'
+    b'"JhNWeSVLMYccCk7iopQW4guaSJTojqpMEELgSLhKwRr"}],"service":[{"id":'
+    b'"#service-0","type":"DIDCommMessaging","serviceEndpoint":'
+    b'"https://example.com/endpoint","routingKeys":'
+    b'["did:example:somemediator#somekey"],"accept":["didcomm/v2",'
+    b'"didcomm/aip2;env=rfc587"]}]}'
+)
+
+
 PEER_DID_NUMALGO_2 = (
     "did:peer:2"
     + ".Ez6LSbysY2xFMRpGMhb7tFTLMpeuPRaqaWM1yECx2AtzE3KCc"

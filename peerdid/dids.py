@@ -1,11 +1,22 @@
 """Peer DID document generation and resolution."""
 
+import json
 import re
 
-from typing import Optional, Sequence, Union
+from hashlib import sha256
+from typing import Optional, Sequence, Tuple, Union
 
-from pydid import DID, DIDDocument, DIDDocumentBuilder, DIDUrl, InvalidDIDError
+from pydid import (
+    BaseDIDDocument,
+    DID,
+    DIDDocument,
+    DIDDocumentBuilder,
+    DIDUrl,
+    InvalidDIDError,
+)
 
+from .core.multibase import MultibaseFormat, to_multibase
+from .core.multicodec import Codec
 from .core.peer_did_helper import (
     Numalgo2Prefix,
     ServiceJson,
@@ -17,8 +28,9 @@ from .errors import MalformedPeerDIDError
 from .keys import KeyFormat, KeyRelationshipType, BaseKey
 
 PEER_DID_PATTERN = re.compile(
-    r"^did:peer:(([0](z)([1-9a-km-zA-HJ-NP-Z]+))|(2((\.[AEVID](z)([1-9a-km-zA-HJ-NP-Z]+))+"
-    r"(\.(S)[0-9a-zA-Z]*)?)))$"
+    r"^did:peer:((0(z)([1-9a-km-zA-HJ-NP-Z]+))"
+    r"|(1(z)([1-9a-km-zA-HJ-NP-Z]+))"
+    r"|(2((\.[AEVID](z)([1-9a-km-zA-HJ-NP-Z]+))+(\.(S)[0-9a-zA-Z]*)?)))$"
 )
 
 
@@ -54,6 +66,39 @@ def create_peer_did_numalgo_0(
             "Authentication not supported for key: {}.".format(inception_key)
         )
     return "did:peer:0" + inception_key.to_multibase()
+
+
+def create_peer_did_numalgo_1(
+    did_doc: Union[BaseDIDDocument, dict, str, bytes],
+) -> Tuple[str, bytes]:
+    """
+    Generate a Peer DID according to the first algorithm.
+
+    Reference: <https://identity.foundation/peer-did-method-spec/index.html#generation-method>
+    For this type of algorithm the DID is derived from a genesis DID Document.
+
+    :param did_doc: the genesis DID Document
+    :raises ValueError: if the DID Document cannot be processed
+    :return: a tuple of the generated Peer DID and the stored variant of the DID Document
+    """
+    if isinstance(did_doc, BaseDIDDocument):
+        did_doc = did_doc.serialize()
+    elif isinstance(did_doc, (str, bytes)):
+        try:
+            did_doc = json.loads(did_doc)
+        except json.JSONDecodeError as err:
+            raise ValueError("DID Document is not valid JSON") from err
+    if not isinstance(did_doc, dict):
+        raise TypeError("DID Document is not a supported type")
+    ident = did_doc.pop("id", None)
+    if ident:
+        # remove references to the did
+        pass
+    did_doc_bytes = json.dumps(did_doc, separators=(",", ":")).encode("utf-8")
+    did_doc_hash = sha256(did_doc_bytes).digest()
+    mcodec = Codec.SHA256.encode_multicodec_with_length(did_doc_hash)
+    did = "did:peer:1" + to_multibase(mcodec, MultibaseFormat.BASE58)
+    return (did, did_doc_bytes)
 
 
 def create_peer_did_numalgo_2(

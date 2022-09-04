@@ -58,7 +58,7 @@ def test_resolve_unsupported_numalgo_code():
         match=r"Invalid peer DID provided.*Does not match peer DID regexp",
     ):
         resolve_peer_did(
-            peer_did="did:peer:1z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V"
+            peer_did="did:peer:4z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V"
         )
 
 
