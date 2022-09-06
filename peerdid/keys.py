@@ -5,7 +5,7 @@ from enum import Enum
 from typing import List, Optional, NamedTuple, Type, Union
 from uuid import uuid4
 
-from pydid import DID, DIDUrl, VerificationMethod
+from pydid import DID, DIDUrl, InvalidDIDUrlError, VerificationMethod
 from pydid.verification_method import (
     Ed25519VerificationKey2018,
     Ed25519VerificationKey2020,
@@ -123,6 +123,55 @@ class BaseKey(ABC):
         key_type_cls = cls.for_codec(codec)
         return key_type_cls(public_key, ident=ident, format=format or KeyFormat.JWK)
 
+    @classmethod
+    def from_verification_method(
+        cls,
+        method: Union[dict, VerificationMethod],
+        ident: Union[str, DIDUrl] = None,
+        format: KeyFormat = None,
+    ) -> "BaseKey":
+        """Load a key from a DID Document verification method."""
+        if isinstance(method, VerificationMethod):
+            method = method.serialize()
+        method_id = method.get("id")
+        if not ident and method_id:
+            try:
+                method_url = DIDUrl(method_id)
+            except InvalidDIDUrlError:
+                raise ValueError("Verification method ID is not a valid DID URL")
+            ident = DIDUrl("#" + method_url.fragment)
+        method_type = method.get("type")
+        if method_type == Ed25519VerificationKey2018.method_type():
+            return Ed25519VerificationKey.from_base58(
+                method.get("publicKeyBase58"), ident=ident, format=format
+            )
+        elif method_type == Ed25519VerificationKey2020.method_type():
+            return Ed25519VerificationKey.from_multibase(
+                method.get("publicKeyMultibase"), ident=ident, format=format
+            )
+        elif method_type == X25519KeyAgreementKey2019.method_type():
+            return X25519KeyAgreementKey.from_base58(
+                method.get("publicKeyBase58"), ident=ident, format=format
+            )
+        elif method_type == X25519KeyAgreementKey2020.method_type():
+            return X25519KeyAgreementKey.from_multibase(
+                method.get("publicKeyMultibase"), ident=ident, format=format
+            )
+        elif method_type == JsonWebKey2020.method_type():
+            jwk = method.get("publicKeyJwk")
+            if isinstance(jwk, dict):
+                if jwk.get("typ") == "OKP":
+                    crv = jwk.get("crv")
+                    if crv == "Ed25519":
+                        return Ed25519VerificationKey.from_jwk(
+                            jwk, ident=ident, format=format
+                        )
+                    elif crv == "X25519":
+                        return X25519KeyAgreementKey.from_jwk(
+                            jwk, ident=ident, format=format
+                        )
+        raise ValueError("Unsupported key type: {}".format(method_type))
+
     def __init__(
         self,
         public_key: bytes,
@@ -150,6 +199,10 @@ class BaseKey(ABC):
         self, controller: Union[str, DID], format: KeyFormat = None, **extra
     ) -> VerificationMethodResult:
         """Generate a VerificationMethod entry for this key."""
+
+    def to_base58(self) -> str:
+        """Encode this key in base58 format."""
+        return to_base58(self.public_key)
 
     def to_multibase(self, format: MultibaseFormat = None) -> str:
         """Encode this key in multibase format."""

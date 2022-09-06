@@ -1,9 +1,12 @@
 import pytest
 
+from pydid import Service
+
 from peerdid import DIDDocument
 from peerdid.errors import MalformedPeerDIDError
-from peerdid.dids import resolve_peer_did
-from peerdid.keys import KeyFormat
+from peerdid.dids import resolve_peer_did, resolve_peer_did_basis
+from peerdid.keys import Ed25519VerificationKey, X25519KeyAgreementKey, KeyFormat
+
 from tests.test_vectors import (
     DID_DOC_NUMALGO_2_BASE58,
     PEER_DID_NUMALGO_2,
@@ -24,17 +27,19 @@ def test_resolve_numalgo_2_positive_default():
 
 
 def test_resolve_numalgo_2_positive_base58():
-    did_doc = resolve_peer_did(peer_did=PEER_DID_NUMALGO_2, format=KeyFormat.BASE58)
+    did_doc = resolve_peer_did(peer_did=PEER_DID_NUMALGO_2, key_format=KeyFormat.BASE58)
     assert did_doc == DIDDocument.from_json(DID_DOC_NUMALGO_2_BASE58)
 
 
 def test_resolve_numalgo_2_positive_multibase():
-    did_doc = resolve_peer_did(peer_did=PEER_DID_NUMALGO_2, format=KeyFormat.MULTIBASE)
+    did_doc = resolve_peer_did(
+        peer_did=PEER_DID_NUMALGO_2, key_format=KeyFormat.MULTIBASE
+    )
     assert did_doc == DIDDocument.from_json(DID_DOC_NUMALGO_2_MULTIBASE)
 
 
 def test_resolve_numalgo_2_positive_jwk():
-    did_doc = resolve_peer_did(peer_did=PEER_DID_NUMALGO_2, format=KeyFormat.JWK)
+    did_doc = resolve_peer_did(peer_did=PEER_DID_NUMALGO_2, key_format=KeyFormat.JWK)
     assert did_doc == DIDDocument.from_json(DID_DOC_NUMALGO_2_JWK)
 
 
@@ -55,10 +60,21 @@ def test_resolve_numalgo_2_positive_minimal_service():
     )
 
 
+def test_resolve_numalgo_2_basis():
+    basis = resolve_peer_did_basis(peer_did=PEER_DID_NUMALGO_2)
+    assert len(basis.encryption_keys) == 1 and all(
+        isinstance(k, X25519KeyAgreementKey) for k in basis.encryption_keys
+    )
+    assert len(basis.signing_keys) == 2 and all(
+        isinstance(k, Ed25519VerificationKey) for k in basis.signing_keys
+    )
+    assert len(basis.services) == 1 and isinstance(basis.services[0], Service)
+
+
 def test_resolve_numalgo_2_unsupported_transform_code():
     with pytest.raises(
         MalformedPeerDIDError,
-        match=r"Invalid peer DID provided.*Does not match peer DID regexp",
+        match=r"Invalid peer DID provided.*Not a recognizable peer DID",
     ):
         resolve_peer_did(
             "did:peer:2.Ea6LSbysY2xFMRpGMhb7tFTLMpeuPRaqaWM1yECx2AtzE3KCc"
@@ -70,7 +86,7 @@ def test_resolve_numalgo_2_unsupported_transform_code():
 def test_resolve_numalgo_2_signing_malformed_base58_encoding():
     with pytest.raises(
         MalformedPeerDIDError,
-        match=r"Invalid peer DID provided.*Does not match peer DID regexp",
+        match=r"Invalid peer DID provided.*Not a recognizable peer DID",
     ):
         resolve_peer_did(
             "did:peer:2.Ez6LSbysY2xFMRpGMhb7tFTLMpeuPRaqaWM1yECx2AtzE3KCc"
@@ -82,7 +98,7 @@ def test_resolve_numalgo_2_signing_malformed_base58_encoding():
 def test_resolve_numalgo_2_encryption_malformed_base58_encoding():
     with pytest.raises(
         MalformedPeerDIDError,
-        match=r"Invalid peer DID provided.*Does not match peer DID regexp",
+        match=r"Invalid peer DID provided.*Not a recognizable peer DID",
     ):
         resolve_peer_did(
             "did:peer:2.Ez6LSbysY2xFMRpG0hb7tFTLMpeuPRaqaWM1yECx2AtzE3KCc"
@@ -140,7 +156,7 @@ def test_resolve_numalgo_2_encryption_invalid_key_type():
 def test_resolve_numalgo_2_malformed_service_encoding():
     with pytest.raises(
         MalformedPeerDIDError,
-        match=r"Invalid peer DID provided.*Does not match peer DID regexp",
+        match=r"Invalid peer DID provided.*Not a recognizable peer DID",
     ):
         resolve_peer_did(
             "did:peer:2"
@@ -167,7 +183,7 @@ def test_resolve_numalgo_2_malformed_service():
 def test_resolve_numalgo_2_invalid_prefix():
     with pytest.raises(
         MalformedPeerDIDError,
-        match=r"Invalid peer DID provided.*Does not match peer DID regexp",
+        match=r"Invalid peer DID provided.*Not a recognizable peer DID",
     ):
         resolve_peer_did(
             "did:peer:2"
