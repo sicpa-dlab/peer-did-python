@@ -29,9 +29,9 @@ jobs:
       already_in_pypi: ${{ steps.check_in_pypi.outputs.pypi_versions != '' }}
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
-      - uses: actions/setup-python@v2
+      - uses: actions/setup-python@v4
         with:
           python-version: '3.x'
 
@@ -41,7 +41,7 @@ jobs:
           python -m pip install . --no-deps
           out="$(pip show ${{ env.PKG_NAME }} | grep 'Version:' | awk '{print $2}')"
           echo "$out"
-          echo "::set-output name=current_version::$out"
+          echo "current_version=$out" >> $GITHUB_OUTPUT
         shell: bash
 
       - name: Get release info
@@ -49,21 +49,21 @@ jobs:
         run: |
           release_info="$(curl -s https://api.github.com/repos/${{ github.repository }}/releases \
               | jq '.[] | select(.name == "v${{ steps.current_version.outputs.current_version }}")')"
-          echo "::set-output name=release_info::$release_info"
+          echo "release_info=$release_info" >> $GITHUB_OUTPUT
           echo "$release_info"
 
           asset_tgz_url="$(echo "$release_info" \
               | jq -r '.assets[] | select(.name | match("^${{ env.PKG_NAME }}.*\\.tar.gz$")) | .browser_download_url')"
-          echo "::set-output name=asset_tgz_url::$asset_tgz_url"
+          echo "asset_tgz_url=$asset_tgz_url" >> $GITHUB_OUTPUT
           echo "$asset_tgz_url"
 
           asset_whl_url="$(echo "$release_info" \
               | jq -r '.assets[] | select(.name | match("^${{ env.PKG_NAME }}.*\\.whl$")) | .browser_download_url')"
-          echo "::set-output name=asset_whl_url::$asset_whl_url"
+          echo "asset_whl_url=$asset_whl_url" >> $GITHUB_OUTPUT
           echo "$asset_whl_url"
 
           upload_url="$(echo "$release_info" | jq -r '.upload_url')"
-          echo "::set-output name=upload_url::$upload_url"
+          echo "upload_url=$upload_url" >> $GITHUB_OUTPUT
           echo "$upload_url"
         shell: bash
 
@@ -77,7 +77,7 @@ jobs:
           python -m pip install --upgrade pip
           out="$(pip install --use-deprecated=legacy-resolver ${{ env.PKG_NAME }}== 2>&1 \
               | grep -E "Could not find .* ${{ steps.current_version.outputs.current_version }}(,|\))")"
-          echo "::set-output name=pypi_versions::$out"
+          echo "pypi_versions=$out" >> $GITHUB_OUTPUT
         shell: bash {0}  # to opt-out of default fail-fast behavior
 
   release-github:
@@ -86,9 +86,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: checks
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
-      - uses: actions/setup-python@v2
+      - uses: actions/setup-python@v4
         with:
           python-version: '3.x'
 
@@ -102,10 +102,10 @@ jobs:
           ls dist
 
           asset_tgz_name="$(find dist -name '*.tar.gz' -printf '%f')"
-          echo "::set-output name=asset_tgz_name::$asset_tgz_name"
+          echo "asset_tgz_name=$asset_tgz_name" >> $GITHUB_OUTPUT
 
           asset_whl_name="$(find dist -name '*.whl' -printf '%f')"
-          echo "::set-output name=asset_whl_name::$asset_whl_name"
+          echo "asset_whl_name=$asset_whl_name" >> $GITHUB_OUTPUT
         shell: bash
 
       - name: Create Release
@@ -123,9 +123,9 @@ jobs:
         if: ${{ !(needs.checks.outputs.asset_tgz_url && needs.checks.outputs.asset_whl_url) }}
         run: |
           if [[ -n "${{ needs.checks.outputs.upload_url }}" ]]; then
-            echo "::set-output name=value::${{ needs.checks.outputs.upload_url }}"
+            echo "value=${{ needs.checks.outputs.upload_url }}" >> $GITHUB_OUTPUT
           else
-            echo "::set-output name=value::${{ steps.create_release.outputs.upload_url }}"
+            echo "value=${{ steps.create_release.outputs.upload_url }}" >> $GITHUB_OUTPUT
           fi
 
       - name: Upload the source archive
@@ -156,7 +156,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [checks, release-github]
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: download GitHub artifacts
         run: |
@@ -175,7 +175,7 @@ jobs:
       #       user: __token__
       #       password: ${{ secrets.PYPI_API_TOKEN }}
 
-      - uses: actions/setup-python@v2
+      - uses: actions/setup-python@v4
         with:
           python-version: '3.x'
 
@@ -196,9 +196,9 @@ jobs:
     if: github.ref != 'refs/heads/stable' && github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
-      - uses: actions/setup-python@v2
+      - uses: actions/setup-python@v4
         with:
           python-version: '3.x'
 
