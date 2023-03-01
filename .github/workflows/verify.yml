@@ -110,6 +110,7 @@ jobs:
 
       - name: resolve pip cache dir
         id: pip_cache_dir
+        shell: bash
         run: echo "value=$(pip cache dir)" >> $GITHUB_OUTPUT
 
       - name: cache pip
