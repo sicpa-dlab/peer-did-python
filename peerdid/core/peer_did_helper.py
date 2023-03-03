@@ -141,7 +141,7 @@ def decode_service(service: str) -> Optional[List[Service]]:
 
 def decode_multibase_numbasis(
     multibase: str,
-    key_format: KeyFormat,
+    key_format: KeyFormat = None,
 ) -> BaseKey:
     """
     Decode multibase-encoded numeric basis to a verification method for DID Document.
