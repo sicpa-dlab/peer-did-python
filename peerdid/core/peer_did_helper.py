@@ -11,12 +11,12 @@ from ..core.utils import urlsafe_b64encode, urlsafe_b64decode
 from ..errors import MalformedPeerDIDError
 from ..keys import KeyFormat, BaseKey
 
-SERVICE_ID = "id"
-SERVICE_TYPE = "type"
-SERVICE_ENDPOINT = "serviceEndpoint"
-SERVICE_DIDCOMM_MESSAGING = "DIDCommMessaging"
-SERVICE_ROUTING_KEYS = "routingKeys"
-SERVICE_ACCEPT = "accept"
+SERVICE_ID = ["id"] #id field not in spec
+SERVICE_TYPE = ["type"]
+SERVICE_ENDPOINT = ["serviceEndpoint","service_endpoint"]
+SERVICE_DIDCOMM_MESSAGING = ["DIDCommMessaging"]
+SERVICE_ROUTING_KEYS = ["routingKeys","routing_keys"]
+SERVICE_ACCEPT = ["accept"]
 
 ServiceJson = Union[str, dict, list]
 
@@ -75,16 +75,16 @@ def encode_service(service: ServiceJson) -> str:
 def _encode_service_entry(service: dict) -> dict:
     result = {}
     for k, v in service.items():
-        if k == SERVICE_TYPE:
+        if k in SERVICE_TYPE:
             k = ServicePrefix.SERVICE_TYPE.value
-        elif k == SERVICE_ENDPOINT:
+        elif k in SERVICE_ENDPOINT:
             k = ServicePrefix.SERVICE_ENDPOINT.value
-        elif k == SERVICE_ROUTING_KEYS:
+        elif k in SERVICE_ROUTING_KEYS:
             k = ServicePrefix.SERVICE_ROUTING_KEYS.value
-        elif k == SERVICE_ACCEPT:
+        elif k in SERVICE_ACCEPT:
             k = ServicePrefix.SERVICE_ACCEPT.value
-
-        if v == SERVICE_DIDCOMM_MESSAGING:
+        
+        if v in SERVICE_DIDCOMM_MESSAGING:
             v = ServicePrefix.SERVICE_DIDCOMM_MESSAGING.value
 
         result[k] = v
@@ -122,7 +122,7 @@ def decode_service(service: str) -> Optional[List[Service]]:
         )
         if not service_type:
             raise MalformedPeerDIDError("Service doesn't contain a type")
-        ident = "#" + service_type.lower() + "-" + str(i)
+        ident = "#" + service_type.lower() + "-" + str(i) if "id" not in svc_def else svc_def.pop("id")
         endpoint = svc_def.pop(ServicePrefix.SERVICE_ENDPOINT.value, None)
         extra = {}
         for k, v in svc_def.items():
