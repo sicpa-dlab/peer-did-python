@@ -122,7 +122,7 @@ def decode_service(service: str) -> Optional[List[Service]]:
         )
         if not service_type:
             raise MalformedPeerDIDError("Service doesn't contain a type")
-        ident = "#" + service_type.lower() + "-" + str(i) if "id" not in svc_def else svc_def.pop("id")
+        ident = svc_def.pop("id") if "id" in svc_def else "#" + service_type.lower() + "-" + str(i)
         endpoint = svc_def.pop(ServicePrefix.SERVICE_ENDPOINT.value, None)
         extra = {}
         for k, v in svc_def.items():
