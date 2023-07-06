@@ -126,7 +126,7 @@ def resolve_peer_did(
 def _did_document_builder(peer_did: Union[str, DID]) -> DIDDocumentBuilder:
     try:
         return DIDDocumentBuilder(
-            peer_did, context=DIDDocumentBuilder.__default_context()
+            peer_did
         )
     except InvalidDIDError as e:
         raise MalformedPeerDIDError("Invalid peer DID") from e
