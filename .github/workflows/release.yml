@@ -48,7 +48,7 @@ jobs:
         id: release_info
         run: |
           release_info="$(curl -s https://api.github.com/repos/${{ github.repository }}/releases \
-              | jq '.[] | select(.name == "v${{ steps.current_version.outputs.current_version }}")')"
+              | jq -c '.[] | select(.name == "v${{ steps.current_version.outputs.current_version }}")')"
           echo "release_info=$release_info" >> $GITHUB_OUTPUT
           echo "$release_info"
 
