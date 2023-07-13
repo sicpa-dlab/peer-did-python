@@ -16,9 +16,9 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'stable'
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
-      - uses: actions/setup-python@v2
+      - uses: actions/setup-python@v4
         with:
           python-version: '3.x'
 
@@ -29,7 +29,7 @@ jobs:
           pip install . --no-deps
           out="$(pip show ${{ env.PKG_NAME }} | grep 'Version:' | awk '{print $2}')"
           echo "$out"
-          echo "::set-output name=current_version::$out"
+          echo "current_version=$out" >> $GITHUB_OUTPUT
         shell: bash
 
       - name: Check version format
@@ -43,25 +43,25 @@ jobs:
         id: release_info
         run: |
           release_info="$(curl -s https://api.github.com/repos/${{ github.repository }}/releases \
-              | jq '.[] | select(.name == "v${{ steps.current_version.outputs.current_version }}")')"
-          echo "::set-output name=release_info::$release_info"
+              | jq -c '.[] | select(.name == "v${{ steps.current_version.outputs.current_version }}")')"
+          echo "release_info=$release_info" >> $GITHUB_OUTPUT
           echo "$release_info"
         shell: bash
 
       - name: fail unless release not found
         # TODO check if greater than latest tag / release (?)
-        if: steps.release_info.outputs.release_info
+        if: ${{ steps.release_info.outputs.release_info == '' }}
         run: exit 1
 
   static-black:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
-      - name: Set up Python 3.6
-        uses: actions/setup-python@v2
+      - name: Set up Python
+        uses: actions/setup-python@v4
         with:
-          python-version: 3.6
+          python-version: 3.7
 
       - name: Install black
         run: pip install black
@@ -72,12 +72,12 @@ jobs:
   static-flake8:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
-          python-version: 3.6
+          python-version: 3.7
 
       - name: Install flake8
         run: pip install flake8
@@ -88,19 +88,20 @@ jobs:
   unit:
     strategy:
       matrix:
-        python-version: [ '3.7', '3.8', '3.9', '3.10' ]
+        python-version: [ '3.7', '3.8', '3.9', '3.10', '3.11' ]
         os: [ ubuntu-latest, windows-latest, macos-latest ]
         include:
+          - {python-version: '3.11', toxenv: py311}
           - {python-version: '3.10', toxenv: py310}
           - {python-version: '3.9', toxenv: py39}
           - {python-version: '3.8', toxenv: py38}
           - {python-version: '3.7', toxenv: py37}
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
 
@@ -109,10 +110,11 @@ jobs:
 
       - name: resolve pip cache dir
         id: pip_cache_dir
-        run: echo "::set-output name=value::$(pip cache dir)"
+        shell: bash
+        run: echo "value=$(pip cache dir)" >> $GITHUB_OUTPUT
 
       - name: cache pip
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ${{ steps.pip_cache_dir.outputs.value }}
           key: ${{ runner.os }}-${{ matrix.python-version }}-${{ hashFiles('setup.py') }}
