@@ -50,7 +50,7 @@ jobs:
 
       - name: fail unless release not found
         # TODO check if greater than latest tag / release (?)
-        if: ${{ steps.release_info.outputs.release_info == '' }}
+        if: steps.release_info.outputs.release_info
         run: exit 1
 
   static-black:
