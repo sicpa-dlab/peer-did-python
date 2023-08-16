@@ -1,11 +1,10 @@
 """Peer DID document generation and resolution."""
 
 import re
-
+from hashlib import sha256
 from typing import Optional, Sequence, Union
 
 from pydid import DID, DIDDocument, DIDDocumentBuilder, DIDUrl, InvalidDIDError
-
 from .core.peer_did_helper import (
     Numalgo2Prefix,
     ServiceJson,
@@ -14,7 +13,8 @@ from .core.peer_did_helper import (
     decode_service,
 )
 from .errors import MalformedPeerDIDError
-from .keys import KeyFormat, KeyRelationshipType, BaseKey
+
+from .keys import KeyFormat, KeyRelationshipType, BaseKey, to_multibase, MultibaseFormat
 
 PEER_DID_PATTERN = re.compile(
     r"^did:peer:(([0](z)([1-9a-km-zA-HJ-NP-Z]+))|(2((\.[AEVID](z)([1-9a-km-zA-HJ-NP-Z]+))+"
@@ -187,3 +187,12 @@ def _build_did_doc_numalgo_2(
             raise MalformedPeerDIDError("Unknown prefix: {}.".format(prefix))
 
     return builder.build()
+
+
+
+def gen_did_peer_3(peer_did_2 : Union[str,DID]) -> DID:
+    if not peer_did_2.startswith("did:peer:2"):
+        raise MalformedPeerDIDError("did:peer:2 expected")
+    
+    content = to_multibase(sha256(peer_did_2.lstrip("did:peer:2")),MultibaseFormat.BASE58)
+    return "did:peer:3"+content
